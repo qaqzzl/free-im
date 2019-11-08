@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"im/client/model"
+	"free-im/client/model"
 	"net"
 	"os"
 	"strings"

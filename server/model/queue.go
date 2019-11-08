@@ -1,4 +1,4 @@
-package db
+package model
 
 type MessageQueue struct {
 

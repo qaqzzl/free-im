@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	db "im/server/model"
+	"free-im/server/model"
 )
 
 // client auth handle
@@ -10,8 +10,8 @@ func (ctx *Context) ClientAuth() {
 	//认证 ctx.Message.AccessToken	&& ctx.Message.UserID
 
 	//记录链接信息
-	fmt.Println(len(db.Connects[ctx.Message.UserID]))
-	for v := range db.Connects[ctx.Message.UserID]  {
+	fmt.Println(len(model.Connects[ctx.Message.UserID]))
+	for v := range model.Connects[ctx.Message.UserID]  {
 		fmt.Println(v)
 	}
 	//db.Connects[ctx.Message.UserID] = &db.Connect{

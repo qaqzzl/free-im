@@ -2,13 +2,13 @@ package service
 
 import (
 	"encoding/json"
-	db "im/server/model"
+	"free-im/server/model"
 	"net"
 )
 
 type Context struct {
-	Conn	net.Conn
-	Message db.Message
+	Conn    net.Conn
+	Message model.Message
 }
 
 

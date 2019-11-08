@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"im/server/model"
-	"im/server/service"
+	"free-im/server/model"
+	"free-im/server/service"
 	"log"
 	"net"
 	"strings"
@@ -26,7 +26,7 @@ func connHandler(c net.Conn) {
 		inStr := strings.TrimSpace(string(buf[0:cnt]))
 
 		//解析json
-		message := db.Message{}
+		message := model.Message{}
 		if err := json.Unmarshal([]byte(inStr), &message); err != nil {
 			log.Println(err.Error())
 			continue
@@ -37,13 +37,13 @@ func connHandler(c net.Conn) {
 		}
 
 		switch message.Motion {
-		case db.MotionAuth:				// 客户端链接认证
+		case model.MotionAuth: // 客户端链接认证
 			ctx.ClientAuth()
-		case db.MotionSendMessage:		// 客户端发送消息
+		case model.MotionSendMessage: // 客户端发送消息
 			ctx.ClientSendMessage()
-		case db.MotionPullMessage:		// 客户端拉取消息
+		case model.MotionPullMessage:// 客户端拉取消息
 
-		case db.MotionQuit:
+		case model.MotionQuit:
 
 		default:
 			fmt.Printf("Unsupported command: %s\n", message)
