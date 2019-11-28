@@ -18,22 +18,8 @@ const (
 const (
 	MotionAuth			= 1		//连接认证
 	MotionSendMessage	= 2		//客户端发送消息
-	MotionPullMessage	= 3		//客户端拉取消息
 	MotionQuit			= 4		//客户端退出
 )
-
-// Package 消息包
-type MessagePackage struct {
-	Code    int	`json:"code"`					//消息类型
-	Content []byte `json:"content"`				// 消息体
-}
-type Message struct {
-	Motion			int		`json:"motion"`
-	AccessToken		string	`json:"access_token"`
-	Package			MessagePackage	`json:"package"`
-	DeviceID		int	`json:"device_id"`
-	UserID			int	`json:"user_id"`
-}
 
 //链接信息
 type Connect struct {

@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"encoding/json"
@@ -32,17 +32,16 @@ func connHandler(c net.Conn) {
 			continue
 		}
 
-		ctx := service.Context{
-			Conn:    c,
+		ctx := model.Context{
+			ConnSocket:    c,
 		}
 
+		//路由
 		switch message.Motion {
 		case model.MotionAuth: // 客户端链接认证
-			ctx.ClientAuth()
+			service.ClientAuth( &ctx )
 		case model.MotionSendMessage: // 客户端发送消息
-			ctx.ClientSendMessage()
-		case model.MotionPullMessage:// 客户端拉取消息
-
+			service.ClientSendMessage(&ctx)
 		case model.MotionQuit:
 
 		default:
@@ -54,6 +53,7 @@ func connHandler(c net.Conn) {
 }
 
 func main() {
+
 	server, err := net.Listen("tcp", ":1208")
 	if err != nil {
 		fmt.Printf("Fail to start server, %s\n", err)
