@@ -4,24 +4,43 @@ import (
 	"encoding/json"
 	"net"
 )
+// 消息协议
+const (
+	MotionSignIn         = 1 		// 设备登录
+	MotionSignInACK      = 2 		// 设备登录回执
+	MotionSyncTrigger    = 3 		// 消息同步触发
+	MotionHeadbeat       = 4 		// 心跳
+	MotionHeadbeatACK    = 5 		// 心跳回执
+	MotionMessageSend    = 6 		// 消息发送
+	MotionMessageSendACK = 7 		// 消息发送回执
+	MotionMessage        = 8 		// 消息投递
+	MotionMessageACK     = 9 		// 消息投递回执
+	MotionAuth		     = 10		// 连接认证
+	MotionQuit		     = 11		// 客户端退出
+)
+
+// 消息码(消息类型)
+const (
+	CodeText         	= 1 		// 普通文本消息
+	CodePhiz     		= 2 		// 表情消息
+	CodeImage     		= 3 		// 图片消息
+	CodeVideo     		= 4 		// 视频消息
+	CodeFile     		= 5 		// 文件消息
+)
 
 // Package 消息包
 type messagePackage struct {
-	code    int	`json:"code"`					// 消息类型
-	content []byte `json:"content"`				// 消息体
-}
-
-//消息体
-type Message struct {
-	Motion			int		`json:"motion"`				// 操作
-	packages		messagePackage	`json:"packages"`
+	Code    int	`json:"code"`					// 消息类型
+	Content interface{} `json:"content"`		// 消息体
+	Motion	int		`json:"motion"`				// 操作
 }
 
 //认证信息
 type auth struct {
-	DeviceID		int	`json:"device_id"`
-	UserID			int	`json:"user_id"`
-	AccessToken		string	`json:"access_token"`
+	DeviceID		string
+	UserID			string
+	AccessToken		string
+	IsAuth			bool
 }
 
 type Context struct {
@@ -29,9 +48,11 @@ type Context struct {
 	isClosed 		bool
 	closeChan 		chan byte  				// 关闭通知
 
-	inChan 			chan *Message			// 读队列
-	outChan 		chan *messagePackage 	// 写队列
-	auth 			auth					// 认证信息
+	Message			messagePackage			//当前消息包
+
+	inChan 			chan *messagePackage	// 读队列 (入)
+	outChan 		chan *messagePackage 	// 写队列 (出)
+	Auth 			auth					// 认证信息
 }
 
 
@@ -41,7 +62,7 @@ type Response struct {
 	Data	messagePackage `json:"packages"`
 }
 
-func (cxt *Context) Response (resp *Response) {
+func (cxt *Context) Response (resp Response) {
 	res,_ := json.Marshal(resp)
 	cxt.ConnSocket.Write(res)
 }

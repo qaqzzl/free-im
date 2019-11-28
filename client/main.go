@@ -24,29 +24,26 @@ func connHandler(c net.Conn) {
 				return
 			}
 
-			message := model.Message{}
+			message := model.MessagePackage{}
 			switch inputs[0] {
 			case "auth":
-				message = model.Message{
-					Package:     model.MessagePackage{
-						Code: 1,
-						Content: nil,
-					},
-					DeviceID:    1,
-					UserID:      1,
+				content := make(map[string]string)
+				content["user_id"] = "1"
+				content["access_token"] = "access_token"
+				content["device_id"] = uuid.NewV4()
+				message = model.MessagePackage {
 					Motion:	model.MotionAuth,
+					Code: 1,
+					Content: content,
 				}
 			case "pull":
 
 			default:
-				message = model.Message{
-					Package:     model.MessagePackage{
-						Code: 1,
-						Content: []byte(input),
-					},
-					DeviceID:    1,
-					UserID:      1,
-					Motion:	model.MotionSendMessage,
+				content := "啦啦啦 我是普通的文本消息"
+				message = model.MessagePackage{
+					Motion:	model.MotionMessageSend,
+					Code: 1,
+					Content: content,
 				}
 			}
 
