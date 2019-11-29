@@ -29,6 +29,9 @@ func ClientSendMessage(ctx *model.Context) {
 		ctx.ConnSocket.Close()
 		return
 	}
+	//字段验证 code ... //
+
+
 }
 
 //client pull message handle
