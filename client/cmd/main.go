@@ -8,7 +8,6 @@ import (
 	"free-im/client/model"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -121,9 +120,12 @@ strconv.Itoa(i), "access_token","1")
 		}
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println("response Body:", string(body))
-		chatroom_id := ""		//聊天室ID
-		return
+		// 初始化请求变量结构
+		formData := make(map[string]interface{})
+		// 调用json包的解析，解析请求body
+		json.Unmarshal(body, &formData)
+		chatroom_id := formData["chatroom_id"].(string)		//聊天室ID
+		fmt.Println(chatroom_id)
 
 		//socket连接认证
 		content := make(map[string]string)
@@ -137,21 +139,20 @@ strconv.Itoa(i), "access_token","1")
 		}
 		messagesjon,_ := json.Marshal(message)
 		c.Write(messagesjon)
+		<- time.Tick(time.Second * 1)
 		//循环发送消息
 		for {
-			<- time.Tick(time.Second * 1)
-			content := make(map[string]string)
-			content["user_id"] = "1"
-			content["chatroom_id"] = chatroom_id
-			content["device_id"] = uuid.NewV4().String()
+			<- time.Tick(time.Millisecond * 300)
+			content := "啦啦啦  我是消息内容 . " + uuid.NewV4().String()
 			message = model.MessagePackage{
 				Motion:	model.MotionMessageSend,
 				Code: 1,
 				Content: content,
 			}
 
+			fmt.Println(message)
+
 			messagesjon,_ := json.Marshal(message)
-			fmt.Println(messagesjon)
 
 			c.Write(messagesjon)
 		}
@@ -170,14 +171,6 @@ strconv.Itoa(i), "access_token","1")
 			}
 			recvStr := string(recvData[:n])
 			fmt.Printf("Response data: %s \n", recvStr)
-
-			message := model.MessagePackage{}
-
-			//解析json
-			if err := json.Unmarshal([]byte(recvStr), message); err != nil {
-				log.Println(err.Error())
-				continue
-			}
 		}
 	}()
 

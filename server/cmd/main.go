@@ -23,34 +23,42 @@ func connHandler(c net.Conn) {
 
 	ctx := model.Context{
 		ConnSocket:    c,
+		InChan:		make(chan *model.MessagePackage, 1000),
+		OutChan:		make(chan *model.MessagePackage, 1000),
 	}
-	for {
-		cnt, err := c.Read(buf)
-		if err != nil || cnt == 0 {
-			c.Close()
-			break
-		}
-		inStr := strings.TrimSpace(string(buf[0:cnt]))
+	//go func() {
+		for {		//读
+			cnt, err := c.Read(buf)
+			if err != nil || cnt == 0 {
+				c.Close()
+				break
+			}
+			inStr := strings.TrimSpace(string(buf[0:cnt]))
 
-		//解析json
-		if err := json.Unmarshal([]byte(inStr), &ctx.Message); err != nil {
-			log.Println(err.Error())
-			continue
-		}
+			//解析json
+			if err := json.Unmarshal([]byte(inStr), &ctx.Message); err != nil {
+				log.Println(err.Error())
+				continue
+			}
 
-		//动作(路由)
-		switch ctx.Message.Motion {
-		case model.MotionAuth: // 客户端链接认证
-			go service.ClientAuth( &ctx )
-		case model.MotionMessageSend: // 客户端发送消息
-			service.ClientSendMessage(&ctx)
-		case model.MotionQuit:
-			c.Close()
-		default:
-			log.Printf("Unsupported command: %s\n")
+			//动作(路由)
+			switch ctx.Message.Motion {
+			case model.MotionAuth: // 客户端链接认证
+				go service.ClientAuth( &ctx )
+			case model.MotionMessageSend: // 客户端发送消息
+				service.ClientSendMessage(&ctx)
+			case model.MotionQuit:
+				c.Close()
+			default:
+				log.Printf("Unsupported command: %s\n")
+			}
 		}
-	}
+	//}()
 
+	//消息处理
+
+
+	//消息发送
 	log.Printf("Connection from %v closed. \n", c.RemoteAddr())
 }
 
@@ -101,7 +109,6 @@ func HttpMemberIdGetChatroomId(writer http.ResponseWriter, request *http.Request
 	if res,err = rconn.Do("HGET", "hash_im_chatroom_member_id_get_chatroom_id", field); err == nil {
 		log.Println(err)
 	}
-	fmt.Println(res.([]uint8))
 
 	var chatroom_id string
 	if res == nil {
@@ -110,7 +117,7 @@ func HttpMemberIdGetChatroomId(writer http.ResponseWriter, request *http.Request
 		rconn.Do("SADD", "set_im_chatroom_member_"+chatroom_id, formData["user_id"], formData["member_id"])			//创建聊天室
 		rconn.Do("HSET", "hash_im_chatroom_member_id_get_chatroom_id", field, chatroom_id)			//创建聊天室
 	} else {
-		chatroom_id = res.(string)
+		chatroom_id = string( res.([]uint8) )
 	}
 
 	requestBody := fmt.Sprintf(`{

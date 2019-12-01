@@ -29,8 +29,9 @@ const (
 )
 
 // Package 消息包
-type messagePackage struct {
+type MessagePackage struct {
 	Code    int	`json:"code"`					// 消息类型
+	MessageId string `json:"message_id"`		// 消息ID
 	Content interface{} `json:"content"`		// 消息体
 	Motion	int		`json:"motion"`				// 操作
 }
@@ -48,10 +49,10 @@ type Context struct {
 	isClosed 		bool
 	closeChan 		chan byte  				// 关闭通知
 
-	Message			messagePackage			//当前消息包
+	Message			MessagePackage			//当前消息包
 
-	inChan 			chan *messagePackage	// 读队列 (入)
-	outChan 		chan *messagePackage 	// 写队列 (出)
+	InChan 			chan *MessagePackage	// 读队列 (入)
+	OutChan 		chan *MessagePackage 	// 写队列 (出)
 	Auth 			auth					// 认证信息
 }
 

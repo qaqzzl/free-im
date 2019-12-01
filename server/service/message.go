@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"free-im/server/model"
 )
 
@@ -24,12 +25,16 @@ func ClientAuth(ctx *model.Context) {
 
 //client send message handle
 func ClientSendMessage(ctx *model.Context) {
+	fmt.Println(ctx.Message.Content)
 	//判断是否认证 auth
 	if ctx.Auth.IsAuth == false {
-		ctx.ConnSocket.Close()
+		//ctx.ConnSocket.Close()
 		return
 	}
 	//字段验证 code ... //
+
+	// <- chan
+	ctx.InChan <- &ctx.Message
 
 
 }
