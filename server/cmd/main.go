@@ -18,6 +18,8 @@ func connHandler(c net.Conn) {
 	if c == nil {
 		return
 	}
+	rconn := redis.GetConn()
+	defer rconn.Close()
 
 	buf := make([]byte, 4096)
 
@@ -25,6 +27,7 @@ func connHandler(c net.Conn) {
 		ConnSocket:    c,
 		InChan:		make(chan *model.MessagePackage, 1000),
 		OutChan:		make(chan *model.MessagePackage, 1000),
+		RedisConn: rconn,
 	}
 	//go func() {
 		for {		//读
@@ -115,7 +118,7 @@ func HttpMemberIdGetChatroomId(writer http.ResponseWriter, request *http.Request
 		//生成聊天室ID
 		chatroom_id = uuid.NewV4().String()
 		rconn.Do("SADD", "set_im_chatroom_member_"+chatroom_id, formData["user_id"], formData["member_id"])			//创建聊天室
-		rconn.Do("HSET", "hash_im_chatroom_member_id_get_chatroom_id", field, chatroom_id)			//创建聊天室
+		rconn.Do("HSET", "hash_im_chatroom_member_id_get_chatroom_id", field, chatroom_id)						//创建聊天室
 	} else {
 		chatroom_id = string( res.([]uint8) )
 	}

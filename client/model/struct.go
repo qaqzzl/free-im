@@ -26,8 +26,9 @@ const (
 
 // Package 消息包
 type MessagePackage struct {
-	Code    	int	`json:"code"`					//消息类型
+	ClassCode    	int	`json:"class_code"`			// 消息类型
+	MessageId 	string `json:"message_id"`			// 消息ID
+	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
 	Content 	interface{} `json:"content"`		// 消息体
-	Motion		int		`json:"motion"`
-	RoomId		int		`json:"room_id"`			//聊天室ID
+	Motion		int		`json:"motion"`				// 操作
 }

@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"free-im/server/library/cache/redis"
 	"net"
 )
 // 消息协议
@@ -30,10 +31,11 @@ const (
 
 // Package 消息包
 type MessagePackage struct {
-	Code    int	`json:"code"`					// 消息类型
-	MessageId string `json:"message_id"`		// 消息ID
-	Content interface{} `json:"content"`		// 消息体
-	Motion	int		`json:"motion"`				// 操作
+	ClassCode    	int	`json:"class_code"`			// 消息类型
+	MessageId 	string `json:"message_id"`			// 消息ID
+	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
+	Content 	interface{} `json:"content"`		// 消息体
+	Motion		int		`json:"motion"`				// 操作
 }
 
 //认证信息
@@ -54,16 +56,19 @@ type Context struct {
 	InChan 			chan *MessagePackage	// 读队列 (入)
 	OutChan 		chan *MessagePackage 	// 写队列 (出)
 	Auth 			auth					// 认证信息
+	RedisConn		redis.Conn
 }
 
 
 type Response struct {
 	Code	int `json:"code"`
 	Msg		string	`json:"msg"`
-	Data	messagePackage `json:"packages"`
+	Data	MessagePackage `json:"packages"`
 }
 
 func (cxt *Context) Response (resp Response) {
 	res,_ := json.Marshal(resp)
 	cxt.ConnSocket.Write(res)
 }
+							//[user_id][device_id]
+var SocketConnPool = make(map[string]map[string] net.Conn)

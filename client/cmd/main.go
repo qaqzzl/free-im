@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -10,73 +9,9 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
 	"time"
 )
-
-func connHandler(c net.Conn) {
-	//defer c.Close()
-
-	reader := bufio.NewReader(os.Stdin)
-
-	//聊天室ID
-	chatroom_id := ""
-	go func() {		//发送消息
-		for {
-			input, _ := reader.ReadString('\n')
-			inputs := strings.Split(input," ")
-			if inputs[0] == "quit" {
-				return
-			}
-
-			message := model.MessagePackage{}
-			switch inputs[0] {
-			case "auth":
-				content := make(map[string]string)
-				content["user_id"] = "1"
-				content["access_token"] = "access_token"
-				content["device_id"] = uuid.NewV4().String()
-				message = model.MessagePackage {
-					Motion:	model.MotionAuth,
-					Code: 1,
-					Content: content,
-				}
-			case "pull":
-
-			default:
-				content := make(map[string]string)
-				content["user_id"] = "1"
-				content["chatroom_id"] = chatroom_id
-				content["device_id"] = uuid.NewV4().String()
-				message = model.MessagePackage{
-					Motion:	model.MotionMessageSend,
-					Code: 1,
-					Content: content,
-				}
-			}
-
-			messagesjon,_ := json.Marshal(message)
-			fmt.Println(messagesjon)
-
-			c.Write(messagesjon)
-		}
-	}()
-
-	go func() {		//接收消息
-		for {
-			recvData := make([]byte, 2048)
-            n, err := c.Read(recvData) //读取数据
-            if err != nil {
-                fmt.Println(err)
-                return
-            }
-            recvStr := string(recvData[:n])
-            fmt.Printf("Response data: %s \n", recvStr)
-		}
-	}()
-}
 
 func main() {
 	conn, err := net.Dial("tcp", "localhost:1208")
@@ -95,7 +30,7 @@ func main() {
 //测试脚本
 func TestHandler(c net.Conn) {
 
-	for i:=1; i<2; i++ {
+	for i:=1; i<10; i++ {
 		<- time.Tick(time.Millisecond * 10)
 	go func() {		//发送消息
 		//登录
@@ -134,7 +69,6 @@ strconv.Itoa(i), "access_token","1")
 		content["device_id"] = uuid.NewV4().String()
 		message := model.MessagePackage {
 			Motion:	10,
-			Code: 1,
 			Content: content,
 		}
 		messagesjon,_ := json.Marshal(message)
@@ -145,8 +79,9 @@ strconv.Itoa(i), "access_token","1")
 			<- time.Tick(time.Millisecond * 300)
 			content := "啦啦啦  我是消息内容 . " + uuid.NewV4().String()
 			message = model.MessagePackage{
-				Motion:	model.MotionMessageSend,
-				Code: 1,
+				Motion:	6,
+				ChatroomId: chatroom_id,
+				ClassCode: 1,
 				Content: content,
 			}
 
