@@ -20,10 +20,10 @@ func main() {
 		return
 	}
 
-	TestHandler(conn)
+	connHandler(conn)
 
 
-	<-time.Tick(time.Second * 10000)
+	<-time.Tick(time.Second * 100000)
 }
 
 
@@ -42,8 +42,6 @@ func TestHandler(c net.Conn) {
 "member_id": "%s"
 }`,
 strconv.Itoa(i), "access_token","1")
-		//fmt.Println(requestBody)
-
 		var jsonStr = []byte(requestBody)
 		url := "http://127.0.0.1:8066/member_id.get.chatroom_id"
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
@@ -60,7 +58,6 @@ strconv.Itoa(i), "access_token","1")
 		// 调用json包的解析，解析请求body
 		json.Unmarshal(body, &formData)
 		chatroom_id := formData["chatroom_id"].(string)		//聊天室ID
-		fmt.Println(chatroom_id)
 
 		//socket连接认证
 		content := make(map[string]string)
@@ -105,7 +102,7 @@ strconv.Itoa(i), "access_token","1")
 				return
 			}
 			recvStr := string(recvData[:n])
-			fmt.Printf("Response data: %s \n", recvStr)
+			fmt.Printf("Response time: %s, data: %s \n", time.Now().Format("2006-01-02 15:04:05"),recvStr)
 		}
 	}()
 
