@@ -127,8 +127,7 @@ func HttpMemberIdGetChatroomId(writer http.ResponseWriter, request *http.Request
 "chatroom_id":"%s",
 "status": "%s",
 "code": %d
-}`,
-		chatroom_id, "ok",0)
+}`,chatroom_id, "ok",0)
 	rconn.Close()
 	writer.Write([]byte(requestBody))
 }
