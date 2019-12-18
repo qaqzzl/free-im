@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"free-im/server/library/cache/redis"
-	"free-im/server/model"
-	"free-im/server/service"
+	"free-im/library/cache/redis"
+	"free-im/model"
+	"free-im/service"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"net"

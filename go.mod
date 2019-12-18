@@ -1,4 +1,4 @@
-module free-im/server
+module free-im
 
 go 1.13
 

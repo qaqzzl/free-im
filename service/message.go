@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"free-im/server/model"
+	"free-im/model"
 	"net"
 )
 
