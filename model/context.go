@@ -1,23 +1,21 @@
 package model
 
 import (
-	"encoding/json"
-	"free-im/server/library/cache/redis"
 	"net"
 )
 // 消息协议
 const (
-	MotionSignIn         			= 1 		// 设备登录
-	MotionSignInACK      			= 2 		// 设备登录回执
-	MotionSyncTrigger    			= 3 		// 消息同步触发
-	MotionHeadbeat       			= 4 		// 心跳
-	MotionHeadbeatACK    			= 5 		// 心跳回执
-	MotionMessageSend    			= 6 		// 消息发送
-	MotionMessageSendACK 			= 7 		// 消息发送回执
-	MotionMessage        			= 8 		// 消息投递
-	MotionMessageACK     			= 9 		// 消息投递回执
-	MotionAuth		     			= 10		// 连接认证
-	MotionQuit		     			= 11		// 客户端退出
+	ActionSignIn         			= 1 		// 设备登录
+	ActionSignInACK      			= 2 		// 设备登录回执
+	ActionSyncTrigger    			= 3 		// 消息同步触发
+	ActionHeadbeat       			= 4 		// 心跳
+	ActionHeadbeatACK    			= 5 		// 心跳回执
+	ActionMessageSend    			= 6 		// 消息发送
+	ActionMessageSendACK 			= 7 		// 消息发送回执
+	ActionMessage        			= 8 		// 消息投递
+	ActionMessageACK     			= 9 		// 消息投递回执
+	ActionAuth		     			= 10		// 连接认证
+	ActionQuit		     			= 11		// 客户端退出
 )
 
 // 消息码(消息类型)
@@ -31,11 +29,11 @@ const (
 
 // Package 消息包
 type MessagePackage struct {
-	ClassCode    	int	`json:"class_code"`			// 消息类型
+	ClassCode    	int	`json:"class_code"`			// 消息码(类型)
 	MessageId 	string `json:"message_id"`			// 消息ID
 	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
 	Content 	interface{} `json:"content"`		// 消息体
-	Motion		int		`json:"motion"`				// 操作
+	Action		int		`json:"action"`				// 操作
 }
 
 //认证信息
@@ -44,31 +42,6 @@ type auth struct {
 	UserID			string
 	AccessToken		string
 	IsAuth			bool
-}
-
-type Context struct {
-	ConnSocket		net.Conn				// 底层socket连接
-	isClosed 		bool
-	closeChan 		chan byte  				// 关闭通知
-
-	Message			MessagePackage			//当前消息包
-
-	InChan 			chan *MessagePackage	// 读队列 (入)
-	OutChan 		chan *MessagePackage 	// 写队列 (出)
-	Auth 			auth					// 认证信息
-	RedisConn		redis.Conn
-}
-
-
-type Response struct {
-	Code	int `json:"code"`
-	Msg		string	`json:"msg"`
-	Data	MessagePackage `json:"packages"`
-}
-
-func (cxt *Context) Response (resp Response) {
-	res,_ := json.Marshal(resp)
-	cxt.ConnSocket.Write(res)
 }
 							//[user_id][device_id]
 var SocketConnPool = make(map[string]map[string] net.Conn)
