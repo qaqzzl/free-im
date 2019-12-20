@@ -8,9 +8,9 @@ import (
 )
 
 // client auth handle
-func ClientAuth(ctx *model.Context) {
+func ClientAuth(mp *model.MessagePackage) {
 	//认证 ctx.Message.AccessToken	&& ctx.Message.UserID
-	content := ctx.Message.Content.(map[string]interface{})
+	content := mp.Content.(map[string]interface{})
 	if content["user_id"] == nil || content["access_token"] == nil || content["device_id"] == nil {
 		return
 	}
