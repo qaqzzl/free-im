@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"free-im/library/cache/redis"
-	"free-im/library/net/socket"
 	"free-im/model"
 	"free-im/service"
 	"log"

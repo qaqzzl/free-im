@@ -1,4 +1,4 @@
-package redis
+package dao
 
 import (
 	"github.com/gomodule/redigo/redis"
@@ -43,7 +43,7 @@ func newPool(server, password string) *redis.Pool {
 	}
 }
 
-func GetConn() (conn redis.Conn) {
+func Newredis() (conn redis.Conn) {
 	pool := newPool("127.0.0.1:6379", "")
 	conn = pool.Get()
 	//defer conn.Close()

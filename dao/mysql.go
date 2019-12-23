@@ -1,4 +1,4 @@
-package mysql
+package dao
 
 import (
 	"database/sql"
@@ -13,12 +13,11 @@ type Db struct {
 	limits		string
 	joins		string
 	orders		string
-	DataSourceName string
 }
 
-func (DB *Db) MysqlConnect() *Db {
+func (DB *Db) mysqlConnect() *Db {
 	if MysqlConn == nil {
-		MysqlConn, _ = sql.Open("mysql", DB.DataSourceName)
+		MysqlConn, _ = sql.Open("mysql", "root:mysql336699@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4")
 		MysqlConn.SetMaxOpenConns(100)		//最大连接数
 		MysqlConn.SetMaxIdleConns(50)		//空闲连接数
 	}
@@ -29,14 +28,20 @@ func (DB *Db) MysqlConnect() *Db {
 //Conn
 func NewMysql() *Db {
 	tdb := Db{}
-	DB := tdb.MysqlConnect()
+	DB := tdb.mysqlConnect()
 	return DB
 }
 
 //table
 func Table(table string) *Db {
 	tdb := Db{}
-	DB := tdb.MysqlConnect()
+	DB := tdb.mysqlConnect()
+	DB.tables = table
+	DB.selects = "*"
+	return DB
+}
+
+func (DB *Db) Table(table string) *Db {
 	DB.tables = table
 	DB.selects = "*"
 	return DB
@@ -198,18 +203,23 @@ func delete() {}
 func update() {}
 
 //添加单条
-func (DB *Db) Insert(data map[string]string) {
+func (DB *Db) Insert(data map[string]string) (sql.Result , error) {
+	field := ""
+	value := ""
+	for k,v := range data {
+		field += "`" + k + "`,"
+		value += "'" + v + "',"
+	}
+	field = strings.TrimRight(field, ",")
+	value = strings.TrimRight(value, ",")
 
+	sql := "INSERT INTO `"+DB.tables+"` ("+field+") VALUES ("+value+");"
+	return MysqlConn.Exec(sql)
 }
 
 //添加多条
-func (DB *Db) InsertSql(sql string) (err error) {
-	_,err = MysqlConn.Exec(sql)
-	if err != nil {
-		return err
-	}
-
-	return err
+func (DB *Db) InsertSql(sql string) (sql.Result , error) {
+	return MysqlConn.Exec(sql)
 }
 
 //count

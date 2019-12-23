@@ -3,15 +3,15 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"free-im/server/library/cache/redis"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"net/http"
+	"free-im/dao"
 )
 
 // 通过会员ID 获取 聊天室ID
 func MemberIdGetChatroomId(writer http.ResponseWriter, request *http.Request) {
-	rconn := redis.GetConn()
+	rconn := dao.Newredis()
 	var err error
 
 	// 初始化请求变量结构
