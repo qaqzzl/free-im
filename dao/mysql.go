@@ -3,6 +3,7 @@ package dao
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 	"strings"
 )
 var MysqlConn	 	*sql.DB
@@ -200,7 +201,16 @@ func (DB *Db) First(selects string) (data map[string]string) {
 func delete() {}
 
 //更新
-func update() {}
+func (DB *Db) Update(key string, value string) (sql.Result , error) {
+	stmtOut, err := MysqlConn.Prepare("UPDATE `?` SET `key`=?, `value`=? WHERE ?")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	//defer stmtOut.Close()
+
+	return stmtOut.Exec(DB.tables, key, value, DB.wheres)
+}
 
 //添加单条
 func (DB *Db) Insert(data map[string]string) (sql.Result , error) {

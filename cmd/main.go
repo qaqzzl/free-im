@@ -13,6 +13,8 @@ func main() {
 
 	http.HandleFunc("/member_id.get.chatroom_id", v1.MemberIdGetChatroomId)		// 通过会员ID 获取 聊天室ID
 	http.HandleFunc("/login", v1.PhoneLogin)		// 手机号登录 / 注册
+	http.HandleFunc("/user/member.info", v1.GetUserInfo)		// 获取会员信息
+	http.HandleFunc("/user/add.friend", v1.AddFriend)		// 添加好友
 
 		err := http.ListenAndServe(":8066", nil)
 		if err != nil {

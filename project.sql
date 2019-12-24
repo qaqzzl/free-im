@@ -41,3 +41,19 @@ create table if not exists `user_auths_token`(
     `created_at` int not null default 0 comment '添加时间',
     UNIQUE KEY `token` (`token`)
 )engine=innodb default charset=utf8 comment '用户授权 token 表';
+
+
+-- 用户好友表
+create table if not exists `user_friend`(
+    `id` int unsigned auto_increment primary key,
+    `member_id` int not null comment '会员ID',
+    `friend_id` int not null comment '好友ID',
+    `member_remark` varchar(50) not null default "" comment '会员备注',
+    `friend_remark` varchar(50) not null default "" comment '好友备注',
+    `status` tinyint(1) not null default 0 comment '0-等待同意, 1-正常',
+    `created_at` int not null default 0 comment '添加时间',
+    KEY `member_id` (`member_id`),
+    KEY `friend_id` (`friend_id`)
+)engine=innodb default charset=utf8 comment '用户好友表';
+-- 查询我的好友
+select * from `user_friend` where `member_id` = {$uid} or `friend_id` = {$uid}
