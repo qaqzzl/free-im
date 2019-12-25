@@ -27,7 +27,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// 验证短信验证码是否正确
-	if verify, err := CommonService.IsPhoneVerifyCode(); err != nil {
+	if verify, err := CommonService.IsPhoneVerifyCode(formData["phone"].(string), formData["verify_code"].(string)); err != nil {
 		util.RespFail(writer, "系统繁忙")
 		return
 	} else {
@@ -60,4 +60,17 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	data["token"] = token
 	data["uid"] = strconv.Itoa(int(member_id))
 	util.RespOk(writer, data, "")
+}
+
+// 发送登录短信验证码
+func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	if err := CommonService.SendSms(formData["phone"].(string), "login"); err != nil {
+		util.RespFail(writer, err.Error())
+		return
+	}
+	util.RespOk(writer, nil, "短信验证码发送成功")
 }

@@ -11,12 +11,15 @@ func main() {
 	//http
 	//go func() {
 
-	http.HandleFunc("/member_id.get.chatroom_id", v1.MemberIdGetChatroomId)		// 通过会员ID 获取 聊天室ID
 	http.HandleFunc("/login", v1.PhoneLogin)		// 手机号登录 / 注册
+	http.HandleFunc("/login/send.login.sms", v1.SendLoginSms)		// 发送登录手机号验证码
 	http.HandleFunc("/user/member.info", v1.GetUserInfo)		// 获取会员信息
 	http.HandleFunc("/user/add.friend", v1.AddFriend)		// 添加好友
+	http.HandleFunc("/user/del.friend", v1.DelFriend)		// 删除好友
+	http.HandleFunc("/user/friend.apply.list", v1.FriendApplyList)		// 好友申请列表
+	http.HandleFunc("/member_id.get.chatroom_id", v1.MemberIdGetChatroomId)		// 通过会员ID 获取 聊天室ID
 
-		err := http.ListenAndServe(":8066", nil)
+	err := http.ListenAndServe(":8066", nil)
 		if err != nil {
 			panic(err.Error())
 		}

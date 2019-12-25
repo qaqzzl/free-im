@@ -39,8 +39,7 @@ func (s *UserService) AddFriend(member_id string, friend_id string) (ret map[str
 			return ret, err
 		}
 		// 如果好友ID是自己, 则直接添加成功
-		if _, err := dao.NewMysql().Table("user_friend").Where(fmt.Sprintf("friend_id = %s and member_id = %s",member_id, friend_id) ).Update("status","1"); err != nil {
-			fmt.Println(err)
+		if _, err := dao.NewMysql().Table("user_friend").Where(fmt.Sprintf("friend_id = %s and member_id = %s",member_id, friend_id) ).Update("status = 1"); err != nil {
 			return nil, err
 		}
 	}
@@ -48,4 +47,22 @@ func (s *UserService) AddFriend(member_id string, friend_id string) (ret map[str
 	ret["message"] = "添加成功, 开始聊天吧"
 	ret["code"] = "0"
 	return ret, err
+}
+
+// 删除好友
+func (s *UserService) DelFriend(member_id string, friend_id string) (err error) {
+	// 判断是否已经存在
+	_,err = dao.NewMysql().Table("user_friend").
+		Where( fmt.Sprintf("member_id = %s and friend_id = %s or member_id = %s and friend_id = %s",member_id, friend_id, friend_id, member_id) ).
+		Delete()
+	return err
+}
+
+// 好友申请列表
+func (s *UserService) FriendApplyList(member_id string) ([]map[string]string, error) {
+	list, err := dao.NewMysql().Table("user_friend as uf").Where("uf.friend_id = "+member_id).
+		Join("INNER JOIN user_member um ON um.member_id=uf.member_id").
+		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender").
+		Get()
+	return list, err
 }

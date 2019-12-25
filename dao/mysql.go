@@ -3,7 +3,6 @@ package dao
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"strings"
 )
 var MysqlConn	 	*sql.DB
@@ -198,18 +197,16 @@ func (DB *Db) First(selects string) (data map[string]string) {
 }
 
 //删除
-func delete() {}
+func (DB *Db) Delete() (sql.Result , error) {
+	sql := "DELETE FROM `"+DB.tables+"` "+DB.wheres
+	return MysqlConn.Exec(sql)
+}
 
 //更新
-func (DB *Db) Update(key string, value string) (sql.Result , error) {
-	stmtOut, err := MysqlConn.Prepare("UPDATE `?` SET `key`=?, `value`=? WHERE ?")
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	//defer stmtOut.Close()
-
-	return stmtOut.Exec(DB.tables, key, value, DB.wheres)
+func (DB *Db) Update(set string) (sql.Result , error) {
+	//stmtOut, err := MysqlConn.Prepare("UPDATE `?` SET ? WHERE ?")
+	sql := "UPDATE `"+DB.tables+"` SET "+set+" "+DB.wheres
+	return MysqlConn.Exec(sql)
 }
 
 //添加单条

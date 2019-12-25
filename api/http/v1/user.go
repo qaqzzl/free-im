@@ -43,8 +43,11 @@ func DelFriend(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	info := UserService.GetMemberInfo(formData["uid"].(string))
-	util.RespOk(writer, info, "")
+	if err := UserService.DelFriend(formData["uid"].(string), formData["friend_id"].(string)); err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
+	util.RespOk(writer, nil, "删除成功")
 }
 
 // 好友申请列表
@@ -53,6 +56,12 @@ func FriendApplyList(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	info := UserService.GetMemberInfo(formData["uid"].(string))
-	util.RespOk(writer, info, "")
+	apply_list,err := UserService.FriendApplyList(formData["uid"].(string))
+	if err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
+	ret := make(map[string]interface{})
+	ret["apply_list"] = apply_list
+	util.RespOk(writer, ret, "")
 }
