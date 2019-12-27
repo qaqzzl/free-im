@@ -60,9 +60,24 @@ func (s *UserService) DelFriend(member_id string, friend_id string) (err error) 
 
 // 好友申请列表
 func (s *UserService) FriendApplyList(member_id string) ([]map[string]string, error) {
-	list, err := dao.NewMysql().Table("user_friend as uf").Where("uf.friend_id = "+member_id).
+	list, err := dao.NewMysql().Table("user_friend as uf").Where("uf.friend_id = "+member_id + " and status = 0").
 		Join("INNER JOIN user_member um ON um.member_id=uf.member_id").
 		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender").
 		Get()
+	if len(list) == 0 {
+		list = make([]map[string]string, 0)
+	}
+	return list, err
+}
+
+// 好友列表
+func (s *UserService) FriendList(member_id string) (list []map[string]string, err error) {
+	list, err = dao.NewMysql().Table("user_friend as uf").Where("uf.friend_id = "+member_id + " and status = 1 or uf.member_id = "+member_id + " and status = 1").
+		Join("INNER JOIN user_member um ON um.member_id=uf.member_id").
+		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender").
+		Get()
+	if len(list) == 0 {
+		list = make([]map[string]string, 0)
+	}
 	return list, err
 }

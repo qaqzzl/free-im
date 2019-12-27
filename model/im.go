@@ -3,6 +3,7 @@ package model
 import (
 	"net"
 )
+
 // 消息协议
 const (
 	ActionSignIn         			= 1 		// 设备登录

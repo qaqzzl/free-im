@@ -1,43 +1,19 @@
 package main
 
 import (
+	imV1 "free-im/im/v1"
 	"log"
+	"net"
 	"net/http"
-	"free-im/api/http/v1"
+	httpV1 "free-im/api/http/v1"
 	"os"
 )
 
 func main() {
 	//http
-	//go func() {
+	init_http()
 
-	http.HandleFunc("/login", v1.PhoneLogin)		// 手机号登录 / 注册
-	http.HandleFunc("/login/send.login.sms", v1.SendLoginSms)		// 发送登录手机号验证码
-	http.HandleFunc("/user/member.info", v1.GetUserInfo)		// 获取会员信息
-	http.HandleFunc("/user/add.friend", v1.AddFriend)		// 添加好友
-	http.HandleFunc("/user/del.friend", v1.DelFriend)		// 删除好友
-	http.HandleFunc("/user/friend.apply.list", v1.FriendApplyList)		// 好友申请列表
-	http.HandleFunc("/member_id.get.chatroom_id", v1.MemberIdGetChatroomId)		// 通过会员ID 获取 聊天室ID
 
-	err := http.ListenAndServe(":8066", nil)
-		if err != nil {
-			panic(err.Error())
-		}
-	//}()
-
-	// socket
-	//server, err := net.Listen("tcp", ":1208")
-	//if err != nil {
-	//	print("Fail to start server, %s\n", err)
-	//}
-	//for {
-	//	conn, err := server.Accept()
-	//	if err != nil {
-	//		print("Fail to connect, %s\n", err)
-	//		break
-	//	}
-	//	go connSocketHandler(conn)
-	//}
 }
 
 
@@ -50,4 +26,41 @@ func init() {
 	log.SetOutput(logFile) // 将文件设置为log输出的文件
 	log.SetPrefix("TRACE: ")
 	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
+}
+
+
+func init_http() {
+	http.HandleFunc("/login", httpV1.PhoneLogin)		// 手机号登录 / 注册
+	http.HandleFunc("/login/send.login.sms", httpV1.SendLoginSms)		// 发送登录手机号验证码
+	http.HandleFunc("/user/member.info", httpV1.GetUserInfo)		// 获取会员信息
+	http.HandleFunc("/user/add.friend", httpV1.AddFriend)		// 添加好友
+	http.HandleFunc("/user/del.friend", httpV1.DelFriend)		// 删除好友
+	http.HandleFunc("/user/friend.apply.list", httpV1.FriendApplyList)		// 好友申请列表
+	http.HandleFunc("/user/friend.list", httpV1.FriendList)		// 好友列表
+	http.HandleFunc("/chatroom/friend_id.get.chatroom_id", httpV1.FriendIdGetChatroomId)		// 通过好友ID 获取 聊天室ID
+	http.HandleFunc("/chatroom/chatroom.list", httpV1.ChatroomList)		// 聊天室列表
+	err := http.ListenAndServe(":8066", nil)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func init_im_tcp() {
+	// socket
+	server, err := net.Listen("tcp", ":1208")
+	if err != nil {
+		print("Fail to start server, %s\n", err)
+	}
+	for {
+		conn, err := server.Accept()
+		if err != nil {
+			print("Fail to connect, %s\n", err)
+			break
+		}
+		go imV1.ConnSocketHandler(conn)
+	}
+}
+
+func init_im_socket() {
+
 }

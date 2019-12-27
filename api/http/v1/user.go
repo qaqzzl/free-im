@@ -65,3 +65,20 @@ func FriendApplyList(writer http.ResponseWriter, request *http.Request) {
 	ret["apply_list"] = apply_list
 	util.RespOk(writer, ret, "")
 }
+
+// 好友列表
+func FriendList(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	apply_list,err := UserService.FriendList(formData["uid"].(string))
+	if err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
+	ret := make(map[string]interface{})
+	ret["friend_list"] = apply_list
+
+	util.RespOk(writer, ret, "")
+}
