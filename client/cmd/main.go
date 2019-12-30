@@ -1,14 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"free-im/client/model"
+	"free-im/model"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -64,9 +66,10 @@ strconv.Itoa(i), "access_token","1")
 		content["user_id"] = "1"
 		content["access_token"] = "access_token"
 		content["device_id"] = uuid.NewV4().String()
+		auth,_ := json.Marshal(content)
 		message := model.MessagePackage {
-			Motion:	10,
-			Content: content,
+			Action:	10,
+			Content: auth,
 		}
 		messagesjon,_ := json.Marshal(message)
 		c.Write(messagesjon)
@@ -76,10 +79,10 @@ strconv.Itoa(i), "access_token","1")
 			<- time.Tick(time.Millisecond * 300)
 			content := "啦啦啦  我是消息内容 . " + uuid.NewV4().String()
 			message = model.MessagePackage{
-				Motion:	6,
+				Action:	6,
 				ChatroomId: chatroom_id,
-				ClassCode: 1,
-				Content: content,
+				Code: 1,
+				Content: []byte(content),
 			}
 
 			fmt.Println(message)
@@ -108,17 +111,97 @@ strconv.Itoa(i), "access_token","1")
 
 }
 
-//获取聊天室ID
-func getChatroomId(c net.Conn, member_id string) {
-	content := make(map[string]string)
-	content["member_id"] = member_id
-	message := model.MessagePackage{
-		Motion:	12,
-		Content:content,
-	}
 
-	messagesjon,_ := json.Marshal(message)
-	fmt.Println(messagesjon)
+func connHandler(c net.Conn) {
+	//defer c.Close()
 
-	c.Write(messagesjon)
+	reader := bufio.NewReader(os.Stdin)
+
+	//聊天室ID
+	chatroom_id := ""
+	is_auth := false
+	go func() {		//发送消息
+		for {
+			input, _ := reader.ReadString('\n')
+			input = string(bytes.TrimRight([]byte(input), "\n"))
+			//inputs := strings.Split(input," ")
+			//if inputs[0] == "quit" {
+			//	return
+			//}
+			message := model.MessagePackage{}
+
+			if chatroom_id == "" {
+				requestBody := fmt.Sprintf(`{
+"uid":"%s",
+"token": "%s",
+"friend_id": "%s"
+}`,
+					"1", "access_token", "10")
+				fmt.Println(requestBody)
+				var jsonStr = []byte(requestBody)
+				url := "http://127.0.0.1:8066/chatroom/friend_id.get.chatroom_id"
+				req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+				req.Header.Set("Content-Type", "application/json")
+				client := &http.Client{}
+				resp, err := client.Do(req)
+				if err != nil {
+					panic(err)
+				}
+				defer resp.Body.Close()
+				body, _ := ioutil.ReadAll(resp.Body)
+				// 初始化请求变量结构
+				resp_data := make(map[string]interface{})
+				// 调用json包的解析，解析请求body
+				json.Unmarshal(body, &resp_data)
+				data := resp_data["data"].(map[string]interface{})		//聊天室ID
+				chatroom_id = data["chatroom_id"].(string)
+			}
+
+			if is_auth == false {
+				content := make(map[string]string)
+				content["user_id"] = "1"
+				content["access_token"] = "access_token"
+				content["device_id"] = uuid.NewV4().String()
+				auth,_ := json.Marshal(content)
+				message := model.MessagePackage {
+					Action:	10,
+					Content: auth,
+				}
+				messagesjon,_ := json.Marshal(message)
+				c.Write(messagesjon)
+				<- time.Tick(time.Second * 1)
+				is_auth = true
+			}
+
+
+
+			<- time.Tick(time.Millisecond * 300)
+			content := "我是用户1 给用户10 发送一条消息, uuid:" + uuid.NewV4().String()
+			message = model.MessagePackage{
+				Action:	6,
+				ChatroomId: chatroom_id,
+				Code: 1,
+				Content: []byte(content),
+			}
+
+			fmt.Println(message)
+
+			messagesjon,_ := json.Marshal(message)
+
+			c.Write(messagesjon)
+		}
+	}()
+
+	go func() {		//接收消息
+		for {
+			recvData := make([]byte, 2048)
+			n, err := c.Read(recvData) //读取数据
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			recvStr := string(recvData[:n])
+			fmt.Printf("Response time: %s, data: %s \n", time.Now().Format("2006-01-02 15:04:05"),recvStr)
+		}
+	}()
 }

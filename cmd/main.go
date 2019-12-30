@@ -1,19 +1,20 @@
 package main
 
 import (
-	imV1 "free-im/im/v1"
+	httpV1 "free-im/app/http/v1"
+	"free-im/app/tcp"
 	"log"
 	"net"
 	"net/http"
-	httpV1 "free-im/api/http/v1"
 	"os"
 )
 
 func main() {
-	//http
-	init_http()
+	// http
+	go init_http()
 
-
+	// tcp
+	init_im_tcp()
 }
 
 
@@ -39,6 +40,7 @@ func init_http() {
 	http.HandleFunc("/user/friend.list", httpV1.FriendList)		// 好友列表
 	http.HandleFunc("/chatroom/friend_id.get.chatroom_id", httpV1.FriendIdGetChatroomId)		// 通过好友ID 获取 聊天室ID
 	http.HandleFunc("/chatroom/chatroom.list", httpV1.ChatroomList)		// 聊天室列表
+	http.HandleFunc("/chatroom/create.group", httpV1.CreateGroup)		// 创建群组
 	err := http.ListenAndServe(":8066", nil)
 	if err != nil {
 		panic(err.Error())
@@ -57,7 +59,7 @@ func init_im_tcp() {
 			print("Fail to connect, %s\n", err)
 			break
 		}
-		go imV1.ConnSocketHandler(conn)
+		go tcp.ConnSocketHandler(conn)
 	}
 }
 

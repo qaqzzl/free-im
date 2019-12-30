@@ -57,7 +57,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	data := make(map[string]string)
-	data["token"] = token
+	data["access_token"] = token
 	data["uid"] = strconv.Itoa(int(member_id))
 	util.RespOk(writer, data, "")
 }

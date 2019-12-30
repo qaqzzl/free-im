@@ -30,19 +30,17 @@ const (
 
 // Package 消息包
 type MessagePackage struct {
-	ClassCode    	int	`json:"class_code"`			// 消息码(类型)
-	MessageId 	string `json:"message_id"`			// 消息ID
+	Code    	int	`json:"code"`					// 消息码(类型)
 	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
-	Content 	interface{} `json:"content"`		// 消息体
+	Content 	[]byte `json:"content"`				// 消息体
 	Action		int		`json:"action"`				// 操作
 }
 
 //认证信息
-type auth struct {
-	DeviceID		string
-	UserID			string
-	AccessToken		string
-	IsAuth			bool
+type AuthMessage struct {
+	DeviceID		string `json:"device_id"`
+	UserID			string `json:"user_id"`
+	AccessToken		string `json:"access_token"`
 }
 							//[user_id][device_id]
 var SocketConnPool = make(map[string]map[string] net.Conn)

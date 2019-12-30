@@ -55,6 +55,7 @@ func (s *UserService) DelFriend(member_id string, friend_id string) (err error) 
 	_,err = dao.NewMysql().Table("user_friend").
 		Where( fmt.Sprintf("member_id = %s and friend_id = %s or member_id = %s and friend_id = %s",member_id, friend_id, friend_id, member_id) ).
 		Delete()
+	// 删除聊天室 && 聊天室消息
 	return err
 }
 
