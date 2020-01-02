@@ -164,7 +164,7 @@ func (DB *Db) GetInterface() (data []interface{},err error) {
 }
 
 //查询单条
-func (DB *Db) First(selects string) (data map[string]string) {
+func (DB *Db) First(selects string) (data map[string]string, err error) {
 	select_sql := "SELECT "+selects+" FROM "+DB.tables
 	if DB.wheres != "" {
 		select_sql += DB.wheres
@@ -190,10 +190,10 @@ func (DB *Db) First(selects string) (data map[string]string) {
 	}
 
 	if select_err != nil { //如果没有查询到任何数据就进入if中err：no rows in result set
-		return record
+		return record, select_err
 	}
 
-	return record
+	return record, nil
 }
 
 //删除

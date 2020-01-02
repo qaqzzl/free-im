@@ -19,7 +19,7 @@ func NewAccountService() (s *AccountService) {
 
 // 账号登录
 func (s *AccountService) PhoneLogin(phone string) (member_id int64, err error) {
-	user_auths := dao.NewMysql().Table("user_auths").First("member_id")
+	user_auths,_ := dao.NewMysql().Table("user_auths").First("member_id")
 	member_id_int,_ := strconv.Atoi(user_auths["member_id"])
 	member_id = int64(member_id_int)
 	return member_id, err

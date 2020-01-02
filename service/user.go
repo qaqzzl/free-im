@@ -10,7 +10,7 @@ type UserService struct {
 }
 
 // 获取会员信息
-func (s *UserService) GetMemberInfo(member_id string) (user_member map[string]string) {
+func (s *UserService) GetMemberInfo(member_id string) (user_member map[string]string, err error) {
 	return dao.NewMysql().Table("user_member").First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
 }
 
@@ -18,7 +18,7 @@ func (s *UserService) GetMemberInfo(member_id string) (user_member map[string]st
 func (s *UserService) AddFriend(member_id string, friend_id string) (ret map[string]string, err error) {
 	ret = make(map[string]string)
 	// 判断是否已经申请
-	user_friend := dao.NewMysql().Table("user_friend").
+	user_friend,_ := dao.NewMysql().Table("user_friend").
 		Where( fmt.Sprintf("member_id = %s and friend_id = %s or member_id = %s and friend_id = %s",member_id, friend_id, friend_id, member_id) ).
 		First("member_id,friend_id,status")
 	if len(user_friend) == 0 {

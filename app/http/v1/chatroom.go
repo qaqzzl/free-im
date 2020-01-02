@@ -44,15 +44,36 @@ func CreateGroup(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	ChatRoomService.CreateGroup(formData["uid"].(string), model.Group{
+
+	var (
+		group_id string
+		err error
+	)
+	if group_id, err = ChatRoomService.CreateGroup(formData["uid"].(string), model.Group{
 		Name: formData["name"].(string),
 		Avatar: formData["avatar"].(string),
-	})
+	}); err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
 
+	ret := make(map[string]string)
+	ret["group_id"] = group_id
+	util.RespOk(writer, ret, "")
 }
 
 // 加入群组
 func AddGroup(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+
+	if ret,err := ChatRoomService.AddGroup(formData["uid"].(string), formData["group_id"].(string), formData["remark"].(string)); err != nil {
+		util.RespFail(writer, err.Error())
+	} else {
+		util.RespOk(writer, ret, "")
+	}
 
 }
 

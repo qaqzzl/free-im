@@ -41,6 +41,7 @@ func init_http() {
 	http.HandleFunc("/chatroom/friend_id.get.chatroom_id", httpV1.FriendIdGetChatroomId)		// 通过好友ID 获取 聊天室ID
 	http.HandleFunc("/chatroom/chatroom.list", httpV1.ChatroomList)		// 聊天室列表
 	http.HandleFunc("/chatroom/create.group", httpV1.CreateGroup)		// 创建群组
+	http.HandleFunc("/chatroom/add.group", httpV1.AddGroup)		// 加入群组
 	err := http.ListenAndServe(":8066", nil)
 	if err != nil {
 		panic(err.Error())

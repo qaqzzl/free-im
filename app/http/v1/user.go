@@ -15,7 +15,7 @@ func GetUserInfo(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	info := UserService.GetMemberInfo(formData["uid"].(string))
+	info,_ := UserService.GetMemberInfo(formData["uid"].(string))
 	util.RespOk(writer, info, "")
 }
 

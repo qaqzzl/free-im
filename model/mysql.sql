@@ -77,3 +77,6 @@ create table if not exists `group`(
     KEY `owner_member_id` (`owner_member_id`)
 )engine=innodb default charset=utf8 comment '群组表';
 
+-- 群组申请表
+
+
