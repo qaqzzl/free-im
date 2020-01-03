@@ -7,6 +7,7 @@ import (
 	"free-im/model"
 	uuid "github.com/satori/go.uuid"
 	"log"
+	"math/rand"
 	"strconv"
 	"time"
 )
@@ -52,6 +53,8 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 	// db
 	chatroom_id := uuid.NewV4().String()
 	group_data := make(map[string]string)
+	rand.Seed(time.Now().Unix())
+	group_data["id"] = fmt.Sprintf("%06d",rand.Int31n(10000))
 	group_data["name"] = group.Name
 	group_data["avatar"] = group.Avatar
 	group_data["chatroom_id"] = chatroom_id
@@ -83,4 +86,21 @@ func (s *ChatRoomService) AddGroup(member_id string, group_id string, remark str
 	ret["code"] = "0"
 	ret["message"] = "加入成功"
 	return ret,nil
+}
+
+// 我的群组列表
+func (s *ChatRoomService) MyGroupList(member_id string) (list []map[string]string, err error) {
+	list, err = dao.NewMysql().Table("group_member as gm").Where("gm.member_id = "+member_id + " and gm.status = 'normal'").
+		Join("INNER JOIN `group` g ON g.group_id=gm.group_id").
+		Select("g.group_id,g.name,g.avatar,g.id,g.chatroom_id,g.owner_member_id,g.founder_member_id,g.permissions,g.created_at").
+		Get()
+	if len(list) == 0 {
+		list = make([]map[string]string, 0)
+	}
+	return list, err
+}
+
+// 搜索群组
+func (s *ChatRoomService) SearchGroup(search string) (list []map[string]string, err error) {
+	return list, err
 }

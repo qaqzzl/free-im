@@ -30,6 +30,7 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 	// 创建用户
 	user_member := make(map[string]string)
 	rand.Seed(time.Now().Unix())
+	user_member["id"] = fmt.Sprintf("%06d",rand.Int31n(10000))
 	user_member["nickname"] = "会员 - " + fmt.Sprintf("%06d",rand.Int31n(10000))
 	user_member["created_at"] = strconv.Itoa(int(time.Now().Unix()))
 	user_member["updated_at"] = user_member["created_at"]

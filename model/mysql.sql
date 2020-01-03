@@ -69,14 +69,25 @@ create table if not exists `group`(
     `group_id` int unsigned auto_increment primary key,
     `name` char(50) not null comment '群组名称',
     `avatar` char(50) not null comment '群组头像',
+    `id` varchar(20) not null comment 'ID, 对用户展示并且唯一',
     `chatroom_id` char(255) not null comment '房间ID',
     `owner_member_id` int not null comment '所属者会员ID',
     `founder_member_id` int not null default 0 comment '创始人ID',
     `permissions` char(10) not null default 'public' comment '聊天室权限。 public:开放, protected:受保护(可见,并且管理员同意才能加入), private:私有(不可申请,并且管理员邀请才能加入)',
     `created_at` int not null default 0 comment '添加时间',
-    KEY `owner_member_id` (`owner_member_id`)
+    KEY `owner_member_id` (`owner_member_id`),
+    UNIQUE KEY `id` (`id`)
 )engine=innodb default charset=utf8 comment '群组表';
 
--- 群组申请表
-
+-- 群组成员表
+create table if not exists `group_member`(
+    `group_member_id` int unsigned auto_increment primary key,
+    `group_id` int not null comment '群组ID',
+    `member_id` int not null comment '会员ID',
+    `member_identity` char(10) not null comment '成员身份: admin-管理员, root-群主, common-普通成员',
+    `status` char(10) not null comment '状态: wait-等待同意, normal-正常, refuse-拒绝, blacklist-黑名单',
+    `created_at` int not null default 0 comment '添加时间',
+    KEY `group_id` (`group_id`),
+    KEY `member_id` (`member_id`)
+)engine=innodb default charset=utf8 comment '群组表';
 

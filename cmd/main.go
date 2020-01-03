@@ -34,6 +34,7 @@ func init_http() {
 	http.HandleFunc("/login", httpV1.PhoneLogin)		// 手机号登录 / 注册
 	http.HandleFunc("/login/send.login.sms", httpV1.SendLoginSms)		// 发送登录手机号验证码
 	http.HandleFunc("/user/member.info", httpV1.GetUserInfo)		// 获取会员信息
+	http.HandleFunc("/search/friend", httpV1.SearchMember)		// 搜索好友
 	http.HandleFunc("/user/add.friend", httpV1.AddFriend)		// 添加好友
 	http.HandleFunc("/user/del.friend", httpV1.DelFriend)		// 删除好友
 	http.HandleFunc("/user/friend.apply.list", httpV1.FriendApplyList)		// 好友申请列表
@@ -42,6 +43,8 @@ func init_http() {
 	http.HandleFunc("/chatroom/chatroom.list", httpV1.ChatroomList)		// 聊天室列表
 	http.HandleFunc("/chatroom/create.group", httpV1.CreateGroup)		// 创建群组
 	http.HandleFunc("/chatroom/add.group", httpV1.AddGroup)		// 加入群组
+	http.HandleFunc("/chatroom/my.group.list", httpV1.MyGroupList)		// 我的群组列表
+	http.HandleFunc("/common/get.qiniu.upload.token", httpV1.GetQiniuUploadToken)		// 获取七牛上传token
 	err := http.ListenAndServe(":8066", nil)
 	if err != nil {
 		panic(err.Error())

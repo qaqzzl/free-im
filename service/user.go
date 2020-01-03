@@ -82,3 +82,16 @@ func (s *UserService) FriendList(member_id string) (list []map[string]string, er
 	}
 	return list, err
 }
+
+
+// 搜索好友
+func (s *UserService) SearchMember(search string) (list []map[string]string, err error) {
+	list, err = dao.NewMysql().Table("user_member").Where("nickname = '"+search + "' or id = '"+search+"'").
+		Select("member_id,nickname,avatar,signature,gender").
+		Get()
+
+	if len(list) == 0 {
+		list = make([]map[string]string, 0)
+	}
+	return list, err
+}

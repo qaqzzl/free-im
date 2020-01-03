@@ -84,5 +84,17 @@ func OutGroup(writer http.ResponseWriter, request *http.Request) {
 
 // 我的群组列表
 func MyGroupList(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
 
+	group_list, err := ChatRoomService.MyGroupList(formData["uid"].(string))
+	if err != nil {
+		util.RespFail(writer, err.Error())
+		return
+	}
+	ret := make(map[string]interface{})
+	ret["group_list"] = group_list
+	util.RespOk(writer, ret, "")
 }
