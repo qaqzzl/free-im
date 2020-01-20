@@ -18,14 +18,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-
-	//判断手机号是否存在
-	var is_register bool
 	var err error
-	if is_register,err = AccountService.IsRegister(formData["phone"].(string), "phone"); err != nil {
-		util.RespFail(writer, "系统繁忙")
-		return
-	}
 	// 验证短信验证码是否正确
 	if verify, err := CommonService.IsPhoneVerifyCode(formData["phone"].(string), formData["verify_code"].(string)); err != nil {
 		util.RespFail(writer, "系统繁忙")
@@ -35,6 +28,12 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 			util.RespFail(writer, "短信验证码错误")
 			return
 		}
+	}
+	//判断手机号是否存在
+	var is_register bool
+	if is_register,err = AccountService.IsRegister(formData["phone"].(string), "phone"); err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
 	}
 
 	var member_id int64
@@ -68,9 +67,9 @@ func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	if err := CommonService.SendSms(formData["phone"].(string), "login"); err != nil {
-		util.RespFail(writer, err.Error())
-		return
-	}
+	//if err := CommonService.SendSms(formData["phone"].(string), "login"); err != nil {
+	//	util.RespFail(writer, err.Error())
+	//	return
+	//}
 	util.RespOk(writer, nil, "短信验证码发送成功")
 }

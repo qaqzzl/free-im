@@ -33,7 +33,8 @@ func init() {
 func init_http() {
 	http.HandleFunc("/login", httpV1.PhoneLogin)		// 手机号登录 / 注册
 	http.HandleFunc("/login/send.login.sms", httpV1.SendLoginSms)		// 发送登录手机号验证码
-	http.HandleFunc("/user/member.info", httpV1.GetUserInfo)		// 获取会员信息
+	http.HandleFunc("/user/member.info", httpV1.GetMemberInfo)		// 获取会员信息
+	http.HandleFunc("/user/others.home.info", httpV1.OthersHomeInfo)		// 获取用户基本信息(他人主页)
 	http.HandleFunc("/search/friend", httpV1.SearchMember)		// 搜索好友
 	http.HandleFunc("/user/add.friend", httpV1.AddFriend)		// 添加好友
 	http.HandleFunc("/user/del.friend", httpV1.DelFriend)		// 删除好友

@@ -4,19 +4,23 @@ import (
 	"net"
 )
 
-// 消息协议
+//
+//  自定义消息结构 , {消息操作类型(必选)}{消息体(非必选)}
+//
+
+// 消息操作类型
 const (
-	ActionSignIn         			= 1 		// 设备登录
-	ActionSignInACK      			= 2 		// 设备登录回执
-	ActionSyncTrigger    			= 3 		// 消息同步触发
+	ActionSignIn         			= "01" 		// 设备登录
+	ActionSignInACK      			= "02" 		// 设备登录回执
+	ActionSyncTrigger    			= "03" 		// 消息同步触发
 	ActionHeadbeat       			= 4 		// 心跳
 	ActionHeadbeatACK    			= 5 		// 心跳回执
-	ActionMessageSend    			= 6 		// 消息发送
-	ActionMessageSendACK 			= 7 		// 消息发送回执
+	ActionMessageSend    			= "04" 		// 消息发送
+	ActionMessageSendACK 		= 7 		// 消息发送回执
 	ActionMessage        			= 8 		// 消息投递
 	ActionMessageACK     			= 9 		// 消息投递回执
-	ActionAuth		     			= 10		// 连接认证
-	ActionQuit		     			= 11		// 客户端退出
+	ActionAuth		     			= "10"		// 连接认证
+	ActionQuit		     			= "11"		// 客户端退出
 )
 
 // 消息码(消息类型)
@@ -30,10 +34,9 @@ const (
 
 // Package 消息包
 type MessagePackage struct {
-	Code    	int	`json:"code"`					// 消息码(类型)
+	Code    	int	`json:"code"`						// 消息码(类型)
 	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
 	Content 	[]byte `json:"content"`				// 消息体
-	Action		int		`json:"action"`				// 操作
 }
 
 //认证信息

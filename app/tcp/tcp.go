@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"encoding/json"
+	"fmt"
 	"free-im/model"
 	"free-im/service/tcp"
 	"log"
@@ -29,19 +30,25 @@ func ConnSocketHandler(c net.Conn) {
 			break
 		}
 		inStr := strings.TrimSpace(string(buf[0:cnt]))
-
-		//解析json
-		message := model.MessagePackage{}
-		if err := json.Unmarshal([]byte(inStr), &message); err != nil {
-			log.Println(err.Error())
-			continue
-		}
+		fmt.Println("接收到的原始消息:",inStr)
 		//动作(路由)
-		switch message.Action {
+		switch inStr[0:2] {
 		case model.ActionAuth: // 客户端链接认证
-			go tcp.ClientAuth( &ctx, &message )
+			//解析json
+			message := model.MessagePackage{}
+			if err := json.Unmarshal([]byte(inStr[2:cnt]), &message); err != nil {
+				log.Println(err.Error())
+				continue
+			}
+			go tcp.ClientAuth( &ctx, message )
 		case model.ActionMessageSend: // 客户端发送消息
-			tcp.ClientSendMessage(&ctx, &message)
+			//解析json
+			message := model.MessagePackage{}
+			if err := json.Unmarshal([]byte(inStr[2:cnt]), &message); err != nil {
+				log.Println(err.Error())
+				continue
+			}
+			tcp.ClientSendMessage(&ctx, message)
 		case model.ActionQuit:
 			c.Close()
 		default:

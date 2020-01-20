@@ -7,7 +7,7 @@ import (
 )
 
 type H struct {
-	Code int `json:"code"`
+	Status string `json:"status"`
 	Msg  string `json:"msg"`
 	Data interface{} `json:"data,omitempty"`
 	Rows interface{} `json:"rows,omitempty"`
@@ -15,12 +15,12 @@ type H struct {
 }
 //
 func RespFail(w http.ResponseWriter,msg string){
-	Resp(w,500,nil,msg)
+	Resp(w,"err",nil,msg)
 }
 func RespOk(w http.ResponseWriter,data interface{},msg string){
-	Resp(w,0,data,msg)
+	Resp(w,"ok",data,msg)
 }
-func Resp(w http.ResponseWriter,code int,data interface{},msg string)  {
+func Resp(w http.ResponseWriter,status string,data interface{},msg string)  {
 
 	w.Header().Set("Content-Type","application/json")
 	//设置200状态
@@ -28,7 +28,7 @@ func Resp(w http.ResponseWriter,code int,data interface{},msg string)  {
 	//输出
 	//定义一个结构体
 	h := H{
-		Code:code,
+		Status:status,
 		Msg:msg,
 		Data:data,
 	}

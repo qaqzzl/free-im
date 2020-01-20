@@ -9,7 +9,8 @@ import (
 )
 
 // client auth handle
-func ClientAuth(ctx *Context, mp *model.MessagePackage) {
+func ClientAuth(ctx *Context, mp model.MessagePackage) {
+	fmt.Println("进入认证方法")
 	//认证 ctx.Message.AccessToken	&& ctx.Message.UserID
 	auth := model.AuthMessage{}
 	json.Unmarshal(mp.Content, &auth)
@@ -33,8 +34,8 @@ func ClientAuth(ctx *Context, mp *model.MessagePackage) {
 }
 
 //client send message handle
-func ClientSendMessage(ctx *Context, mp *model.MessagePackage) {
-	fmt.Println(string(mp.Content))
+func ClientSendMessage(ctx *Context, mp model.MessagePackage) {
+	fmt.Println(string(mp.Content[:]))
 
 	redisconn := dao.NewRedis()
 	defer redisconn.Close()

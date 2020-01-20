@@ -10,7 +10,7 @@ import (
 var UserService service.UserService
 
 // 获取个人信息
-func GetUserInfo(writer http.ResponseWriter, request *http.Request) {
+func GetMemberInfo(writer http.ResponseWriter, request *http.Request) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
@@ -81,4 +81,14 @@ func FriendList(writer http.ResponseWriter, request *http.Request) {
 	ret["friend_list"] = apply_list
 
 	util.RespOk(writer, ret, "")
+}
+
+// 用户基本信息
+func OthersHomeInfo(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	info,_ := UserService.OthersHomeInfo(formData["uid"].(string), formData["member_id"].(string))
+	util.RespOk(writer, info, "")
 }

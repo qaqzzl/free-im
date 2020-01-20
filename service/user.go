@@ -11,7 +11,14 @@ type UserService struct {
 
 // 获取会员信息
 func (s *UserService) GetMemberInfo(member_id string) (user_member map[string]string, err error) {
-	return dao.NewMysql().Table("user_member").First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
+	user_member = make(map[string]string)
+	user_member,err =  dao.NewMysql().Table("user_member").
+		Where("member_id = " + member_id).
+		First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
+	if user_member["avatar"] == "" {
+		user_member["avatar"] = "https://blog.cdn.qaqzz.com/icon.png"
+	}
+	return user_member,err
 }
 
 // 添加好友
@@ -73,12 +80,32 @@ func (s *UserService) FriendApplyList(member_id string) ([]map[string]string, er
 
 // 好友列表
 func (s *UserService) FriendList(member_id string) (list []map[string]string, err error) {
-	list, err = dao.NewMysql().Table("user_friend as uf").Where("uf.friend_id = "+member_id + " and status = 1 or uf.member_id = "+member_id + " and status = 1").
-		Join("INNER JOIN user_member um ON um.member_id=uf.member_id").
-		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender").
+	list, err = dao.NewMysql().Table("user_friend").
+		Where("friend_id = "+member_id + " and status = 1 or member_id = "+member_id + " and status = 1").
+		Select("member_id,friend_id").
 		Get()
 	if len(list) == 0 {
 		list = make([]map[string]string, 0)
+	}
+	for k,vo := range list{
+		var (
+			where string
+			m_member_id string
+		)
+		if vo["member_id"] == member_id {
+			m_member_id = vo["friend_id"]
+			where = "member_id = "+ vo["friend_id"]
+			fmt.Println(where,vo["member_id"] == member_id,vo["friend_id"])
+		} else if vo["friend_id"] == member_id {
+			m_member_id = vo["member_id"]
+			where = "member_id = "+ vo["member_id"]
+		}
+		member,_ := dao.NewMysql().Table("user_member").Where(where).First("avatar,gender,member_id,nickname,signature")
+		list[k] = member
+		list[k]["member_id"] = m_member_id
+		if vo["avatar"] == "" {
+			list[k]["avatar"] = "https://blog.cdn.qaqzz.com/icon.png"
+		}
 	}
 	return list, err
 }
@@ -94,4 +121,25 @@ func (s *UserService) SearchMember(search string) (list []map[string]string, err
 		list = make([]map[string]string, 0)
 	}
 	return list, err
+}
+
+
+// 他人基本信息
+func (s *UserService) OthersHomeInfo(member_id string, to_member_id string) (user_member map[string]string, err error) {
+	user_member = make(map[string]string)
+	user_member,err =  dao.NewMysql().Table("user_member").Where("member_id = " + to_member_id).First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
+	if user_member["avatar"] == "" {
+		user_member["avatar"] = "https://blog.cdn.qaqzz.com/icon.png"
+	}
+	// 判断是否是好友关系
+	user_member["is_friend"] = "no";
+	user_friend, err := dao.NewMysql().Table("user_friend").Where( fmt.Sprintf("member_id = %s and friend_id = %s or member_id = %s and friend_id = %s",member_id, to_member_id, to_member_id, member_id) ).Count()
+	if err != nil {
+		return user_member,err
+	}
+	if user_friend > 0 {
+		user_member["is_friend"] = "yes";
+	}
+
+	return user_member,err
 }
