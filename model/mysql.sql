@@ -54,15 +54,24 @@ create table if not exists `user_friend`(
     `id` int unsigned auto_increment primary key,
     `member_id` int not null comment '会员ID',
     `friend_id` int not null comment '好友ID',
-    `member_remark` varchar(50) not null default "" comment '会员备注',
-    `friend_remark` varchar(50) not null default "" comment '好友备注',
-    `status` tinyint(1) not null default 0 comment '0-等待同意, 1-正常',
+    `friend_remark` varchar(50) not null default "" comment '昵称备注',
+    `status` tinyint(1) not null default 0 comment '0-正常, 1-删除',
+    `created_at` int not null default 0 comment '添加时间',
+    UNIQUE KEY `member_id_friend_id` (`member_id`,`friend_id`) USING BTREE
+)engine=innodb default charset=utf8 comment '用户好友表(好友申请也是这个表)';
+
+-- 好友申请表
+create table if not exists `user_friend_apply`(
+    `id` int unsigned auto_increment primary key,
+    `member_id` int not null comment '会员ID',
+    `friend_id` int not null comment '好友ID',
+    `remark` varchar(50) not null default "" comment '添加好友备注',
+    `status` tinyint(1) not null default 0 comment '0-等待, 1-同意, 2-拒绝',
     `created_at` int not null default 0 comment '添加时间',
     KEY `member_id` (`member_id`),
     KEY `friend_id` (`friend_id`)
-)engine=innodb default charset=utf8 comment '用户好友表';
--- 查询我的好友
-select * from `user_friend` where `member_id` = {$uid} or `friend_id` = {$uid}
+)engine=innodb default charset=utf8 comment '好友申请表';
+
 
 -- 群组表
 create table if not exists `group`(
@@ -91,3 +100,24 @@ create table if not exists `group_member`(
     KEY `member_id` (`member_id`)
 )engine=innodb default charset=utf8 comment '群组表';
 
+-- 动态表
+create table if not exists `dynamic`(
+  `dynamic_id` int unsigned auto_increment primary key,
+  `member_id` int not null comment '会员ID',
+  `content` varchar(500) not null default "" comment '内容',
+  `type` char(10) not null default "common" comment '类型, 普通(文字或加图片):common, 视频:video',
+  `image_url` varchar(1000) not null default "" comment '图片地址',
+  `video_url` varchar(255) not null default "" comment '视频地址',
+  `video_cover` varchar(255) not null default '' comment '视频封面图',
+  `video_cover_width` int(11) NOT NULL DEFAULT 0 COMMENT '视频封面图宽',
+  `video_cover_height` int(11) NOT NULL DEFAULT 0 COMMENT '视频封面图高',
+  `zan` int not null default 0 comment '点赞数',
+  `comment` int not null default 0 comment '评论数',
+  `address_name` varchar(50) not null default "" comment '地址名称',
+  `latitude_and_longitude` varchar(255) not null default "" comment '经纬度, 经度,维度',
+  `purview` char(10) not null default "public" comment '公开权限: public-公开, protected-好友可见, private-仅自己和指定用户可见',
+  `review` char(10) not null default "wait" comment '审核状态: wait-等待同意, normal-正常, refuse-拒绝',
+  `deleted_at` int not null default 0 comment '删除时间',
+  `created_at` int not null default 0 comment '添加时间',
+   KEY `member_id` (`member_id`)
+)engine=innodb default charset=utf8 comment '动态表';

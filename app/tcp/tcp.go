@@ -34,8 +34,9 @@ func ConnSocketHandler(c net.Conn) {
 		//动作(路由)
 		switch inStr[0:2] {
 		case model.ActionAuth: // 客户端链接认证
+			fmt.Println("接收到的原始消息:",cnt)
 			//解析json
-			message := model.MessagePackage{}
+			message := model.AuthMessage{}
 			if err := json.Unmarshal([]byte(inStr[2:cnt]), &message); err != nil {
 				log.Println(err.Error())
 				continue
@@ -52,7 +53,7 @@ func ConnSocketHandler(c net.Conn) {
 		case model.ActionQuit:
 			c.Close()
 		default:
-			log.Printf("Unsupported command: %s\n")
+			//log.Printf("Unsupported command: %s\n")
 		}
 	}
 
@@ -60,5 +61,8 @@ func ConnSocketHandler(c net.Conn) {
 
 
 	//消息发送
+
+
+	// 连接断开处理
 	log.Printf("Connection from %v closed. \n", c.RemoteAddr())
 }

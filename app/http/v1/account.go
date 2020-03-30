@@ -23,13 +23,11 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	if verify, err := CommonService.IsPhoneVerifyCode(formData["phone"].(string), formData["verify_code"].(string)); err != nil {
 		util.RespFail(writer, "系统繁忙")
 		return
-	} else {
-		if verify == false {
-			util.RespFail(writer, "短信验证码错误")
-			return
-		}
+	} else if verify == false {
+		util.RespFail(writer, "短信验证码错误")
+		return
 	}
-	//判断手机号是否存在
+	//判断是否已经注册
 	var is_register bool
 	if is_register,err = AccountService.IsRegister(formData["phone"].(string), "phone"); err != nil {
 		util.RespFail(writer, "系统繁忙")

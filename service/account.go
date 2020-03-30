@@ -34,6 +34,7 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 	rand.Seed(time.Now().Unix())
 	user_member["id"] = fmt.Sprintf("%06d",rand.Int31n(10000))
 	user_member["nickname"] = "会员 - " + fmt.Sprintf("%06d",rand.Int31n(10000))
+	user_member["avatar"] = "https://blog.cdn.qaqzz.com/icon.png"
 	user_member["created_at"] = strconv.Itoa(int(time.Now().Unix()))
 	user_member["updated_at"] = user_member["created_at"]
 	var result sql.Result

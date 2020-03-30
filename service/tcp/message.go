@@ -6,20 +6,20 @@ import (
 	"free-im/dao"
 	"free-im/model"
 	"net"
+	"strconv"
+	"time"
 )
 
 // client auth handle
-func ClientAuth(ctx *Context, mp model.MessagePackage) {
+func ClientAuth(ctx *Context, message model.AuthMessage) {
 	fmt.Println("进入认证方法")
-	//认证 ctx.Message.AccessToken	&& ctx.Message.UserID
-	auth := model.AuthMessage{}
-	json.Unmarshal(mp.Content, &auth)
-	if auth.UserID == "" || auth.AccessToken == "" || auth.DeviceID == "" {
+	//认证
+	if message.UserID == "" || message.AccessToken == "" || message.DeviceID == "" {
 		return
 	}
 	ctx.IsAuth = true
-	ctx.UserID = auth.UserID
-	ctx.DeviceID = auth.DeviceID
+	ctx.UserID = message.UserID
+	ctx.DeviceID = message.DeviceID
 
 	//加入连接集合
 	if model.SocketConnPool[ctx.UserID] == nil {
@@ -34,9 +34,9 @@ func ClientAuth(ctx *Context, mp model.MessagePackage) {
 }
 
 //client send message handle
-func ClientSendMessage(ctx *Context, mp model.MessagePackage) {
-	fmt.Println(string(mp.Content[:]))
-
+func ClientSendMessage(ctx *Context, message model.MessagePackage) {
+	fmt.Println("进入消息接受处理程序", message.ChatroomId)
+	message.UserId = ctx.UserID
 	redisconn := dao.NewRedis()
 	defer redisconn.Close()
 	//判断是否认证 auth
@@ -50,28 +50,45 @@ func ClientSendMessage(ctx *Context, mp model.MessagePackage) {
 	//ctx.InChan <- &ctx.Message
 
 	// 获取消息ID
-	message_id,_ := redisconn.Do("HINCRBY", "hash_im_chatroom_message_id", mp.ChatroomId, 1)
+	origin_message_id,_ := redisconn.Do("HINCRBY", "hash_im_chatroom_message_id", message.ChatroomId, 1)
+	message_id := origin_message_id.(int64)
+
 	// 存储消息
-	store_message,_ := json.Marshal(mp)
-	redisconn.Do("ZADD", "sorted_set_im_chatroom_message_record_"+mp.ChatroomId, message_id.(int64), store_message)
+	store_message,_ := json.Marshal(message)
+	redisconn.Do("ZADD", "sorted_set_im_chatroom_message_record:"+message.ChatroomId, message_id, store_message)
+
 	// 查询聊天室成员
-	members,_ := redisconn.Do("SMEMBERS", "set_im_chatroom_member_"+mp.ChatroomId)
+	members,_ := redisconn.Do("SMEMBERS", "set_im_chatroom_member:"+message.ChatroomId)
 	// 给聊天室全员发送消息
-	send_message,_ := json.Marshal(mp)
+	server_send_message := model.ServerSendMessagePackage{
+		Code:message.Code,
+		ChatroomId:message.ChatroomId,
+		Content:message.Content,
+		ClientMessageId:message.MessageId,
+		ServerMessageId:strconv.FormatInt(message_id,10),
+		UserId:message.UserId,
+		MessageSendTime:time.Now().Unix(),
+	}
+	send_message,_ := json.Marshal(server_send_message)
+	other_send_message := model.ActionMessageSend + string(send_message);
+	own_send_message := model.ActionMessageSendACK + string(send_message);
 	for _, v := range members.([]interface {}) {
 		UserID := string(v.([]uint8))
-		if UserID == ctx.UserID {		//消息回执
+		if UserID == ctx.UserID {		// 其他设备消息同步
 			for  k, vo := range model.SocketConnPool[ctx.UserID] {
-				if k == ctx.DeviceID {
+				if k == ctx.DeviceID {	// 消息回执
+					fmt.Println("消息回执:", own_send_message)
+					vo.Write([]byte(own_send_message))
 					continue
 				}
-				vo.Write(send_message)
+				// 同步其他客户端
+				vo.Write([]byte(other_send_message))
 			}
 			continue
 		}
 		//给聊天室成员发送消息
 		for  _, vo := range model.SocketConnPool[UserID] {
-			vo.Write(send_message)
+			vo.Write([]byte(other_send_message))
 		}
 	}
 }
