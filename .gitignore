@@ -13,7 +13,7 @@
 *.out
 error.log
 *.log
-cmd/*.conf
+*.conf
 
 main
 im
