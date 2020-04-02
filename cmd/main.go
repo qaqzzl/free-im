@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	httpV1 "free-im/app/http/v1"
 	"free-im/app/tcp"
+	"free-im/config"
 	"log"
 	"net"
 	"net/http"
@@ -10,6 +12,10 @@ import (
 )
 
 func main() {
+	// 配置文件
+	ConfPath := flag.String("cpath", "./config.conf", "config file")
+	config.InitConfig(*ConfPath)
+
 	// http
 	go init_http()
 
