@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-const middle = "#"
+const middle = "|"
 var CONFIG = make(map[string]string)
 type Config struct {
 	Strcet string
