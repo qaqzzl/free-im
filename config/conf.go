@@ -15,11 +15,12 @@ type Config struct {
 	Strcet string
 }
 
-func init() {
-
+func InitConfig(path string) {
+	c := Config{}
+	c.initConfig(path)
 }
 
-func (c *Config) InitConfig(path string) {
+func (c *Config) initConfig(path string) {
 	//c.Mymap = make(map[string]string)
 	f, err := os.Open(path)
 	if err != nil { //抛出错误信息
@@ -108,4 +109,8 @@ func GetAppPath() string {
 	index := strings.LastIndex(path, string(os.PathSeparator))
 
 	return path[:index]
+}
+
+func Get(key string) string {
+	return CONFIG[key]
 }

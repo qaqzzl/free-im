@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"free-im/config"
 	"github.com/gomodule/redigo/redis"
 	"time"
 )
@@ -44,7 +45,7 @@ func newPool(server, password string) *redis.Pool {
 }
 
 func NewRedis() (conn redis.Conn) {
-	pool := newPool("101.132.107.212:6379", "redis336699m")
+	pool := newPool(config.Get("database|REDIS"), config.Get("database|redisPwd"))
 	conn = pool.Get()
 	//defer conn.Close()
 	return conn
