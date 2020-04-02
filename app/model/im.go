@@ -48,7 +48,7 @@ type ServerSendMessagePackage struct {
 	Content 	string `json:"content"`								// 消息体
 	ClientMessageId 	string `json:"client_message_id"`			// 客户端消息ID
 	ServerMessageId 	string `json:"server_message_id"`			// 服务端消息ID
-	UserId 	string `json:"user_id"`									// 用户ID
+	UserId 	string `json:"user_id"`									// 发送消息的用户ID
 	MessageSendTime 	int64 `json:"message_send_time"`			// 消息发送时间, 服务器接收到的时间算
 }
 

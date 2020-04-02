@@ -6,3 +6,8 @@ https://blog.golang.org/migrating-to-go-modules
 https://goproxy.io/
 
 go list -m -json all
+
+
+
+ordinary  普通聊天
+group     群聊

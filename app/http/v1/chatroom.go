@@ -2,10 +2,12 @@ package v1
 
 import (
 	"encoding/json"
-	"free-im/model"
-	"free-im/service"
+	"free-im/app/model"
+	"free-im/app/service"
+	"free-im/dao"
 	"free-im/util"
 	"net/http"
+	"strings"
 )
 
 var ChatRoomService service.ChatRoomService
@@ -29,7 +31,40 @@ func FriendIdGetChatroomId(writer http.ResponseWriter, request *http.Request) {
 	util.RespOk(writer, ret, "")
 }
 
-// 聊天室列表 -- 未完成
+// 通过聊天室ID获取聊天室头像名称
+func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	ret := make(map[string]string)
+	user_id := formData["uid"].(string)
+	chatroom_id := formData["chatroom_id"].(string)
+	chatroom_ids := strings.Split(chatroom_id, ":")
+	switch chatroom_ids[1] {
+	case "ordinary":
+		// 查询聊天室成员
+		redisconn := dao.NewRedis()
+		defer redisconn.Close()
+		members,_ := redisconn.Do("SMEMBERS", "set_im_chatroom_member:" + chatroom_id)
+		for _, v := range members.([]interface {}) {
+			to_user_id := string(v.([]uint8))
+			if to_user_id == user_id {
+				continue;
+			}
+			user_member,_ :=  dao.NewMysql().Table("user_member").
+				Where("member_id = " + to_user_id).
+				First("nickname,avatar")
+			ret["name"] = user_member["nickname"]
+			ret["avatar"] = user_member["avatar"]
+		}
+	case "group":
+
+	}
+	util.RespOk(writer, ret, "")
+}
+
+// 聊天室列表 -- 废弃, 客户端维护
 func ChatroomList(writer http.ResponseWriter, request *http.Request) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})

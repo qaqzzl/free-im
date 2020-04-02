@@ -3,8 +3,8 @@ package tcp
 import (
 	"encoding/json"
 	"fmt"
+	"free-im/app/model"
 	"free-im/dao"
-	"free-im/model"
 	"net"
 	"strconv"
 	"time"
@@ -35,7 +35,7 @@ func ClientAuth(ctx *Context, message model.AuthMessage) {
 
 //client send message handle
 func ClientSendMessage(ctx *Context, message model.MessagePackage) {
-	fmt.Println("进入消息接受处理程序", message.ChatroomId)
+	fmt.Println("进入消息接受处理程序", ctx.UserID)
 	message.UserId = ctx.UserID
 	redisconn := dao.NewRedis()
 	defer redisconn.Close()
@@ -59,6 +59,7 @@ func ClientSendMessage(ctx *Context, message model.MessagePackage) {
 
 	// 查询聊天室成员
 	members,_ := redisconn.Do("SMEMBERS", "set_im_chatroom_member:"+message.ChatroomId)
+	fmt.Println("查询聊天室成员",members)
 	// 给聊天室全员发送消息
 	server_send_message := model.ServerSendMessagePackage{
 		Code:message.Code,
@@ -70,8 +71,8 @@ func ClientSendMessage(ctx *Context, message model.MessagePackage) {
 		MessageSendTime:time.Now().Unix(),
 	}
 	send_message,_ := json.Marshal(server_send_message)
-	other_send_message := model.ActionMessageSend + string(send_message);
-	own_send_message := model.ActionMessageSendACK + string(send_message);
+	other_send_message := model.ActionMessageSend + string(send_message);			// 消息
+	own_send_message := model.ActionMessageSendACK + string(send_message);		// 消息回执
 	for _, v := range members.([]interface {}) {
 		UserID := string(v.([]uint8))
 		if UserID == ctx.UserID {		// 其他设备消息同步
@@ -87,6 +88,7 @@ func ClientSendMessage(ctx *Context, message model.MessagePackage) {
 			continue
 		}
 		//给聊天室成员发送消息
+		fmt.Println("消息:", other_send_message)
 		for  _, vo := range model.SocketConnPool[UserID] {
 			vo.Write([]byte(other_send_message))
 		}

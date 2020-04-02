@@ -13,6 +13,9 @@ func main() {
 	// http
 	go init_http()
 
+	// tcp 服务状态监听
+	tcp.SystemMonitor()
+
 	// tcp
 	init_im_tcp()
 }
@@ -43,6 +46,7 @@ func init_http() {
 	http.HandleFunc("/user/friend.apply.action", httpV1.FriendApplyAction)		// 好友申请操作
 	http.HandleFunc("/user/friend.list", httpV1.FriendList)		// 好友列表
 	http.HandleFunc("/chatroom/friend_id.get.chatroom_id", httpV1.FriendIdGetChatroomId)		// 通过好友ID 获取 聊天室ID
+	http.HandleFunc("/chatroom/get.chatroom.avatar.name.by.chatroom_id", httpV1.GetChatroomAvatarNameByChatRoomID)		// 通过聊天室ID 获取 聊天室头像名称
 	http.HandleFunc("/chatroom/chatroom.list", httpV1.ChatroomList)		// 聊天室列表
 	http.HandleFunc("/chatroom/create.group", httpV1.CreateGroup)		// 创建群组
 	http.HandleFunc("/chatroom/add.group", httpV1.AddGroup)		// 加入群组
@@ -70,8 +74,4 @@ func init_im_tcp() {
 		}
 		go tcp.ConnSocketHandler(conn)
 	}
-}
-
-func init_im_socket() {
-
 }

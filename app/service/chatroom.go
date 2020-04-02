@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"free-im/app/model"
 	"free-im/dao"
-	"free-im/model"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"log"
 	"math/rand"
 	"strconv"
@@ -32,7 +32,7 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id stri
 
 	if res == nil {
 		//生成聊天室ID
-		chatroom_id = uuid.NewV4().String()
+		chatroom_id = uuid.NewV4().String() + ":ordinary"
 		rconn.Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id)			//创建聊天室
 		rconn.Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id)		//创建单聊跟聊天室关系
 	} else {
