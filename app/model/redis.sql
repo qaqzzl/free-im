@@ -36,3 +36,9 @@ hash_im_chatroom_member_id_get_chatroom_id
 hash_
     key: (聊天室ID)
     value: (聊天室类型)
+
+
+-- 说明: 消息送达失败
+-- 作用: 消息发送失败, 下次设备上线自动发送
+list_message_send_failure:{用户ID}
+    value: (消息string)

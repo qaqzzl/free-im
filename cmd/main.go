@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	httpV1 "free-im/app/http/v1"
-	"free-im/app/tcp"
+	"free-im/app/socket"
 	"free-im/config"
 	"log"
 	"net"
@@ -20,7 +20,7 @@ func main() {
 	go init_http()
 
 	// tcp 服务状态监听
-	tcp.SystemMonitor()
+	socket.SystemMonitor()
 
 	// tcp
 	init_im_tcp()
@@ -60,6 +60,7 @@ func init_http() {
 	http.HandleFunc("/common/get.qiniu.upload.token", httpV1.GetQiniuUploadToken)		// 获取七牛上传token
 	http.HandleFunc("/dynamic/publish", httpV1.DynamicPublish)		// 发布动态
 	http.HandleFunc("/dynamic/list", httpV1.DynamicList)		// 动态列表
+	http.HandleFunc("/app/new.version.get", httpV1.AppNewVersionGet)		// app 最新版本获取
 	err := http.ListenAndServe(":8066", nil)
 	if err != nil {
 		panic(err.Error())
@@ -78,6 +79,6 @@ func init_im_tcp() {
 			print("Fail to connect, %s\n", err)
 			break
 		}
-		go tcp.ConnSocketHandler(conn)
+		go socket.ConnSocketHandler(conn)
 	}
 }

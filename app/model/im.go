@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/orcaman/concurrent-map"
 	"net"
 )
 
@@ -13,10 +14,10 @@ const (
 	ActionSignIn         			= "01" 		// 设备登录
 	ActionSignInACK      			= "02" 		// 设备登录回执
 	ActionSyncTrigger    			= "03" 		// 消息同步触发
-	ActionMessageSend    			= "04" 		// 消息
-	ActionMessageSendACK 		= "05" 		// 消息回执
-	ActionMessage        			= 8 		// 消息投递
-	ActionMessageACK     			= 9 		// 消息投递回执
+	ActionMessage    				= "04" 		// 消息
+	ActionMessageACK 				= "05" 		// 消息回执
+	ActionMessageSend        		= "08" 		// 消息投递
+	ActionMessageSendACK     		= "09" 		// 消息投递回执
 	ActionAuth		     			= "10"		// 连接认证
 	ActionQuit		     			= "11"		// 客户端退出
 	ActionHeadbeat       			= "99" 		// 心跳
@@ -57,6 +58,18 @@ type AuthMessage struct {
 	DeviceID		string `json:"device_id"`
 	UserID			string `json:"user_id"`
 	AccessToken		string `json:"access_token"`
+	DeviceType 		string `json:"device_type"`		// 设备类型, 移动端:mobile , PC端:pc
+	ClientType 		string `json:"client_type"`		// 客户端类型, android, ios,
+
 }
-							//[user_id][device_id]
-var SocketConnPool = make(map[string]map[string] net.Conn)
+
+// 连接用户客户端结构体
+// DeviceType 设备类型, 移动端:mobile , PC端:pc
+type ClientDevice struct {
+	ClientType string		// 客户端类型, android, ios,
+	DeviceID string
+	Conn net.Conn
+}
+							//[user_id][DeviceType]ClientConn
+//var SocketConnPool = make(map[string]map[string] ClientConn)		// 这是不支持并发的
+var SocketConnPool = cmap.New()			//解决map并发读写
