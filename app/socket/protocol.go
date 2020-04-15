@@ -27,6 +27,7 @@ func (c *Context) Write(conn net.Conn, message []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	fmt.Println("消息发送成功",nn,err)
 	return nn, nil
 }
 

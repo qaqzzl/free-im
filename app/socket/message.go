@@ -155,9 +155,7 @@ func (message Message) ClientMessage(m model.MessagePackage) {
 func (message Message) Close() {
 	if user_map, ok := model.SocketConnPool.Get(message.ctx.UserID); ok {
 		fmt.Println(message.ctx.DeviceType)
-		fmt.Println(user_map)
 		user_map.(cmap.ConcurrentMap).Remove(message.ctx.DeviceType)
-		fmt.Println(user_map)
 		model.SocketConnPool.Set(message.ctx.UserID,user_map)
 	}
 	message.ctx.IsConnStatus = false
@@ -169,7 +167,8 @@ func (message Message) SendResponse(conn net.Conn, ReceiveUserID string,m []byte
 	redisconn := dao.NewRedis()
 	defer redisconn.Close()
 	if n, err = message.ctx.Write(conn,m); err != nil {
-		// 消息发送失败 , 记录下
+		fmt.Println("消息发送失败 , 写入redis")
+		// 消息发送失败 , 写入redis
 		redisconn.Do("LPUSH", "list_message_send_failure:"+ReceiveUserID, m)
 	}
 	return n,err

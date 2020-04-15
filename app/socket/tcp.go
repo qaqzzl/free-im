@@ -15,6 +15,7 @@ import (
 
 
 func ConnSocketHandler(conn net.Conn) {
+	fmt.Println("接入新连接")
 	if conn == nil {
 		return
 	}
@@ -33,16 +34,18 @@ func ConnSocketHandler(conn net.Conn) {
 	//defer redisconn.Close()
 	//消息处理 Handler
 	go func() {
-		ticker := time.NewTicker(time.Second * 2)
+		ticker := time.NewTicker(time.Second * 1)
 		for {
 			if ctx.IsConnStatus == false {
 				break
 			}
 			if ctx.IsAuth == false {
+				<-ticker.C
 				continue
 			}
 			if value,err := redisconn.Do("RPOP","list_message_send_failure:"+ctx.UserID); err != nil {
 				fmt.Println("list_message_send_failure err", err.Error())
+				<-ticker.C
 				continue
 			} else {
 				if value != nil {
@@ -62,31 +65,30 @@ func ConnSocketHandler(conn net.Conn) {
 	//消息发送 Handler
 	go func() {
 		for v := range ctx.OutChan {
-			if ctx.IsConnStatus == false {
-				// 消息发送失败 , 记录下
-				redisconn.Do("LPUSH", "list_message_send_failure:"+v.ReceiveUserID, v.Message)
-			} else {
-				message.SendResponse(v.Conn, v.ReceiveUserID, v.Message)
-			}
+			message.SendResponse(v.Conn, v.ReceiveUserID, v.Message)
 		}
 	}()
 
 	// 消息读取(消息接收) Handler
-	//buf := make([]byte, 4096)
 	go func() {
 	Loop:
 		for {
+			//buf := make([]byte, 4096)
+			//_, err := conn.Read(buf)
+			//fmt.Println(err)
+			//if err != nil {
+			//	break
+			//}
+			//continue
+
 			buf, err := ctx.Read()
-			if err == io.EOF{
+			if err == io.EOF || err != nil {
+				fmt.Println("err",err)
 				TcpClose(&ctx)
 				break
 			}
-			if err != nil {
-				continue
-			}
 			inStr := strings.TrimSpace(string(buf))
 			fmt.Println("接收到的原始消息:",inStr)
-			fmt.Println("UserID:",ctx.UserID)
 			//动作(路由)
 			switch inStr[0:2] {
 			case model.ActionAuth: // 客户端链接认证
