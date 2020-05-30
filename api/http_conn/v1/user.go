@@ -3,7 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"free-im/app/service"
+	"free-im/api/service"
 	"free-im/util"
 	"net/http"
 )

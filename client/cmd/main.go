@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"free-im/app/model"
+	"free-im/api/model"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"net"

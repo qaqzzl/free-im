@@ -2,12 +2,11 @@ package v1
 
 import (
 	"encoding/json"
-	"free-im/app/model"
-	"free-im/app/service"
+	"free-im/api/model"
+	"free-im/api/service"
 	"free-im/dao"
 	"free-im/util"
 	"net/http"
-	"strings"
 )
 
 var ChatRoomService service.ChatRoomService
@@ -40,9 +39,9 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	ret := make(map[string]string)
 	user_id := formData["uid"].(string)
 	chatroom_id := formData["chatroom_id"].(string)
-	chatroom_ids := strings.Split(chatroom_id, ":")
-	switch chatroom_ids[1] {
-	case "ordinary":
+	chatroom_type := 0
+	switch chatroom_type {
+	case 0:
 		// 查询聊天室成员
 		redisconn := dao.NewRedis()
 		defer redisconn.Close()
@@ -58,7 +57,7 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 			ret["name"] = user_member["nickname"]
 			ret["avatar"] = user_member["avatar"]
 		}
-	case "group":
+	case 1:
 
 	}
 	util.RespOk(writer, ret, "")

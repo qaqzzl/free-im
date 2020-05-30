@@ -2,14 +2,16 @@ package main
 
 import (
 	"flag"
-	httpV1 "free-im/app/http/v1"
-	"free-im/app/socket"
+	httpV1 "free-im/api/http_conn/v1"
+	"free-im/api/tcp_conn"
 	"free-im/config"
 	"log"
 	"net"
 	"net/http"
 	"os"
 )
+
+
 
 func main() {
 	// 配置文件
@@ -20,7 +22,7 @@ func main() {
 	go init_http()
 
 	// tcp 服务状态监听
-	socket.SystemMonitor()
+	tcp_conn.SystemMonitor()
 
 	// tcp
 	init_im_tcp()
@@ -61,6 +63,8 @@ func init_http() {
 	http.HandleFunc("/dynamic/publish", httpV1.DynamicPublish)		// 发布动态
 	http.HandleFunc("/dynamic/list", httpV1.DynamicList)		// 动态列表
 	http.HandleFunc("/app/new.version.get", httpV1.AppNewVersionGet)		// app 最新版本获取
+
+	http.HandleFunc("/common/get.message.id", httpV1.GetMessageId)		// 获取消息ID , 临时使用
 	err := http.ListenAndServe(":8066", nil)
 	if err != nil {
 		panic(err.Error())
@@ -68,17 +72,25 @@ func init_http() {
 }
 
 func init_im_tcp() {
-	// socket
-	server, err := net.Listen("tcp", ":1208")
+	addr, err := net.ResolveTCPAddr("tcp", ":1208")
+	if err != nil {
+		panic(err)
+	}
+	server, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		print("Fail to start server, %s\n", err)
 	}
 	for {
-		conn, err := server.Accept()
+		conn, err := server.AcceptTCP()
 		if err != nil {
 			print("Fail to connect, %s\n", err)
 			break
 		}
-		go socket.ConnSocketHandler(conn)
+		err = conn.SetKeepAlive(true)
+		if err != nil {
+			print("Fail to connect, %s\n", err)
+			break
+		}
+		go tcp_conn.ConnSocketHandler(conn)
 	}
 }

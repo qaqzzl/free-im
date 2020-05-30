@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"free-im/app/model"
+	"free-im/api/model"
 	"free-im/dao"
 	"github.com/satori/go.uuid"
 	"log"
