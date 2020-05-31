@@ -244,6 +244,7 @@ func SystemMonitor() {
 			fmt.Println("-----------------------------------")
 			fmt.Println("连接用户数: ",SocketConnPool.Count())
 			for key,vo := range SocketConnPool.Items() {
+				fmt.Println("--------------")
 				fmt.Println("连接用户ID: ", key)
 				ConcurrentMap := vo.(cmap.ConcurrentMap)
 				for k,v := range ConcurrentMap.Items() {
