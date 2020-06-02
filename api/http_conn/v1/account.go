@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"free-im/api/service"
 	"free-im/util"
+	"log"
 	"net/http"
 	"strconv"
 )

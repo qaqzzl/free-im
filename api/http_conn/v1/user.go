@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/api/service"
 	"free-im/util"
 	"log"
