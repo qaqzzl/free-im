@@ -2,7 +2,6 @@ package tcp_conn
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/dao"
 	"github.com/orcaman/concurrent-map"
 	"hash/crc32"
@@ -24,7 +23,7 @@ type Logic struct {
 
 // client auth handle
 func (logic Logic) ClientAuth(m AuthMessage) {
-	fmt.Println("进入认证方法",m)
+	// fmt.Println("进入认证方法",m)
 	//认证
 	if m.UserID == "" || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
 		return
@@ -49,7 +48,7 @@ func (logic Logic) ClientAuth(m AuthMessage) {
 				device := v.(ClientDevice)
 				if device.DeviceID != m.DeviceID {
 					// 通知其设备下线 code...
-					fmt.Println("通知其设备下线", device.DeviceID)
+
 				}
 				// 关闭连接
 				device.Context.TcpConn.Close()
@@ -76,7 +75,6 @@ func (logic Logic) ClientAuth(m AuthMessage) {
 
 //client send message handle
 func (logic Logic) ClientMessage(m MessagePackage) {
-	fmt.Println("进入消息接受处理程序", logic.ctx.UserID)
 	m.UserId = logic.ctx.UserID
 	redisconn := dao.NewRedis()
 	defer redisconn.Close()
@@ -128,7 +126,7 @@ func (logic Logic) ClientMessage(m MessagePackage) {
 				}
 			}
 		} else {
-			fmt.Println("设备未在线 , 未读消息写入redis")
+			// fmt.Println("设备未在线 , 未读消息写入redis")
 			redisconn.Do("LPUSH", "list_message_offline:"+UserID, packages.BodyData)
 		}
 	}
@@ -155,7 +153,6 @@ func (logic Logic) ClientACK(p Package) {
 func (logic Logic) Close() {
 	if logic.ctx.IsConnStatus != false {
 		if user_map, ok := SocketConnPool.Get(logic.ctx.UserID); ok {
-			fmt.Println(logic.ctx.DeviceType)
 			user_map.(cmap.ConcurrentMap).Remove(logic.ctx.DeviceType)
 			SocketConnPool.Set(logic.ctx.UserID,user_map)
 		}
@@ -197,7 +194,7 @@ func getMessageSeq() int {
 
 // 时间戳毫秒(42),
 func (logic Logic) GetMessageId(m MessagePackage) {
-	fmt.Println(10, 10<<12)
+
 	// 1）获取当前系统的时间戳毫秒，并赋值给消息 ID 的高 64 Bit ：
 	highBits := time.Now().UnixNano() / 1e6
 	//highBits = 1589403510000
@@ -213,7 +210,6 @@ func (logic Logic) GetMessageId(m MessagePackage) {
 	sessionId := m.ChatroomId
 	sessionInt := int(crc32.ChecksumIEEE([]byte(sessionId))) & 0x3FFFFF
 
-	fmt.Println("sessionInt",sessionInt)
 	// 5）highBits 左移 6 位，并将 sessionIdInt 的高 6 位拼接到 highBits 的低 6 位中：
 	highBits = highBits << 6
 	highBits = highBits | int64(sessionInt >> 16)
@@ -221,7 +217,7 @@ func (logic Logic) GetMessageId(m MessagePackage) {
 	lowBits := int64((sessionInt & 0xFFFFF) << 16)
 	// 7）highBits 与 lowBits 拼接得到 80 Bit 的消息 ID，对其进行 32 进制编码，即可得到唯一消息 ID：
 	BitId := strconv.FormatInt(highBits, 2) + strconv.FormatInt(lowBits, 2)
-	fmt.Println("BitId", len(BitId), BitId)
+
 	var message_id string
 	for i:=0; i<16; i++ {
 		str := BitId[i*5:(i+1)*5]

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"free-im/library/extend/alisms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
+	"log"
 	"math/rand"
 )
 
@@ -32,7 +33,7 @@ func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 	switch sms_type {
 	case "login":
 		if response, err = sms.SendSms(phone,"FREE","SMS_181196339",templateParam); err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 			return errors.New("系统繁忙")
 		}
 		if response.Code != "OK" {

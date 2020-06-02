@@ -40,5 +40,6 @@ free-im是一个即时通讯服务器，代码全部使用golang完成。主要�
 #### 其他
 ```cgo
 https://goproxy.io/
+http://mirrors.aliyun.com/goproxy/
 go list -m -json all
 ```

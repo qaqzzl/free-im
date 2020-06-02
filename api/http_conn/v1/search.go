@@ -3,7 +3,6 @@ package v1
 import "C"
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/util"
 	"net/http"
 )
@@ -22,7 +21,6 @@ func SearchMember(writer http.ResponseWriter, request *http.Request) {
 	}
 	ret := make(map[string]interface{})
 	ret["search_list"] = search_list
-	fmt.Println(ret)
 	util.RespOk(writer, ret, "")
 }
 

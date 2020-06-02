@@ -3,13 +3,11 @@ package tcp_conn
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"net"
-	"strings"
 )
 
 func (c *Context) Write(conn net.Conn, p Package) (int, error) {
-	fmt.Println(strings.TrimSpace(string(p.BodyData)))
+	// fmt.Println(strings.TrimSpace(string(p.BodyData)))
 	// 读取消息的长度
 	var length = int32(len(p.BodyData))
 	var pkg = new(bytes.Buffer)

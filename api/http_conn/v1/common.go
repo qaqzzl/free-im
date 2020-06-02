@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/util"
 	"github.com/qiniu/api.v7/v7/auth/qbox"
 	"github.com/qiniu/api.v7/v7/storage"
@@ -67,7 +66,6 @@ func GetMessageId(writer http.ResponseWriter, request *http.Request) {
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
 
-	fmt.Println(10, 10<<12)
 	// 1）获取当前系统的时间戳毫秒，并赋值给消息 ID 的高 64 Bit ：
 	highBits := time.Now().UnixNano() / 1e6
 	//highBits = 1589403510000
@@ -83,7 +81,6 @@ func GetMessageId(writer http.ResponseWriter, request *http.Request) {
 	sessionId := formData["chatroom_id"].(string)
 	sessionInt := int(crc32.ChecksumIEEE([]byte(sessionId))) & 0x3FFFFF
 
-	fmt.Println("sessionInt",sessionInt)
 	// 5）highBits 左移 6 位，并将 sessionIdInt 的高 6 位拼接到 highBits 的低 6 位中：
 	highBits = highBits << 6
 	highBits = highBits | int64(sessionInt >> 16)
@@ -91,7 +88,6 @@ func GetMessageId(writer http.ResponseWriter, request *http.Request) {
 	lowBits := int64((sessionInt & 0xFFFFF) << 16)
 	// 7）highBits 与 lowBits 拼接得到 80 Bit 的消息 ID，对其进行 32 进制编码，即可得到唯一消息 ID：
 	BitId := strconv.FormatInt(highBits, 2) + strconv.FormatInt(lowBits, 2)
-	fmt.Println("BitId", len(BitId), BitId)
 	var message_id string
 	for i:=0; i<16; i++ {
 		str := BitId[i*5:(i+1)*5]

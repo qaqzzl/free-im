@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/api/service"
 	"free-im/util"
 	"net/http"
@@ -41,7 +40,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 		member_id, err = AccountService.Register(formData["phone"].(string), "phone", "")
 	}
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		util.RespFail(writer, "系统繁忙")
 		return
 	}

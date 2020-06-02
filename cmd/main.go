@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	httpV1 "free-im/api/http_conn/v1"
 	"free-im/api/tcp_conn"
+	"free-im/api/ws_conn"
 	"free-im/config"
 	"log"
 	"net"
@@ -92,5 +94,20 @@ func init_im_tcp() {
 			break
 		}
 		go tcp_conn.ConnSocketHandler(conn)
+	}
+}
+
+func init_im_ws() {
+	// Configure websocket route
+	http.HandleFunc("/", ws_conn.HandleConnections)
+
+	// Start listening for incoming chat messages
+	//go handleMessages()
+
+	// Start the server on localhost port 8000 and log any errors
+	err := http.ListenAndServe(":8989", nil)
+	if err != nil {
+		fmt.Println("ListenAndServe: ")
+		panic( err )
 	}
 }

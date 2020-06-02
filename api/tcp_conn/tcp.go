@@ -3,7 +3,6 @@ package tcp_conn
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"free-im/dao"
 	"github.com/orcaman/concurrent-map"
 	"io"
@@ -16,7 +15,7 @@ import (
 
 
 func ConnSocketHandler(conn net.Conn) {
-	fmt.Println("接入新连接")
+	// fmt.Println("接入新连接")
 	if conn == nil {
 		return
 	}
@@ -50,7 +49,7 @@ func ConnSocketHandler(conn net.Conn) {
 				continue
 			}
 			if message_id,err := redisconn.Do("RPOP","list_message_ack_timeout_retransmit:"+ctx.UserID+":"+ctx.ClientType); err != nil {
-				fmt.Println("list_message_ack_timeout_retransmit err", err.Error())
+				log.Println("list_message_ack_timeout_retransmit err", err.Error())
 				<-ticker.C
 				continue
 			} else {
@@ -59,7 +58,7 @@ func ConnSocketHandler(conn net.Conn) {
 					continue
 				}
 				if message, err := redisconn.Do("HGET","hash_message_ack_timeout_retransmit:"+ctx.UserID+":"+ctx.ClientType, message_id); err != nil {
-					fmt.Println("hash_message_ack_timeout_retransmit err", err.Error())
+					log.Println("hash_message_ack_timeout_retransmit err", err.Error())
 					<-ticker.C
 					continue
 				} else {
@@ -100,7 +99,7 @@ func ConnSocketHandler(conn net.Conn) {
 				continue
 			}
 			if message,err := redisconn.Do("RPOP","list_message_offline:"+ctx.UserID); err != nil {
-				fmt.Println("list_message_offline err", err.Error())
+				log.Println("list_message_offline err", err.Error())
 				<-ticker.C
 				continue
 			} else {
@@ -131,7 +130,7 @@ func ConnSocketHandler(conn net.Conn) {
 						}
 					}
 				} else {
-					fmt.Println("设备未在线 , 未读消息写入redis")
+					// fmt.Println("设备未在线 , 未读消息写入redis")
 					redisconn.Do("LPUSH", "list_message_offline:"+ctx.UserID, packages.BodyData)
 				}
 			}
@@ -154,13 +153,12 @@ func ConnSocketHandler(conn net.Conn) {
 		for {
 			p, err := ctx.Read()
 			if err == io.EOF || err != nil {
-				fmt.Println("err",err)
 				logic.Close()
 				break
 			}
 			// inStr := strings.TrimSpace(string(p.BodyData))
 			if p.Action != 99  {
-				fmt.Println("接收到的原始消息:", p.Action, p.Version, p.SequenceId, string(p.BodyData))
+				// fmt.Println("接收到的原始消息:", p.Action, p.Version, p.SequenceId, string(p.BodyData))
 			}
 			headbeatTime = time.Now().Unix()
 			// 动作(路由)
@@ -222,8 +220,8 @@ func ConnSocketHandler(conn net.Conn) {
 	for {
 		// 如果连接关闭并且OutChan为空, 则退出
 		if len(ctx.WriteChan) == 0 && ctx.IsConnStatus == false {
-			fmt.Println("断开处理")
-			fmt.Printf("Connection from %v closed. \n", conn.RemoteAddr())
+			//fmt.Println("断开处理")
+			//fmt.Printf("Connection from %v closed. \n", conn.RemoteAddr())
 			logic.Close()
 			break
 		} else {
@@ -237,22 +235,22 @@ func ConnSocketHandler(conn net.Conn) {
 
 // 系统监听
 func SystemMonitor() {
-	go func() {
-		ticker := time.NewTicker(time.Second * 3)
-		for {
-			<-ticker.C
-			fmt.Println("-----------------------------------")
-			fmt.Println("连接用户数: ",SocketConnPool.Count())
-			for key,vo := range SocketConnPool.Items() {
-				fmt.Println("--------------")
-				fmt.Println("连接用户ID: ", key)
-				ConcurrentMap := vo.(cmap.ConcurrentMap)
-				for k,v := range ConcurrentMap.Items() {
-					fmt.Println("连接设备类型: ", k)
-					fmt.Println("连接设备ID: ", v.(ClientDevice).DeviceID)
-				}
-
-			}
-		}
-	}()
+	//go func() {
+	//	ticker := time.NewTicker(time.Second * 3)
+	//	for {
+	//		<-ticker.C
+	//		fmt.Println("-----------------------------------")
+	//		fmt.Println("连接用户数: ",SocketConnPool.Count())
+	//		for key,vo := range SocketConnPool.Items() {
+	//			fmt.Println("--------------")
+	//			fmt.Println("连接用户ID: ", key)
+	//			ConcurrentMap := vo.(cmap.ConcurrentMap)
+	//			for k,v := range ConcurrentMap.Items() {
+	//				fmt.Println("连接设备类型: ", k)
+	//				fmt.Println("连接设备ID: ", v.(ClientDevice).DeviceID)
+	//			}
+	//
+	//		}
+	//	}
+	//}()
 }

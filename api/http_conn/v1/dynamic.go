@@ -2,9 +2,9 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/dao"
 	"free-im/util"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -45,7 +45,7 @@ func DynamicList(writer http.ResponseWriter, request *http.Request) {
 		Select("d.*,um.nickname,um.avatar,um.gender,um.birthdate").
 		Order("dynamic_id desc").
 		Limit(current_page+","+formData["perpage"]).Get(); err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			util.RespFail(writer,  "系统忙, 稍后再试")
 		return
 	} else {
