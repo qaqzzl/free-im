@@ -16,6 +16,14 @@ import (
 
 
 func main() {
+
+	//for  {
+	//	pack := make([]byte, math.MaxInt32)
+		//fmt.Println(len(pack))
+	//}
+	//
+	//return
+
 	// 配置文件
 	ConfPath := flag.String("cpath", "./config.conf", "config file")
 	config.InitConfig(*ConfPath)

@@ -3,6 +3,7 @@ package tcp_conn
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"free-im/dao"
 	"github.com/orcaman/concurrent-map"
 	"io"
@@ -158,7 +159,7 @@ func ConnSocketHandler(conn net.Conn) {
 			}
 			// inStr := strings.TrimSpace(string(p.BodyData))
 			if p.Action != 99  {
-				// fmt.Println("接收到的原始消息:", p.Action, p.Version, p.SequenceId, string(p.BodyData))
+				fmt.Println("接收到的原始消息:", p.Action, p.Version, p.BodyLength, string(p.BodyData))
 			}
 			headbeatTime = time.Now().Unix()
 			// 动作(路由)

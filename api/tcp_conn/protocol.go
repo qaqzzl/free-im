@@ -3,6 +3,8 @@ package tcp_conn
 import (
 	"bytes"
 	"encoding/binary"
+	"log"
+	"math"
 	"net"
 )
 
@@ -55,7 +57,14 @@ func (c *Context) Read() (p Package, err error) {
 		return p, err
 	}
 	// Buffered 返回缓存中未读取的数据的长度
-	if int32(c.r.Buffered()) < (Bodylength+int32(headInt)) {
+
+	// debug
+	len := Bodylength+int32(headInt)
+	if len > math.MaxInt32 {
+		len = math.MaxInt32
+	}
+	// end debug
+	if int32(c.r.Buffered()) < len {
 		return p, err
 	}
 	// 读取消息真正的内容
@@ -79,5 +88,11 @@ func (c *Context) Read() (p Package, err error) {
 	err = binary.Read(Buff, binary.BigEndian, &p.SequenceId)
 	p.BodyLength = Bodylength
 	p.BodyData = pack[13:n]
+
+	// debug
+	if len > math.MaxInt32 {
+		log.Panicln("数据量超出: ", Bodylength, "  ,  "+ string(p.BodyData))
+	}
+	// end debug
 	return p, nil
 }
