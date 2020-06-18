@@ -60,8 +60,10 @@ func (c *Context) Read() (p Package, err error) {
 
 	// debug
 	len := Bodylength+int32(headInt)
-	if len > math.MaxInt32 {
-		len = math.MaxInt32
+	if int(len) > math.MaxInt32 || int(len) < 0 {
+		len = 0
+		// debug
+		log.Panicln("数据量超出: ", Bodylength, "  ,  "+ string(p.BodyData))
 	}
 	// end debug
 	if int32(c.r.Buffered()) < len {
@@ -88,11 +90,6 @@ func (c *Context) Read() (p Package, err error) {
 	err = binary.Read(Buff, binary.BigEndian, &p.SequenceId)
 	p.BodyLength = Bodylength
 	p.BodyData = pack[13:n]
-
-	// debug
-	if len > math.MaxInt32 {
-		log.Panicln("数据量超出: ", Bodylength, "  ,  "+ string(p.BodyData))
-	}
 	// end debug
 	return p, nil
 }
