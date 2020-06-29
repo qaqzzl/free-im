@@ -171,14 +171,14 @@ func ConnSocketHandler(conn net.Conn) {
 				//	continue
 				//}
 				//logic.GetMessageId(m)
-			case ActionAuth: // 客户端链接认证
+			case ActionAuth: 		// 连接认证
 				m := AuthMessage{}
 				if err := json.Unmarshal(p.BodyData, &m); err != nil {
 					log.Println(err.Error())
 					continue
 				}
 				logic.ClientAuth( m )
-			case ActionMessageRead: // 客户端发送消息
+			case ActionMessageRead: // 消息处理
 				m := MessagePackage{}
 				if err := json.Unmarshal(p.BodyData, &m); err != nil {
 					log.Println(err.Error())
