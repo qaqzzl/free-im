@@ -25,8 +25,8 @@ func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string) (boo
 // 发送手机验证码
 func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 	sms := alisms.Sms{
-		AccessKeyId:  "LTAI4FgeiKnb63YvurKUVB1w",
-		AccessSecret: "iz3GbQhAjRnitjmz60BUJm4EAiR0gj",
+		AccessKeyId:  "",
+		AccessSecret: "",
 	}
 	var response *dysmsapi.SendSmsResponse
 	templateParam := fmt.Sprintf(`{"code":%06d}`,rand.Int31n(10000))
