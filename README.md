@@ -14,6 +14,17 @@ free-im是一个即时通讯服务器，代码全部使用golang完成。主要�
     发布动态(支持图片, 视频)
 ```
 
+### 目录结构
+项目结构遵循 https://github.com/golang-standards/project-layout
+```
+cmd:          服务启动入口
+config:       服务配置
+internal:     每个服务私有代码
+pkg:          服务共有代码
+sql:          项目sql文件
+test:         长连接测试脚本
+```
+
 ### 使用技术：
 ```cgo
 数据库：MySQL+Redis
