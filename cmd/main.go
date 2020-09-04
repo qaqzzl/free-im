@@ -4,11 +4,9 @@ import (
 	"flag"
 	"fmt"
 	httpV1 "free-im/api/http_conn/v1"
-	"free-im/api/tcp_conn"
-	"free-im/api/ws_conn"
-	"free-im/config"
+	"free-im/configs"
+	"free-im/internal/im/ws_conn"
 	"log"
-	"net"
 	"net/http"
 	"os"
 )
@@ -16,26 +14,12 @@ import (
 
 
 func main() {
-
-	//for  {
-	//	pack := make([]byte, math.MaxInt32)
-		//fmt.Println(len(pack))
-	//}
-	//
-	//return
-
 	// 配置文件
 	ConfPath := flag.String("cpath", "./config.conf", "config file")
 	config.InitConfig(*ConfPath)
 
 	// http
 	go init_http()
-
-	// tcp 服务状态监听
-	tcp_conn.SystemMonitor()
-
-	// tcp
-	init_im_tcp()
 }
 
 
@@ -82,27 +66,7 @@ func init_http() {
 }
 
 func init_im_tcp() {
-	addr, err := net.ResolveTCPAddr("tcp", ":1208")
-	if err != nil {
-		panic(err)
-	}
-	server, err := net.ListenTCP("tcp", addr)
-	if err != nil {
-		print("Fail to start server, %s\n", err)
-	}
-	for {
-		conn, err := server.AcceptTCP()
-		if err != nil {
-			print("Fail to connect, %s\n", err)
-			break
-		}
-		err = conn.SetKeepAlive(true)
-		if err != nil {
-			print("Fail to connect, %s\n", err)
-			break
-		}
-		go tcp_conn.ConnSocketHandler(conn)
-	}
+
 }
 
 func init_im_ws() {
