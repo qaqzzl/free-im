@@ -16,4 +16,6 @@ error.log
 *.conf
 
 main
+!main/
 im
+!im/
