@@ -3,24 +3,25 @@ package tcp_conn
 import (
 	"bytes"
 	"encoding/binary"
+	"free-im/pkg/protos/pbs"
 	"log"
 	"math"
 	"net"
 )
 
-func (c *Context) Write(conn net.Conn, p Package) (int, error) {
+func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 	// fmt.Println(strings.TrimSpace(string(p.BodyData)))
 	// 读取消息的长度
-	var length = int32(len(p.BodyData))
+	var length = int32(len(mp.BodyData))
 	var pkg = new(bytes.Buffer)
 	//写入消息头
-	if err := binary.Write(pkg, binary.BigEndian, p.Version); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, mp.Version); err != nil {
 		return 0, err
 	}
-	if err := binary.Write(pkg, binary.BigEndian, p.Action); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, mp.Action); err != nil {
 		return 0, err
 	}
-	if err := binary.Write(pkg, binary.BigEndian, p.SequenceId); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, mp.SequenceId); err != nil {
 		return 0, err
 	}
 	if err := binary.Write(pkg, binary.BigEndian, length); err != nil {
@@ -28,7 +29,7 @@ func (c *Context) Write(conn net.Conn, p Package) (int, error) {
 	}
 
 	//写入消息体
-	if err := binary.Write(pkg, binary.BigEndian, p.BodyData); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, mp.BodyData); err != nil {
 		return 0, err
 	}
 	nn, err := conn.Write(pkg.Bytes())
@@ -38,7 +39,7 @@ func (c *Context) Write(conn net.Conn, p Package) (int, error) {
 	return nn, nil
 }
 
-func (c *Context) Read() (p Package, err error) {
+func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	// Peek 返回缓存的一个切片，该切片引用缓存中前 n 个字节的数据，
 	// 该操作不会将数据读出，只是引用，引用的数据在下一次读取操作之
 	// 前是有效的。如果切片长度小于 n，则返回一个错误信息说明原因。
@@ -46,7 +47,7 @@ func (c *Context) Read() (p Package, err error) {
 	var headInt = 13
 	headByte, err := c.r.Peek(headInt)
 	if err != nil {
-		return p, err
+		return mp, err
 	}
 	//创建 Buffer缓冲器
 	lengthBuff := bytes.NewBuffer(headByte[9:13])
@@ -54,20 +55,20 @@ func (c *Context) Read() (p Package, err error) {
 	// 通过Read接口可以将buf中得内容填充到data参数表示的数据结构中
 	err = binary.Read(lengthBuff, binary.BigEndian, &Bodylength)
 	if err != nil {
-		return p, err
+		return mp, err
 	}
 	// Buffered 返回缓存中未读取的数据的长度
 
 	// debug
-	len := Bodylength+int32(headInt)
+	len := Bodylength + int32(headInt)
 	if int(len) > math.MaxInt32 || int(len) < 0 {
 		len = 0
 		// debug
-		log.Panicln("数据量超出: ", Bodylength, "  ,  "+ string(p.BodyData))
+		log.Panicln("数据量超出: ", Bodylength, "  ,  "+string(mp.BodyData))
 	}
 	// end debug
 	if int32(c.r.Buffered()) < len {
-		return p, err
+		return mp, err
 	}
 	// 读取消息真正的内容
 	pack := make([]byte, int(Bodylength+int32(headInt)))
@@ -80,16 +81,16 @@ func (c *Context) Read() (p Package, err error) {
 	// 中，再从缓存读取到 p 中。
 	n, err := c.r.Read(pack)
 	if err != nil {
-		return p, err
+		return mp, err
 	}
 	Buff := bytes.NewBuffer(headByte[0:4])
-	err = binary.Read(Buff, binary.BigEndian, &p.Version)
+	err = binary.Read(Buff, binary.BigEndian, &mp.Version)
 	Buff = bytes.NewBuffer(headByte[4:5])
-	err = binary.Read(Buff, binary.BigEndian, &p.Action)
+	err = binary.Read(Buff, binary.BigEndian, &mp.Action)
 	Buff = bytes.NewBuffer(headByte[5:9])
-	err = binary.Read(Buff, binary.BigEndian, &p.SequenceId)
-	p.BodyLength = Bodylength
-	p.BodyData = pack[13:n]
+	err = binary.Read(Buff, binary.BigEndian, &mp.SequenceId)
+	mp.BodyLength = Bodylength
+	mp.BodyData = pack[13:n]
 	// end debug
-	return p, nil
+	return mp, nil
 }

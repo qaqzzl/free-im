@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "im.proto";
+
+package pbs;
+
+message MessageReceiveReq {
+    MessageItem message = 1;
+}
+message MessageReceiveResp {
+}
+
+message MessageACKReq {
+    string message_id = 1;
+}
+message MessageACKResp {
+}
+
+service LogicInit {
+    // 获取消息ID
+
+    // token 连接认证
+
+    // 消息接收
+    rpc MessageReceive (MessageReceiveReq) returns (MessageReceiveResp);
+
+    // 消息回执
+    rpc MessageACK (MessageACKReq) returns (MessageACKResp);
+
+    // 消息同步
+    // rpc MessageSync (MessageSyncReq);
+
+    // 设备退出
+}

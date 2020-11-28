@@ -1,0 +1,20 @@
+syntax = "proto3";
+import "im.proto";
+
+
+package pbs;
+
+message DeliverMessageReq {
+    string user_id = 1; // 用户ID
+    string device_id = 2; // 设备ID
+    MessagePackage message = 3; // 数据
+}
+message DeliverMessageResp {
+}
+
+service ConnInit {
+    //  消息投递
+    rpc DeliverMessageByUID (DeliverMessageReq) returns (DeliverMessageResp);
+    rpc DeliverMessageByUIDAndDID (DeliverMessageReq) returns (DeliverMessageResp);
+    rpc DeliverMessageByUIDAndNotDID (DeliverMessageReq) returns (DeliverMessageResp);
+}

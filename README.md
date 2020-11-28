@@ -54,3 +54,22 @@ https://goproxy.io/
 http://mirrors.aliyun.com/goproxy/
 go list -m -json all
 ```
+
+
+#### 命令笔记
+```
+grpc
+go get -u github.com/golang/protobuf
+go get -u github.com/golang/protobuf/protoc-gen-go
+https://github.com/protocolbuffers/protobuf/releases
+protoc --go_out=plugins=grpc:./pbs *.proto
+
+```
+
+#### 常见错误
+```
+exec: "gcc": executable file not found in %PATH%
+下载gcc环境
+https://jmeubank.github.io/tdm-gcc/download/
+
+```

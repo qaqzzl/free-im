@@ -44,11 +44,6 @@ create table if not exists `user_auths_token`(
     UNIQUE KEY `token` (`token`)
 )engine=innodb default charset=utf8 comment '用户授权 token 表';
 
-
--------
--- IM相关
--------
-
 -- 用户好友表
 create table if not exists `user_friend`(
     `id` int unsigned auto_increment primary key,
