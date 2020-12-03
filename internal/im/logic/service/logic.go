@@ -8,31 +8,40 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
+	"free-im/pkg/util/id"
 	"hash/crc32"
 	"strconv"
 	"time"
 )
+
+// client conn auth
+func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, error) {
+	m := req.Message
+	if m.UserID == "" || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
+		logger.Sugar.Error("认证失败")
+		return &pbs.TokenAuthResp{Statu: false}, nil
+	}
+	return &pbs.TokenAuthResp{Statu: true}, nil
+}
 
 //client message handle
 func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	m := req.Message
 	//数据验证 code ... //
 
-	redisconn := dao.NewRedis()
-	defer redisconn.Close()
-
 	m.MessageSendTime = time.Now().Unix()
 	BodyData, _ := json.Marshal(m)
 
 	// 存储消息
-	//_, err := redisconn.Do("ZADD", "sorted_set_im_chatroom_message_record:"+m.ChatroomId, m.MessageId, BodyData)
-	//if err != nil {
-	//	logger.Sugar.Error("存储消息失败",err)
-	//	return err
-	//}
+	decodemid := id.MessageID.DecodeID(m.MessageId)
+	_, err := dao.RedisConn().Do("ZADD", "sorted_set_im_chatroom_message_record:"+m.ChatroomId, decodemid, BodyData)
+	if err != nil {
+		logger.Sugar.Error("存储消息失败", err)
+		return err
+	}
 
 	// 查询聊天室成员
-	members, err := redisconn.Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
+	members, err := dao.RedisConn().Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -47,8 +56,8 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		fmt.Println(UserID)
 		//发送消息
 		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
-			UserId:   UserID,
-			Message:  &packages,
+			UserId:  UserID,
+			Message: &packages,
 		})
 	}
 	// 消息回执
@@ -63,9 +72,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 }
 
 func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
-	redisconn := dao.NewRedis()
-	defer redisconn.Close()
-	redisconn.Do("HDEL", "hash_message_ack_timeout_retransmit", mp.MessageId)
+	dao.RedisConn().Do("HDEL", "hash_message_ack_timeout_retransmit", mp.MessageId)
 	return nil
 }
 

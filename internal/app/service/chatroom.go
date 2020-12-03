@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/internal/app/model"
+	"free-im/pkg/protos/pbs"
+	"free-im/pkg/util/id"
 	"github.com/satori/go.uuid"
 	"log"
 	"math/rand"
@@ -17,7 +19,6 @@ type ChatRoomService struct {
 
 // 通过好友ID 获取 聊天室ID
 func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id string) (chatroom_id string, err error) {
-	rconn := dao.NewRedis()
 	var field string
 	if member_id > friend_id {
 		field = member_id + "," + friend_id
@@ -25,15 +26,15 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id stri
 		field = friend_id + "," + member_id
 	}
 	var res interface{}
-	if res, err = rconn.Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
+	if res, err = dao.RedisConn().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
 		log.Println(err)
 	}
 
 	if res == nil {
 		//生成聊天室ID
-		chatroom_id = uuid.NewV4().String() + ":ordinary"
-		rconn.Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id)      //创建聊天室
-		rconn.Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id) //创建单聊跟聊天室关系
+		chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Single)
+		dao.RedisConn().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), member_id, friend_id) //创建聊天室
+		dao.RedisConn().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id)               //创建单聊跟聊天室关系
 	} else {
 		chatroom_id = string(res.([]uint8))
 	}
@@ -63,7 +64,7 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 	group_id = strconv.Itoa(int(id))
 
 	// redis
-	rconn := dao.NewRedis()
+	rconn := dao.RedisConn()
 	rconn.Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //创建聊天室
 
 	return group_id, err
@@ -75,9 +76,7 @@ func (s *ChatRoomService) AddGroup(member_id string, group_id string, remark str
 	if len(group) == 0 {
 		return ret, errors.New("群组不存在")
 	}
-	// redis
-	rconn := dao.NewRedis()
-	rconn.Do("SADD", "set_im_chatroom_member:"+group["chatroom_id"], member_id) //加入聊天室
+	dao.RedisConn().Do("SADD", "set_im_chatroom_member:"+group["chatroom_id"], member_id) //加入聊天室
 
 	ret = make(map[string]string)
 	ret["code"] = "0"

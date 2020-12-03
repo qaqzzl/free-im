@@ -43,9 +43,7 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	switch chatroom_type {
 	case 0:
 		// 查询聊天室成员
-		redisconn := dao.NewRedis()
-		defer redisconn.Close()
-		members, _ := redisconn.Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
+		members, _ := dao.RedisConn().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
 		for _, v := range members.([]interface{}) {
 			to_user_id := string(v.([]uint8))
 			if to_user_id == user_id {

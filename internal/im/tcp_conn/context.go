@@ -27,7 +27,7 @@ type ClientDevice struct {
 type Context struct {
 	TcpConn      net.Conn
 	r            *bufio.Reader
-	Version		 int32
+	Version      int32
 	WriteChan    chan sendMessage // 出chan
 	ReadChan     chan sendMessage // 入chan
 	DeviceID     string           // 设备id 简写 DID

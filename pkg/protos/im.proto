@@ -29,8 +29,9 @@ enum MessageCode {
 
 // 会话类型(聊天室类型), 单聊、群聊、系统消息、聊天室、客服
 enum ChatroomType {
-	ChatroomTypeSingle			= 0;			// 单聊
-	ChatroomTypeGroup			= 1;			// 群聊
+    Unknown			= 0;			// 未知
+	Single			= 1;			// 单聊
+	Group			= 2;			// 群聊
 }
 
 // 消息包

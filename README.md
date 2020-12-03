@@ -97,11 +97,14 @@ https://jmeubank.github.io/tdm-gcc/download/
                 score: 消息ID
                 member: 消息
 
-3. 消息同步
+        
+3. 消息回执
+
+
+4. 消息同步
     规则:
         只能根据通过会话ID跟消息ID, 同步当前会话ID 大于或小于 消息ID的记录
-        
-4. 消息回执
+
 
 5. 客户端根据消息ID去重
 

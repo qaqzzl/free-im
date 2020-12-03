@@ -3,6 +3,13 @@ import "im.proto";
 
 package pbs;
 
+message TokenAuthReq {
+    AuthMessage message = 1;
+}
+message TokenAuthResp {
+    bool statu = 1;
+}
+
 message MessageReceiveReq {
     MessageItem message = 1;
 }
@@ -19,6 +26,7 @@ service LogicInit {
     // 获取消息ID
 
     // token 连接认证
+    rpc TokenAuth (TokenAuthReq) returns (TokenAuthResp);
 
     // 消息接收
     rpc MessageReceive (MessageReceiveReq) returns (MessageReceiveResp);
