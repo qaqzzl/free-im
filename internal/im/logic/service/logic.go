@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
 	"hash/crc32"
-	"log"
 	"strconv"
 	"time"
 )
@@ -22,28 +22,32 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	defer redisconn.Close()
 
 	m.MessageSendTime = time.Now().Unix()
-	message, _ := json.Marshal(m)
+	BodyData, _ := json.Marshal(m)
 
 	// 存储消息
-	redisconn.Do("ZADD", "sorted_set_im_chatroom_message_record:"+m.ChatroomId, m.MessageId, message)
+	//_, err := redisconn.Do("ZADD", "sorted_set_im_chatroom_message_record:"+m.ChatroomId, m.MessageId, BodyData)
+	//if err != nil {
+	//	logger.Sugar.Error("存储消息失败",err)
+	//	return err
+	//}
 
 	// 查询聊天室成员
 	members, err := redisconn.Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
 	if err != nil {
-		log.Println("查询聊天室成员失败", err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	// 给聊天室全员发送消息
 	packages := pbs.MessagePackage{
 		Action:   pbs.Action_Message,
-		BodyData: message,
+		BodyData: BodyData,
 	}
 	for _, v := range members.([]interface{}) {
 		UserID := string(v.([]uint8))
+		fmt.Println(UserID)
 		//发送消息
-		rpc_client.ConnectInit.DeliverMessageByUIDAndDID(ctx, &pbs.DeliverMessageReq{
+		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
 			UserId:   UserID,
-			DeviceId: m.DeviceID,
 			Message:  &packages,
 		})
 	}

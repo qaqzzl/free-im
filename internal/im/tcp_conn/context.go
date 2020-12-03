@@ -27,6 +27,7 @@ type ClientDevice struct {
 type Context struct {
 	TcpConn      net.Conn
 	r            *bufio.Reader
+	Version		 int32
 	WriteChan    chan sendMessage // 出chan
 	ReadChan     chan sendMessage // 入chan
 	DeviceID     string           // 设备id 简写 DID
@@ -61,7 +62,7 @@ func (ctx *Context) DoConn() {
 			ctx.TcpConn.Close()
 			break
 		}
-		if mp.Action != 99 {
+		if mp.Action != 100 {
 			// inStr := strings.TrimSpace(string(p.BodyData))
 			logger.Logger.Info("接收到的原始消息")
 			fmt.Println(mp.Action, mp.Version, mp.BodyLength, string(mp.BodyData))
@@ -83,6 +84,10 @@ func (ctx *Context) HandlePackage(mp pbs.MessagePackage) {
 
 //send message handle
 func (ctx *Context) SendMessage(conn net.Conn, mp pbs.MessagePackage) (n int, err error) {
+	if mp.Action != 100 {
+		logger.Logger.Info("发送的原始消息")
+		fmt.Println(mp.Action, mp.Version, mp.BodyLength, string(mp.BodyData))
+	}
 	if n, err = ctx.Write(conn, mp); err == nil {
 		return n, nil
 	} else {
@@ -114,8 +119,10 @@ func DeliverMessageByUIDAndDID(ctx context.Context, req *pbs.DeliverMessageReq) 
 		return nil
 	}
 	for _, ctxconn := range ctxconns {
-		// 发送消息
-		ctxconn.SendMessage(ctxconn.TcpConn, *req.Message)
+		if req.DeviceId == ctxconn.DeviceID {
+			// 发送消息
+			ctxconn.SendMessage(ctxconn.TcpConn, *req.Message)
+		}
 	}
 	return nil
 }
@@ -162,6 +169,7 @@ func loadConnsByUID(UserID string) (ctxs []*Context) {
 			ctxs = append(ctxs, device.Context)
 		}
 	}
+	fmt.Println(ctxs)
 	return ctxs
 }
 

@@ -73,3 +73,36 @@ exec: "gcc": executable file not found in %PATH%
 https://jmeubank.github.io/tdm-gcc/download/
 
 ```
+
+###思路
+
+消息ID采用
+![Image text](docs/message_id.png)
+
+1. 消息储存设计
+    redis 有序集合储存
+        key: 会话ID
+            score: 消息ID
+            member: 消息
+
+2. 离线消息设计
+    规则: 
+        设备上线自动推送
+        每个群离线消息集合只储存最近1000条,
+        每个单聊离校消息集合只储存最近5千条
+        超过以上规则的可以用消息同步拉取
+    存储:
+        redis 有序集合储存
+            key: 用户iD + 会话ID
+                score: 消息ID
+                member: 消息
+
+3. 消息同步
+    规则:
+        只能根据通过会话ID跟消息ID, 同步当前会话ID 大于或小于 消息ID的记录
+        
+4. 消息回执
+
+5. 客户端根据消息ID去重
+
+(通过 1,2,3,4,5 保证消息不丢不重)

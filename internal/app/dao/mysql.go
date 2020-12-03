@@ -5,6 +5,7 @@ import (
 	"free-im/configs"
 	_ "github.com/go-sql-driver/mysql"
 	"strings"
+	"time"
 )
 
 var MysqlConn *sql.DB
@@ -23,6 +24,7 @@ func (DB *Db) mysqlConnect() *Db {
 		MysqlConn, _ = sql.Open("mysql", config.LogicConf.MySQL)
 		MysqlConn.SetMaxOpenConns(100) //最大连接数
 		MysqlConn.SetMaxIdleConns(50)  //空闲连接数
+		MysqlConn.SetConnMaxLifetime(120 * time.Second) //设置超时时间（不设置就默认永久有效）
 	}
 	//MysqlConn.Ping()
 	return DB

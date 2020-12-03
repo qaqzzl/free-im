@@ -70,3 +70,9 @@ message AuthMessage {
 	string DeviceType 		= 4;	    // 设备类型, 移动端:mobile , PC端:pc
 	string ClientType 		= 5;		// 客户端类型, android, ios,
 }
+
+// 消息体 - 客户端退出
+message MessageQuit {
+    string Title 	 			= 1;    // 标题
+    string Content 	 			= 2;    // 内容 html格式: (你的账号在其他设备登陆<br>如不是你本人登陆请<a href="">修改密码</a> | 系统奔溃 | 主动退出 | 等等)
+}

@@ -15,14 +15,15 @@ var Handler = new(handler)
 
 func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 	switch mp.Action {
-	case pbs.Action_GetMessageID: // 获取消息ID
-	case pbs.Action_Auth: // 连接认证
+	case pbs.Action_GetMessageID: 	// 获取消息ID
+	case pbs.Action_Auth: 			// 连接认证
 		h.Auth(ctx, mp)
-	case pbs.Action_Message: // 消息
+	case pbs.Action_Message: 		// 消息
 		h.MessageReceive(ctx, mp)
-	case pbs.Action_MessageACK: // 消息回执
-	case pbs.Action_SyncTrigger: // 消息同步
-	case pbs.Action_Headbeat: // 心跳
+	case pbs.Action_MessageACK: 	// 消息回执
+	case pbs.Action_SyncTrigger: 	// 消息同步
+	case pbs.Action_Headbeat: 		// 心跳
+		h.Headbeat(ctx)
 	case pbs.Action_Quit:
 		ctx.TcpConn.Close()
 	default:
@@ -32,7 +33,6 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 
 // client auth handle
 func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
-	logger.Logger.Info("进入认证方法")
 	m := pbs.AuthMessage{}
 	if err := json.Unmarshal(mp.BodyData, &m); err != nil {
 		logger.Sugar.Error(err)
@@ -40,6 +40,7 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 	}
 	// 伪代码 认证 code ...
 	if m.UserID == "" || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
+		logger.Sugar.Error("认证失败")
 		return
 	}
 	ctx.IsAuth = true
@@ -84,5 +85,22 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 }
 
 func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
-	_, _ = rpc_client.LogicInit.MessageReceive(context.TODO(), &pbs.MessageReceiveReq{})
+	m := pbs.MessageItem{}
+	if err := json.Unmarshal(mp.BodyData, &m); err != nil {
+		logger.Sugar.Error(err)
+		return
+	}
+	m.DeviceID = ctx.DeviceID
+	m.UserId = ctx.UserID
+	m.ClientType = ctx.ClientType
+	_, _ = rpc_client.LogicInit.MessageReceive(context.TODO(), &pbs.MessageReceiveReq{
+		Message:&m,
+	})
+}
+
+func (h *handler) Headbeat(ctx *Context)  {
+	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
+		Version: ctx.Version,
+		Action:pbs.Action_Headbeat,
+	})
 }

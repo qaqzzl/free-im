@@ -1,8 +1,10 @@
 package rpc_client
 
 import (
+	"fmt"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -12,18 +14,22 @@ var (
 )
 
 func InitLogicInit(addr string) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
-	defer conn.Close()
-
+	//conn, err := grpc.Dial("127.0.0.1:50000", grpc.WithInsecure())
+	//if err != nil {
+	//	panic(err)
+	//}
+	////defer conn.Close()
 	LogicInit = pbs.NewLogicInitClient(conn)
 }
 
 func InitConnInit(addr string) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, "addr")))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)

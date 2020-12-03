@@ -42,7 +42,7 @@ type MessagePackage struct {
 
 // 单条消息内容
 type MessagePackageItem struct {
-	Code    	int	`json:"code"`						// 消息码(类型)
+	Code    	int	`json:"code"`					// 消息码
 	ChatroomId	string `json:"chatroom_id"`			// 聊天室ID
 	Content 	string `json:"content"`				// 消息体
 	MessageId 	string `json:"message_id"`			// 消息ID

@@ -95,7 +95,7 @@ create table if not exists `group_member`(
     KEY `member_id` (`member_id`)
 )engine=innodb default charset=utf8 comment '群组表';
 
--- 动态表
+-- 动态表 moment
 create table if not exists `dynamic`(
   `dynamic_id` int unsigned auto_increment primary key,
   `member_id` int not null comment '会员ID',
@@ -109,9 +109,11 @@ create table if not exists `dynamic`(
   `zan` int not null default 0 comment '点赞数',
   `comment` int not null default 0 comment '评论数',
   `address_name` varchar(50) not null default "" comment '地址名称',
-  `latitude_and_longitude` varchar(255) not null default "" comment '经纬度, 经度,维度',
+  `latitude` varchar(255) not null default "" comment '经纬度: 经度',
+  `longitude` varchar(255) not null default "" comment '经纬度: 维度',
   `purview` char(10) not null default "public" comment '公开权限: public-公开, protected-好友可见, private-仅自己和指定用户可见',
-  `review` char(10) not null default "wait" comment '审核状态: wait-等待同意, normal-正常, refuse-拒绝',
+  `private_to_uid` text not null default '' comment '私有可见用户 逗号分隔',
+  `review` char(10) not null default "wait" comment '审核状态: wait-审核中, normal-正常, refuse-拒绝',
   `deleted_at` int not null default 0 comment '删除时间',
   `created_at` int not null default 0 comment '添加时间',
    KEY `member_id` (`member_id`)

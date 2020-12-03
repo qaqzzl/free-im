@@ -14,11 +14,31 @@ func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 	// 读取消息的长度
 	var length = int32(len(mp.BodyData))
 	var pkg = new(bytes.Buffer)
+	var Action int8
+	switch mp.Action {
+	case 0:
+		Action = 0
+	case (1):
+		Action = 1
+	case (2):
+		Action = 2
+	case (3):
+		Action = 3
+	case (4):
+		Action = 4
+	case (10):
+		Action = 10
+	case (11):
+		Action = 11
+	case (100):
+		Action = 100
+	}
+
 	//写入消息头
 	if err := binary.Write(pkg, binary.BigEndian, mp.Version); err != nil {
 		return 0, err
 	}
-	if err := binary.Write(pkg, binary.BigEndian, mp.Action); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, Action); err != nil {
 		return 0, err
 	}
 	if err := binary.Write(pkg, binary.BigEndian, mp.SequenceId); err != nil {
@@ -83,12 +103,31 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	if err != nil {
 		return mp, err
 	}
+	var Action int8
 	Buff := bytes.NewBuffer(headByte[0:4])
 	err = binary.Read(Buff, binary.BigEndian, &mp.Version)
 	Buff = bytes.NewBuffer(headByte[4:5])
-	err = binary.Read(Buff, binary.BigEndian, &mp.Action)
+	err = binary.Read(Buff, binary.BigEndian, &Action)
 	Buff = bytes.NewBuffer(headByte[5:9])
 	err = binary.Read(Buff, binary.BigEndian, &mp.SequenceId)
+	switch Action {
+	case int8(0):
+		mp.Action = 0
+	case int8(1):
+		mp.Action = 1
+	case int8(2):
+		mp.Action = 2
+	case int8(3):
+		mp.Action = 3
+	case int8(4):
+		mp.Action = 4
+	case int8(10):
+		mp.Action = 10
+	case int8(11):
+		mp.Action = 11
+	case int8(100):
+		mp.Action = 100
+	}
 	mp.BodyLength = Bodylength
 	mp.BodyData = pack[13:n]
 	// end debug
