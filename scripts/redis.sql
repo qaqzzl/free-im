@@ -7,11 +7,15 @@
 set_im_chatroom_member:{$chatroom_id(聊天室ID)}
     value: {$member_id(会员ID)}
 
--- 说明: 聊天室消息记录
-sorted_set_im_chatroom_message_record:{$chatroom_id(聊天室ID)}
+-- 说明: 消息记录(写扩散)
+sorted_set_im_user_message_record:{$user_id(用户ID)}
     key: (decode(消息ID))
     value: (消息)
 
+-- 说明: 消息记录(读扩散)
+sorted_set_im_chatroom_message_record:{$chatroom_id(聊天室ID)}
+    key: (decode(消息ID))
+    value: (消息)
 
 -- 说明: 单聊业务
 -- 用途: 通过自己的会员ID跟对方的会员ID获取聊天室ID

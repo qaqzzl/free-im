@@ -1,16 +1,16 @@
-#### android APP下载:  https://cdn.qaqzz.com/app-release.apk
-#### android 源码:  https://github.com/qaqzzl/free-im-android
-
+## 客户端
+android APK下载:  https://cdn.qaqzz.com/app-release.apk
+    
+android 项目地址:  https://github.com/qaqzzl/free-im-android
 ### 简要介绍
 ```
-free-im是一个即时通讯服务器，代码全部使用golang完成。主要功能
+    即时通讯服务器，代码全部使用golang完成。主要功能
     支持tcp，websocket接入(websocket暂未开发)
-    离线消息同步
     单用户多设备同时在线
-    单聊，群聊，以及超大群聊天场景(群聊未实现)
+    单聊，群聊，以及超大群聊天场景
     登录注册
     修改用户资料
-    好友增删改查,
+    好友增删改查
     发布动态(支持图片, 视频)
 ```
 
@@ -28,9 +28,10 @@ test:         长连接测试脚本
 ### 使用技术：
 ```cgo
 数据库：MySQL+Redis
-应用数据格式：Protocol Buffers(暂时使用json)
-通讯框架：Grpc  (暂未使用)
-通讯协议: version(4) action(1) sequence-id(4) body-length(4) body-data
+应用数据格式：Protocol Buffers(暂时使用json,方便开发调试)
+通讯框架：Grpc
+通讯协议: 自定义
+version(4) action(1) sequence-id(4) body-length(4) body-data
 ```
 
 ### 参考资料
@@ -48,17 +49,17 @@ test:         长连接测试脚本
 #####
     参考项目
     https://github.com/alberliu/gim
-#### 其他
-```cgo
+
+
+
+#### 笔记
+```
+mod厂库代理
 https://goproxy.io/
 http://mirrors.aliyun.com/goproxy/
 go list -m -json all
-```
 
-
-#### 命令笔记
-```
-grpc
+grpc安装
 go get -u github.com/golang/protobuf
 go get -u github.com/golang/protobuf/protoc-gen-go
 https://github.com/protocolbuffers/protobuf/releases
@@ -78,34 +79,32 @@ https://jmeubank.github.io/tdm-gcc/download/
 
 消息ID采用
 ![Image text](docs/message_id.png)
-
-1. 消息储存设计
+```text
+消息储存设计, 
+    (写扩散) 群聊|单聊
+    redis 有序集合储存
+        key: 用户ID
+            score: 消息ID
+            member: 消息
+    (读扩散) 聊天室:超大群聊
     redis 有序集合储存
         key: 会话ID
             score: 消息ID
             member: 消息
 
-2. 离线消息设计
-    规则: 
-        设备上线自动推送
-        每个群离线消息集合只储存最近1000条,
-        每个单聊离校消息集合只储存最近5千条
-        超过以上规则的可以用消息同步拉取
-    存储:
-        redis 有序集合储存
-            key: 用户iD + 会话ID
-                score: 消息ID
-                member: 消息
 
-        
-3. 消息回执
-
-
-4. 消息同步
+消息同步
     规则:
-        只能根据通过会话ID跟消息ID, 同步当前会话ID 大于或小于 消息ID的记录
+        通过消息ID, 同步消息记录
 
 
-5. 客户端根据消息ID去重
+客户端根据消息ID去重
 
-(通过 1,2,3,4,5 保证消息不丢不重)
+
+客服端负责消息重发, 保证服务端无状态性
+
+********客户端A -----message1 to B----->   连接层   --------------> 逻辑层
+********客户端B <----message1-----------   连接层   <-------------- 逻辑层
+********客户端B -----message1 ack to A->   连接层                   逻辑层
+********客户端A <----message1 ack-------   连接层                   逻辑层
+```

@@ -32,14 +32,6 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	m.MessageSendTime = time.Now().Unix()
 	BodyData, _ := json.Marshal(m)
 
-	// 存储消息
-	decodemid := id.MessageID.DecodeID(m.MessageId)
-	_, err := dao.RedisConn().Do("ZADD", "sorted_set_im_chatroom_message_record:"+m.ChatroomId, decodemid, BodyData)
-	if err != nil {
-		logger.Sugar.Error("存储消息失败", err)
-		return err
-	}
-
 	// 查询聊天室成员
 	members, err := dao.RedisConn().Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
 	if err != nil {
@@ -54,6 +46,13 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	for _, v := range members.([]interface{}) {
 		UserID := string(v.([]uint8))
 		fmt.Println(UserID)
+		// 存储消息
+		decodemid := id.MessageID.DecodeID(m.MessageId)
+		_, err := dao.RedisConn().Do("ZADD", "sorted_set_im_user_message_record:"+UserID, decodemid, BodyData)
+		if err != nil {
+			logger.Sugar.Error("存储消息失败", err)
+			return err
+		}
 		//发送消息
 		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
 			UserId:  UserID,
