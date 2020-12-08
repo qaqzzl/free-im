@@ -10,7 +10,7 @@ import (
 func main() {
 	// 初始化 redis
 	// 初始化ID 生成器
-	id.Init(dao.RedisConn())
+	id.Init(*dao.GetRConn())
 	//value2 := converToBianry(22)
 	//intvalue2,_ := strconv.Atoi(value2)
 	//fmt.Println(0xFFFF)

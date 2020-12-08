@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
-var RedisConn redis.Conn
 
-func newPool(server, password string) *redis.Pool {
+func NewRedisPool() *redis.Pool {
+	RedisIP := config.LogicConf.RedisIP
+	password := ""
 	return &redis.Pool{
 		// 最大的激活连接数，表示同时最多有N个连接 ，为0事表示没有限制
 		MaxActive: 10,
@@ -20,7 +21,7 @@ func newPool(server, password string) *redis.Pool {
 		Wait: false,
 		//Dial 是创建链接的方法
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", server)
+			c, err := redis.Dial("tcp", RedisIP)
 			if err != nil {
 				return nil, err
 			}
@@ -44,8 +45,8 @@ func newPool(server, password string) *redis.Pool {
 	}
 }
 
-func InitRedis() {
-	pool := newPool(config.LogicConf.RedisIP, "")
+func GetRConn() redis.Conn {
+	pool := NewRedisPool()
 	conn := pool.Get()
-	RedisConn = conn
+	return conn
 }

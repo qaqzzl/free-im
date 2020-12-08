@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/internal/app/model"
+	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util/id"
 	"github.com/satori/go.uuid"
-	"log"
 	"math/rand"
 	"strconv"
 	"time"
@@ -26,15 +26,17 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id stri
 		field = friend_id + "," + member_id
 	}
 	var res interface{}
-	if res, err = dao.RedisConn().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
-		log.Println(err)
+	if res, err = dao.GetRConn().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
+		logger.Sugar.Error("获取聊天室ID失败", err)
+		return "", err
 	}
 
 	if res == nil {
 		//生成聊天室ID
-		chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Single)
-		dao.RedisConn().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), member_id, friend_id) //创建聊天室
-		dao.RedisConn().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id)               //创建单聊跟聊天室关系
+		res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Single)
+		chatroom_id = strconv.Itoa(int(res_chatroom_id))
+		dao.GetRConn().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id) 						    //创建聊天室
+		dao.GetRConn().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id)               	//创建单聊跟聊天室关系
 	} else {
 		chatroom_id = string(res.([]uint8))
 	}
@@ -64,7 +66,7 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 	group_id = strconv.Itoa(int(id))
 
 	// redis
-	rconn := dao.RedisConn()
+	rconn := dao.GetRConn()
 	rconn.Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //创建聊天室
 
 	return group_id, err
@@ -76,7 +78,7 @@ func (s *ChatRoomService) AddGroup(member_id string, group_id string, remark str
 	if len(group) == 0 {
 		return ret, errors.New("群组不存在")
 	}
-	dao.RedisConn().Do("SADD", "set_im_chatroom_member:"+group["chatroom_id"], member_id) //加入聊天室
+	dao.GetRConn().Do("SADD", "set_im_chatroom_member:"+group["chatroom_id"], member_id) //加入聊天室
 
 	ret = make(map[string]string)
 	ret["code"] = "0"

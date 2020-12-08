@@ -21,10 +21,12 @@ func FriendIdGetChatroomId(writer http.ResponseWriter, request *http.Request) {
 		chatroom_id string
 		err         error
 	)
+
 	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(formData["uid"].(string), formData["friend_id"].(string)); err != nil {
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
+	fmt.Println(chatroom_id)
 	ret := make(map[string]string)
 	ret["chatroom_id"] = chatroom_id
 	util.RespOk(writer, ret, "")
@@ -43,7 +45,7 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	switch chatroom_type {
 	case 0:
 		// 查询聊天室成员
-		members, _ := dao.RedisConn().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
+		members, _ := dao.GetRConn().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
 		for _, v := range members.([]interface{}) {
 			to_user_id := string(v.([]uint8))
 			if to_user_id == user_id {

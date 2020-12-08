@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// 初始化ID 生成器
-	id.Init(dao.RedisConn())
+	id.Init(dao.NewRedisPool())
 
 	app.StartHttpServer()
 }

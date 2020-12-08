@@ -33,7 +33,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	BodyData, _ := json.Marshal(m)
 
 	// 查询聊天室成员
-	members, err := dao.RedisConn().Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
+	members, err := dao.GetRConn().Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -48,7 +48,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		fmt.Println(UserID)
 		// 存储消息
 		decodemid := id.MessageID.DecodeID(m.MessageId)
-		_, err := dao.RedisConn().Do("ZADD", "sorted_set_im_user_message_record:"+UserID, decodemid, BodyData)
+		_, err := dao.GetRConn().Do("ZADD", "sorted_set_im_user_message_record:"+UserID, decodemid, BodyData)
 		if err != nil {
 			logger.Sugar.Error("存储消息失败", err)
 			return err
@@ -71,7 +71,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 }
 
 func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
-	dao.RedisConn().Do("HDEL", "hash_message_ack_timeout_retransmit", mp.MessageId)
+	dao.GetRConn().Do("HDEL", "hash_message_ack_timeout_retransmit", mp.MessageId)
 	return nil
 }
 
