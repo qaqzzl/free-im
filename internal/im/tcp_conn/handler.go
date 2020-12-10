@@ -106,6 +106,10 @@ func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
 	})
 }
 
+func (h *handler) SyncTrigger() {
+
+}
+
 func (h *handler) Headbeat(ctx *Context) {
 	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
 		Version: ctx.Version,

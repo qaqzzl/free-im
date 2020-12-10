@@ -22,6 +22,12 @@ message MessageACKReq {
 message MessageACKResp {
 }
 
+message MessageSyncReq {
+    string message_id = 1;
+}
+message MessageSyncResp {
+}
+
 service LogicInit {
     // 获取消息ID
 
@@ -35,7 +41,7 @@ service LogicInit {
     rpc MessageACK (MessageACKReq) returns (MessageACKResp);
 
     // 消息同步
-    // rpc MessageSync (MessageSyncReq);
+    rpc MessageSync (MessageSyncReq) returns (MessageSyncResp);
 
     // 设备退出
 }
