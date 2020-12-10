@@ -2,7 +2,7 @@ package dao
 
 import (
 	"database/sql"
-	"free-im/configs"
+	"free-im/config"
 	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"time"

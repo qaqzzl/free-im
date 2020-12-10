@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"free-im/configs"
+	"free-im/config"
 	"github.com/gomodule/redigo/redis"
 	"time"
 )

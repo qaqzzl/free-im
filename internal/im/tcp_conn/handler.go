@@ -85,6 +85,11 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 		SocketConnPool.Set(ctx.UserID, device_map)
 	}
 	// 认证成功通知 code ...
+	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
+		Version: ctx.Version,
+		Action:  pbs.Action_Auth,
+		BodyData: []byte("ok"),
+	})
 }
 
 func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {

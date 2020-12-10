@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
-	"free-im/configs"
+	"free-im/config"
 	"free-im/internal/im/logic/service"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"

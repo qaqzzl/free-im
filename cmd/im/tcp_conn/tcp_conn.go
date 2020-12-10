@@ -2,7 +2,7 @@ package main
 
 import (
 	api_tcp_conn "free-im/api/im/tcp_conn"
-	"free-im/configs"
+	"free-im/config"
 	"free-im/internal/im/tcp_conn"
 	"free-im/pkg/rpc_client"
 )

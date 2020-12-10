@@ -2,7 +2,7 @@ package tcp_conn
 
 import (
 	"context"
-	"free-im/configs"
+	"free-im/config"
 	"free-im/internal/im/tcp_conn"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"

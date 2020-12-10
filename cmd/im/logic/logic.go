@@ -2,7 +2,7 @@ package main
 
 import (
 	"free-im/api/im/logic"
-	"free-im/configs"
+	"free-im/config"
 	"free-im/pkg/rpc_client"
 )
 
