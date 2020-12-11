@@ -82,9 +82,7 @@ func (id *messageId) DecodeID(message_id string) (BitId string) {
 	for i := 0; i < 16; i++ {
 		index := message_id[i:(i + 1)]
 		value := decodeCodingMap[index]
-		strvalue := converToBianry(int64(value))
-		intvalue, _ := strconv.Atoi(strvalue)
-		strid := fmt.Sprintf("%05d", intvalue) // 前置补0
+		strid := fmt.Sprintf("%02d", value) // 前置补0
 		BitId += strid
 	}
 	return BitId

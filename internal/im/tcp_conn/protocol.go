@@ -18,19 +18,19 @@ func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 	switch mp.Action {
 	case 0:
 		Action = 0
-	case (1):
+	case 1:
 		Action = 1
-	case (2):
+	case 2:
 		Action = 2
-	case (3):
+	case 3:
 		Action = 3
-	case (4):
+	case 4:
 		Action = 4
-	case (10):
+	case 10:
 		Action = 10
-	case (11):
+	case 11:
 		Action = 11
-	case (100):
+	case 100:
 		Action = 100
 	}
 

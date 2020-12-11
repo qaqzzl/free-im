@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util"
 	"free-im/pkg/util/id"
@@ -48,7 +49,7 @@ func GetMessageId(writer http.ResponseWriter, request *http.Request) {
 	json.NewDecoder(request.Body).Decode(&formData)
 	ret := make(map[string]interface{})
 	chatroom_id, _ := strconv.Atoi(formData["chatroom_id"].(string))
-	fmt.Println(formData["chatroom_id"].(string))
 	ret["message_id"] = id.MessageID.GetId(int64(chatroom_id), pbs.ChatroomType_Single)
+	logger.Logger.Info(ret["message_id"].(string))
 	util.RespOk(writer, ret, "")
 }

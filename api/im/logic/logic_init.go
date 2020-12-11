@@ -18,6 +18,11 @@ func (s *LogicInitServer) TokenAuth(ctx context.Context, req *pbs.TokenAuthReq) 
 	return service.TokenAuth(ctx, *req)
 }
 
+// MessageReceive 消息同步
+func (s *LogicInitServer) MessageSync(ctx context.Context, req *pbs.MessageSyncReq) (*pbs.MessageSyncResp, error) {
+	return &pbs.MessageSyncResp{}, service.MessageSync(ctx, *req)
+}
+
 // MessageReceive 消息接收
 func (s *LogicInitServer) MessageReceive(ctx context.Context, req *pbs.MessageReceiveReq) (*pbs.MessageReceiveResp, error) {
 	return &pbs.MessageReceiveResp{}, service.MessageReceive(ctx, *req)

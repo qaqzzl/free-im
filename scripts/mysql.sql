@@ -83,6 +83,17 @@ create table if not exists `group`(
     UNIQUE KEY `id` (`id`)
 )engine=innodb default charset=utf8 comment '群组表';
 
+-- 消息记录表
+create table if not exists `message`(
+    `id` int unsigned auto_increment primary key,
+    `message_id` char(32) not null comment '消息ID',
+    `chatroom_id` int(11) not null comment '聊天室ID',
+    `member_id` int not null comment '会员ID',
+    `content` text,
+    KEY `chatroom_id` (`chatroom_id`),
+    KEY `member_id` (`member_id`)
+)engine=innodb default charset=utf8mb4 comment '消息记录表';
+
 -- 群组成员表
 create table if not exists `group_member`(
     `group_member_id` int unsigned auto_increment primary key,
@@ -93,7 +104,7 @@ create table if not exists `group_member`(
     `created_at` int not null default 0 comment '添加时间',
     KEY `group_id` (`group_id`),
     KEY `member_id` (`member_id`)
-)engine=innodb default charset=utf8 comment '群组表';
+)engine=innodb default charset=utf8mb4 comment '群组表';
 
 -- 动态表 moment
 create table if not exists `dynamic`(
@@ -112,9 +123,10 @@ create table if not exists `dynamic`(
   `latitude` varchar(255) not null default "" comment '经纬度: 经度',
   `longitude` varchar(255) not null default "" comment '经纬度: 维度',
   `purview` char(10) not null default "public" comment '公开权限: public-公开, protected-好友可见, private-仅自己和指定用户可见',
-  `private_to_uid` text not null default '' comment '私有可见用户 逗号分隔',
+  `private_to_uid` text comment '私有可见用户 逗号分隔',
   `review` char(10) not null default "wait" comment '审核状态: wait-审核中, normal-正常, refuse-拒绝',
   `deleted_at` int not null default 0 comment '删除时间',
   `created_at` int not null default 0 comment '添加时间',
    KEY `member_id` (`member_id`)
-)engine=innodb default charset=utf8 comment '动态表';
+)engine=innodb default charset=utf8mb4 comment '动态表';
+

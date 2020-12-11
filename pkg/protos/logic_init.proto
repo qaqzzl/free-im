@@ -23,7 +23,8 @@ message MessageACKResp {
 }
 
 message MessageSyncReq {
-    string message_id = 1;
+    string user_id = 1;
+    string message_id = 2;
 }
 message MessageSyncResp {
 }

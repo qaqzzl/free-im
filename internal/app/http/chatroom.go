@@ -26,7 +26,6 @@ func FriendIdGetChatroomId(writer http.ResponseWriter, request *http.Request) {
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
-	fmt.Println(chatroom_id)
 	ret := make(map[string]string)
 	ret["chatroom_id"] = chatroom_id
 	util.RespOk(writer, ret, "")

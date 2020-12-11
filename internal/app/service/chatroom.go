@@ -8,7 +8,6 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util/id"
-	"github.com/satori/go.uuid"
 	"math/rand"
 	"strconv"
 	"time"
@@ -51,7 +50,8 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 // 创建群组
 func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (group_id string, err error) {
 	// db
-	chatroom_id := uuid.NewV4().String()
+	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
+	chatroom_id := strconv.Itoa(int(res_chatroom_id))
 	group_data := make(map[string]string)
 	rand.Seed(time.Now().Unix())
 	group_data["id"] = fmt.Sprintf("%06d", rand.Int31n(10000))

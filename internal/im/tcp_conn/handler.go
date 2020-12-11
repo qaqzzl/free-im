@@ -22,6 +22,7 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 		h.MessageReceive(ctx, mp)
 	case pbs.Action_MessageACK: // 消息回执
 	case pbs.Action_SyncTrigger: // 消息同步
+		h.SyncTrigger(ctx, mp)
 	case pbs.Action_Headbeat: // 心跳
 		h.Headbeat(ctx)
 	case pbs.Action_Quit:
@@ -106,8 +107,11 @@ func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
 	})
 }
 
-func (h *handler) SyncTrigger() {
-
+func (h *handler) SyncTrigger(ctx *Context, mp pbs.MessagePackage) {
+	_, _ = rpc_client.LogicInit.MessageSync(context.TODO(), &pbs.MessageSyncReq{
+		UserId: ctx.UserID,
+		MessageId: string(mp.BodyData),
+	})
 }
 
 func (h *handler) Headbeat(ctx *Context) {
