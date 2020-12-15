@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util"

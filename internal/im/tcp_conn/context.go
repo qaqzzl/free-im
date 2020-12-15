@@ -89,6 +89,7 @@ func (ctx *Context) SendMessage(conn net.Conn, mp pbs.MessagePackage) (n int, er
 		fmt.Println(mp.Action, mp.Version, mp.BodyLength, string(mp.BodyData))
 	}
 	if n, err = ctx.Write(conn, mp); err == nil {
+		logger.Sugar.Error("消息发送成功", n)
 		return n, nil
 	} else {
 		logger.Sugar.Error("消息发送失败", err)

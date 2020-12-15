@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/internal/app/model"
 	"free-im/internal/app/service"
@@ -40,9 +41,9 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	ret := make(map[string]string)
 	user_id := formData["uid"].(string)
 	chatroom_id := formData["chatroom_id"].(string)
-	chatroom_type := 0
+	chatroom_type := 1
 	switch chatroom_type {
-	case 0:
+	case 1:
 		// 查询聊天室成员
 		members, _ := dao.GetRConn().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
 		for _, v := range members.([]interface{}) {
@@ -56,9 +57,10 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 			ret["name"] = user_member["nickname"]
 			ret["avatar"] = user_member["avatar"]
 		}
-	case 1:
+	case 2:
 
 	}
+	fmt.Println(ret)
 	util.RespOk(writer, ret, "")
 }
 
