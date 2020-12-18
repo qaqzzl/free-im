@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util"
@@ -16,12 +17,27 @@ import (
 // 获取七牛上传token
 // https://developer.qiniu.com/kodo/manual/1206/put-policy
 func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
-	saveKeyPrefix := "test"
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	var (
+		scope string
+		domain string
+	)
+	if formData["type"] == "private" {
+		scope = "free-im-private"
+		domain = "http://free-im-private-qn.qaqzz.com/"
+	} else if formData["type"] == "public" {
+		scope = "free-im"
+		domain = "http://free-im-qn.qaqzz.com/"
+	}
 
+	saveKeyPrefix := "test"
 	accessKey := "qW7rPngWLk8Nl3MQfehQ_G5ELAZaH47Dej50Dj7k"
 	secretKey := "cN5unz025wgnfHJ_Ck3iBjpLUoByXnUVB8Uu4P1g"
 	putPolicy := storage.PutPolicy{
-		Scope: "free-im",
+		Scope: scope,
 		//CallbackURL:      "http://api.example.com/qiniu/upload/callback",
 		CallbackBody:     `{"key":"$(key)","hash":"$(etag)","mimeType":"$(mimeType)","imageInfo":$(imageInfo),"ext":"$(ext)"}`,
 		CallbackBodyType: "application/json",
@@ -35,9 +51,10 @@ func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
 	ret := make(map[string]string)
 	ret["token"] = upToken
 	ret["expires"] = strconv.FormatInt(time.Now().Unix()+3600, 10)
-	ret["domain"] = "http://free-im-qn.qaqzz.com/"
+	ret["domain"] = domain
 	ret["message"] = "获取成功"
 	ret["code"] = "0"
+	fmt.Println("七牛token", formData, ret)
 	util.RespOk(writer, ret, "")
 }
 

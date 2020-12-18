@@ -8,7 +8,6 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
-	"time"
 )
 
 // client conn auth
@@ -26,7 +25,8 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	m := req.Message
 	//数据验证 code ... //
 
-	m.MessageSendTime = time.Now().Unix()
+	//m.MessageSendTime = time.Now().Unix()
+
 	BodyData, _ := json.Marshal(m)
 
 	// 查询聊天室成员
