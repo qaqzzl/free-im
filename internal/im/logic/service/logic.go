@@ -53,8 +53,9 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 			return err
 		}
 		//发送消息
-		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
+		rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
 			UserId:  UserID,
+			DeviceId: m.DeviceID,
 			Message: &packages,
 		})
 	}
