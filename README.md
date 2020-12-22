@@ -57,8 +57,23 @@ go get -u github.com/golang/protobuf
 go get -u github.com/golang/protobuf/protoc-gen-go
 https://github.com/protocolbuffers/protobuf/releases
 protoc --go_out=plugins=grpc:./pbs *.proto
+```
 
-nohup app > nohup.out 2>&1 & 
+### Run
+```text
+cd ~/free-im
+
+killall app
+go build ~/free-im/cmd/app
+nohup ./app -c ~/free-im/free.yaml > nohup.out 2>&1 &
+
+killall logic
+go build ~/free-im/cmd/im/logic
+nohup ./logic -c ~/free-im/free.yaml > nohup.out 2>&1 &
+
+killall tcp_conn
+go build ~/free-im/cmd/im/tcp_conn
+nohup ./tcp_conn -c ~/free-im/free.yaml > nohup.out 2>&1 &
 ```
 
 #### 常见错误
