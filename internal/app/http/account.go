@@ -65,9 +65,9 @@ func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	//if err := CommonService.SendSms(formData["phone"].(string), "login"); err != nil {
-	//	util.RespFail(writer, err.Error())
-	//	return
-	//}
+	if err := CommonService.SendSms(formData["phone"].(string), "login"); err != nil {
+		util.RespFail(writer, err.Error())
+		return
+	}
 	util.RespOk(writer, nil, "短信验证码发送成功")
 }

@@ -3,7 +3,6 @@ package tcp_conn
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
@@ -44,10 +43,9 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 	resp, _ := rpc_client.LogicInit.TokenAuth(context.TODO(), &pbs.TokenAuthReq{
 		Message: &m,
 	})
-	fmt.Println(resp)
-	//if resp.Statu == false {
-	//	return
-	//}
+	if resp.Statu == false {
+		return
+	}
 
 	ctx.IsAuth = true
 	ctx.UserID = m.UserID

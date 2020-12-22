@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"free-im/internal/im/logic/dao"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
@@ -14,7 +13,6 @@ import (
 func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, error) {
 	m := req.Message
 	if m.UserID == "" || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
-		logger.Sugar.Error("认证失败")
 		return &pbs.TokenAuthResp{Statu: false}, nil
 	}
 	return &pbs.TokenAuthResp{Statu: true}, nil
@@ -79,9 +77,10 @@ func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
 	messages,err := dao.NewMysql().Table("message").
 		Where("member_id = "+mp.UserId+" and message_id > '"+mp.MessageId+"'").
 		Select("content").Get()
-	fmt.Println("message_id",mp.MessageId)
-	fmt.Println("mp.UserId",mp.UserId)
-	fmt.Println(messages,err)
+	if err != nil {
+		logger.Sugar.Error("消息查询失败", err)
+		return err
+	}
 	for _,v := range messages {
 		packages := pbs.MessagePackage{
 			Action:   pbs.Action_Message,

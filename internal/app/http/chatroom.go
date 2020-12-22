@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/internal/app/model"
 	"free-im/internal/app/service"
@@ -60,7 +59,6 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	case 2:
 
 	}
-	fmt.Println(ret)
 	util.RespOk(writer, ret, "")
 }
 

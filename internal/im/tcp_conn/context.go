@@ -3,7 +3,6 @@ package tcp_conn
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"github.com/orcaman/concurrent-map"
@@ -62,18 +61,12 @@ func (ctx *Context) DoConn() {
 			ctx.TcpConn.Close()
 			break
 		}
-		if mp.Action != 100 {
-			// inStr := strings.TrimSpace(string(p.BodyData))
-			logger.Logger.Info("接收到的原始消息")
-			fmt.Println(mp.Action, mp.Version, mp.BodyLength, string(mp.BodyData))
-		}
 		ctx.HandlePackage(mp)
 	}
 }
 
 // HandleConnect 建立连接
 func (ctx *Context) HandleConnect() {
-	logger.Logger.Info("tcp connect")
 	ctx.IsConnStatus = true
 }
 
@@ -84,15 +77,9 @@ func (ctx *Context) HandlePackage(mp pbs.MessagePackage) {
 
 //send message handle
 func (ctx *Context) SendMessage(conn net.Conn, mp pbs.MessagePackage) (n int, err error) {
-	if mp.Action != 100 {
-		logger.Logger.Info("发送的原始消息")
-		fmt.Println(mp.Action, mp.Version, mp.BodyLength, string(mp.BodyData))
-	}
 	if n, err = ctx.Write(conn, mp); err == nil {
-		logger.Sugar.Error("消息发送成功", n)
 		return n, nil
 	} else {
-		logger.Sugar.Error("消息发送失败", err)
 		return n, err
 	}
 }
@@ -171,7 +158,6 @@ func loadConnsByUID(UserID string) (ctxs []*Context) {
 			ctxs = append(ctxs, device.Context)
 		}
 	}
-	fmt.Println(ctxs)
 	return ctxs
 }
 

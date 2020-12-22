@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"free-im/config"
 	"free-im/internal/im/logic/service"
 	"free-im/pkg/logger"
@@ -35,7 +34,6 @@ func (s *LogicInitServer) MessageACK(ctx context.Context, req *pbs.MessageACKReq
 
 // UnaryServerInterceptor 服务器端的单向调用的拦截器
 func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	fmt.Println("服务器端的单向调用的拦截器")
 	resp, err := handler(ctx, req)
 	logger.Logger.Debug("interceptor", zap.Any("info", info), zap.Any("req", req), zap.Any("resp", resp))
 	return resp, err

@@ -30,7 +30,7 @@ func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 	templateParam := fmt.Sprintf(`{"code":%06d}`, rand.Int31n(10000))
 	switch sms_type {
 	case "login":
-		if response, err = sms.SendSms(phone, "FREE", "SMS_181196339", templateParam); err != nil {
+		if response, err = sms.SendSms(phone, "Free", "SMS_181196339", templateParam); err != nil {
 			log.Println(err.Error())
 			return errors.New("系统繁忙")
 		}
