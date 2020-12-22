@@ -2,6 +2,7 @@ RunSetting: "dev"
 MySQL: "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4"
 RedisIP: "127.0.0.1:6379"
 RedisAuth: ""
+HttpListenAddr: ":8066"
 
 LogicConf:
   RPCIntListenAddr: ":50000"

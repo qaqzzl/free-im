@@ -11,19 +11,12 @@ android 项目地址:  https://github.com/qaqzzl/free-im-android
     登录注册
     修改用户资料
     好友增删改查
-    发布动态(支持图片, 视频)
+    发布动态
 ```
 
 ### 目录结构
 项目结构遵循 https://github.com/golang-standards/project-layout
-```
-cmd:          服务启动入口
-config:       服务配置
-internal:     每个服务私有代码
-pkg:          服务共有代码
-sql:          项目sql文件
-test:         长连接测试脚本
-```
+
 
 ### 使用技术：
 ```cgo

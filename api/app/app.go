@@ -1,6 +1,7 @@
 package app
 
 import (
+	"free-im/config"
 	app_http "free-im/internal/app/http"
 	"net/http"
 )
@@ -29,7 +30,7 @@ func StartHttpServer() {
 	http.HandleFunc("/app/new.version.get", app_http.AppNewVersionGet)                                               // app 最新版本获取
 
 	http.HandleFunc("/common/get.message.id", app_http.GetMessageId) // 获取消息ID , 临时使用
-	err := http.ListenAndServe(":8066", nil)
+	err := http.ListenAndServe(config.CommonConf.HttpListenAddr, nil)
 	if err != nil {
 		panic(err.Error())
 	}

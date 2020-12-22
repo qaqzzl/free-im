@@ -3,23 +3,25 @@ package config
 import (
 	"fmt"
 	"free-im/pkg/logger"
-	"go.uber.org/zap"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var (
 	CommonConf commonConf
-	LogicConf logicConf
-	ConnConf  connConf
-	WSConf    wsConf
-	HttpConf  httpConf
+	LogicConf  logicConf
+	ConnConf   connConf
+	WSConf     wsConf
+	HttpConf   httpConf
 )
+
 //
 type commonConf struct {
-	MySQL            string
-	NSQIP            string
-	RedisIP          string
-	RedisAuth          string
+	MySQL          string
+	NSQIP          string
+	RedisIP        string
+	RedisAuth      string
+	HttpListenAddr string
 }
 
 // logic配置
@@ -50,11 +52,11 @@ type httpConf struct {
 }
 
 func init() {
-	viper.SetConfigName("free")  // 配置文件名
+	viper.SetConfigName("free") // 配置文件名
 	viper.SetConfigType("yaml") // 配置文件类型，可以是yaml、json、xml。。。
-	viper.AddConfigPath(".")  // 配置文件路径
-	err := viper.ReadInConfig()  // 读取配置文件信息
-	if err != nil{
+	viper.AddConfigPath(".")    // 配置文件路径
+	err := viper.ReadInConfig() // 读取配置文件信息
+	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
@@ -75,10 +77,11 @@ func init() {
 	}
 
 	CommonConf = commonConf{
-		MySQL:            viper.GetString("MySQL"),
-		NSQIP:            "",
-		RedisIP:          viper.GetString("RedisIP"),
-		RedisAuth:          viper.GetString("RedisAuth"),
+		MySQL:          viper.GetString("MySQL"),
+		NSQIP:          "",
+		RedisIP:        viper.GetString("RedisIP"),
+		RedisAuth:      viper.GetString("RedisAuth"),
+		HttpListenAddr: viper.GetString("HttpListenAddr"),
 	}
 
 	LogicConf = logicConf{
@@ -93,7 +96,7 @@ func init() {
 	}
 
 	WSConf = wsConf{
-		WSListenAddr: viper.GetString("WSConf.WSListenAddr"),
+		WSListenAddr:  viper.GetString("WSConf.WSListenAddr"),
 		RPCListenAddr: viper.GetString("WSConf.RPCListenAddr"),
 		LogicRPCAddrs: viper.GetString("WSConf.LogicRPCAddrs"),
 	}
