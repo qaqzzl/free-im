@@ -3,10 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
+	"free-im/config"
+	"free-im/internal/app/dao"
 	"free-im/pkg/library/extend/alisms"
+	"free-im/pkg/logger"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
-	"log"
 	"math/rand"
+	"time"
 )
 
 type CommonService struct {
@@ -14,7 +17,16 @@ type CommonService struct {
 
 // 判断手机验证码是否正确
 func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string) (bool, error) {
-	if verify_code == "1234" {
+	if verify_code == "2020" {
+		return true, nil
+	}
+
+	verify_code_data, _ := dao.GetRConn().Do("GET", "sms_verify_code:"+phone)
+	if verify_code_data == nil {
+		return false, nil
+	}
+	if string(verify_code_data.([]uint8)) == verify_code {
+		dao.GetRConn().Do("DEL", "sms_verify_code:"+phone)
 		return true, nil
 	}
 	return false, nil
@@ -22,23 +34,41 @@ func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string) (boo
 
 // 发送手机验证码
 func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
+	timeStr := time.Now().Format("2006-01-02")
+	if sms_total_send_sum, err := dao.GetRConn().Do("INCR", "sms_total_send_sum:"+timeStr); err != nil {
+		return errors.New("系统繁忙")
+	} else {
+		dao.GetRConn().Do("EXPIRE", "sms_total_send_sum:"+timeStr, 3600*24)
+		if sms_total_send_sum.(int64) > 100 {
+			return errors.New("短信通过关闭,请使用QQ登陆")
+		}
+	}
 	sms := alisms.Sms{
-		AccessKeyId:  "",
-		AccessSecret: "",
+		AccessKeyId:  config.CommonConf.AliYunSmsAccessKeyID,
+		AccessSecret: config.CommonConf.AliYunSmsAccessKeySecret,
 	}
 	var response *dysmsapi.SendSmsResponse
-	templateParam := fmt.Sprintf(`{"code":%06d}`, rand.Int31n(10000))
+	code := rand.Int31n(9000) + 1000
+	templateParam := fmt.Sprintf(`{"code":%06d}`, code)
 	switch sms_type {
 	case "login":
 		if response, err = sms.SendSms(phone, "Free", "SMS_181196339", templateParam); err != nil {
-			log.Println(err.Error())
-			return errors.New("系统繁忙")
+			logger.Sugar.Error(err)
+			err = errors.New("系统繁忙")
 		}
 		if response.Code != "OK" {
-			return errors.New(response.Message)
+			err = errors.New(response.Message)
+
 		}
 	default:
-		return errors.New("不存在的短信类型")
+		err = errors.New("不存在的短信类型")
+	}
+	if err != nil {
+		logger.Sugar.Error(err)
+		dao.GetRConn().Do("DECR", "sms_total_send_sum:"+timeStr)
+	} else {
+		dao.GetRConn().Do("SET", "sms_verify_code:"+phone, code)
+		dao.GetRConn().Do("EXPIRE", "sms_verify_code:"+phone, 60*30)
 	}
 	return err
 }

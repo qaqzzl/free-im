@@ -3,7 +3,6 @@ package uid
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 )
 
@@ -75,7 +74,7 @@ func (u *Uid) reLoad() error {
 		if Logger != nil {
 			Logger.Error(err)
 		} else {
-			log.Println(err)
+			Logger.Error(err)
 		}
 		time.Sleep(time.Second)
 	}

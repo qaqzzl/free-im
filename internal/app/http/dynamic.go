@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"free-im/internal/app/dao"
 	"free-im/pkg/util"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -45,7 +44,6 @@ func DynamicList(writer http.ResponseWriter, request *http.Request) {
 		Select("d.*,um.nickname,um.avatar,um.gender,um.birthdate").
 		Order("dynamic_id desc").
 		Limit(current_page + "," + formData["perpage"]).Get(); err != nil {
-		log.Println(err)
 		util.RespFail(writer, "系统忙, 稍后再试")
 		return
 	} else {

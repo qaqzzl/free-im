@@ -4,6 +4,9 @@ RedisIP: "127.0.0.1:6379"
 RedisAuth: ""
 HttpListenAddr: ":8066"
 
+AliYunSmsAccessKeyID: ""
+AliYunSmsAccessKeySecret: ""
+
 LogicConf:
   RPCIntListenAddr: ":50000"
   ConnRPCAddrs: "127.0.0.1:60000"

@@ -22,6 +22,9 @@ type commonConf struct {
 	RedisIP        string
 	RedisAuth      string
 	HttpListenAddr string
+
+	AliYunSmsAccessKeyID     string
+	AliYunSmsAccessKeySecret string
 }
 
 // logic配置
@@ -82,6 +85,9 @@ func init() {
 		RedisIP:        viper.GetString("RedisIP"),
 		RedisAuth:      viper.GetString("RedisAuth"),
 		HttpListenAddr: viper.GetString("HttpListenAddr"),
+
+		AliYunSmsAccessKeyID:     viper.GetString("AliYunSmsAccessKeyID"),
+		AliYunSmsAccessKeySecret: viper.GetString("AliYunSmsAccessKeySecret"),
 	}
 
 	LogicConf = logicConf{

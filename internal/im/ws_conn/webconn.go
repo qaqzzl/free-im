@@ -1,22 +1,23 @@
 package ws_conn
 
 import (
+	"free-im/pkg/logger"
 	"github.com/gomodule/redigo/redis"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"github.com/gorilla/websocket"
 	"sync"
 )
 
 type Content struct {
-	RedisConn 			redis.Conn
-	WsConn 				*websocket.Conn
-	WsConnIndex			string							// 房间index
-	closeChan 			chan byte  						// 关闭通知
-	mutex sync.Mutex									// 避免重复关闭管道
-	isClosed bool
+	RedisConn   redis.Conn
+	WsConn      *websocket.Conn
+	WsConnIndex string     // 房间index
+	closeChan   chan byte  // 关闭通知
+	mutex       sync.Mutex // 避免重复关闭管道
+	isClosed    bool
 	//inChan chan *[]byte								// 读队列
-	outChan chan *[]byte 								// 写队列
+	outChan chan *[]byte // 写队列
 }
 
 // Configure the upgrader
@@ -24,7 +25,7 @@ var (
 	//完成握手操作
 	upgrader = websocket.Upgrader{
 		//允许跨域(一般来讲,websocket都是独立部署的)
-		CheckOrigin:func(r *http.Request) bool {
+		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
@@ -42,8 +43,8 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 	//初始化
 	var content = Content{
-		WsConn: ws,
-		outChan: make(chan *[]byte, 100),
+		WsConn:    ws,
+		outChan:   make(chan *[]byte, 100),
 		closeChan: make(chan byte),
 	}
 
@@ -56,7 +57,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 //读协程 , 处理器
 func (content *Content) wsReadLoop() {
-	defer content.RedisConn.Close()			//处理器退出后关闭redis连接资源
+	defer content.RedisConn.Close() //处理器退出后关闭redis连接资源
 	for {
 		var receiveStruct interface{}
 		// Read in a new message as JSON and map it to a Message object
@@ -73,22 +74,22 @@ func (content *Content) wsReadLoop() {
 			msg := []byte(`{"code":200,"msg":"服务器响应正常"}`)
 			content.outChan <- &msg
 		default:
-			log.Println("错误的请求方法")
+			logger.Sugar.Error("错误的请求方法")
 		}
 	}
 }
 
 //写协程
-func (content *Content) wsWriteLoop () {
+func (content *Content) wsWriteLoop() {
 	for {
 		select {
 		// 取一个应答
-		case msg := <- content.outChan:
+		case msg := <-content.outChan:
 			// 写给websocket
 			if err := content.WsConn.WriteMessage(1, *msg); err != nil {
 				goto error
 			}
-		case <- content.closeChan:
+		case <-content.closeChan:
 			goto closed
 		}
 	}

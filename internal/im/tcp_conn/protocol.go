@@ -3,8 +3,8 @@ package tcp_conn
 import (
 	"bytes"
 	"encoding/binary"
+	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
-	"log"
 	"math"
 	"net"
 )
@@ -84,7 +84,7 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	if int(len) > math.MaxInt32 || int(len) < 0 {
 		len = 0
 		// debug
-		log.Panicln("数据量超出: ", Bodylength, "  ,  "+string(mp.BodyData))
+		logger.Sugar.Error("数据量超出: ", Bodylength, "  ,  "+string(mp.BodyData))
 	}
 	// end debug
 	if int32(c.r.Buffered()) < len {

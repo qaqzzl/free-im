@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"free-im/internal/app/service"
 	"free-im/pkg/util"
-	"log"
 	"net/http"
 )
 
@@ -46,7 +45,6 @@ func UpdateMemberInfo(writer http.ResponseWriter, request *http.Request) {
 	delete(formData, "access_token")
 	delete(formData, "uid")
 	if err := UserService.UpdateMemberInfo(member_id, formData); err != nil {
-		log.Println(err)
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
