@@ -1,0 +1,18 @@
+RunSetting: "dev"
+MySQL: "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4"
+RedisIP: "127.0.0.1:6379"
+RedisAuth: ""
+
+LogicConf:
+  RPCIntListenAddr: ":50000"
+  ConnRPCAddrs: "127.0.0.1:60000"
+
+ConnConf:
+  TCPListenAddr: ":1208"
+  RPCIntListenAddr: ":60000"
+  LogicRPCAddrs: "127.0.0.1:50000"
+
+WSConf:
+  TCPListenAddr: ":1209"
+  RPCIntListenAddr: ":60001"
+  LogicRPCAddrs: "127.0.0.1:50000"

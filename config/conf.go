@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"free-im/pkg/logger"
 	"go.uber.org/zap"
-	"os"
 	"github.com/spf13/viper"
 )
 
@@ -20,13 +19,11 @@ type commonConf struct {
 	MySQL            string
 	NSQIP            string
 	RedisIP          string
+	RedisAuth          string
 }
 
 // logic配置
 type logicConf struct {
-	MySQL            string
-	NSQIP            string
-	RedisIP          string
 	RPCIntListenAddr string
 	ConnRPCAddrs     string
 }
@@ -61,7 +58,7 @@ func init() {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	env := viper.Get("RunSetting")
+	env := viper.GetString("RunSetting")
 	switch env {
 	case "dev":
 		logger.Leavel = zap.DebugLevel
@@ -77,23 +74,27 @@ func init() {
 		logger.Target = logger.Console
 	}
 
+	CommonConf = commonConf{
+		MySQL:            viper.GetString("MySQL"),
+		NSQIP:            "",
+		RedisIP:          viper.GetString("RedisIP"),
+		RedisAuth:          viper.GetString("RedisAuth"),
+	}
+
 	LogicConf = logicConf{
-		MySQL:            "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4",
-		NSQIP:            "127.0.0.1:4150",
-		RedisIP:          "127.0.0.1:6379",
-		RPCIntListenAddr: ":50000",
-		ConnRPCAddrs:     "127.0.0.1:60000",
+		RPCIntListenAddr: viper.GetString("LogicConf.RPCIntListenAddr"),
+		ConnRPCAddrs:     viper.GetString("LogicConf.ConnRPCAddrs"),
 	}
 
 	ConnConf = connConf{
-		TCPListenAddr: ":1208",
-		RPCListenAddr: ":60000",
-		LogicRPCAddrs: "127.0.0.1:50000",
+		TCPListenAddr: viper.GetString("ConnConf.TCPListenAddr"),
+		RPCListenAddr: viper.GetString("ConnConf.RPCListenAddr"),
+		LogicRPCAddrs: viper.GetString("ConnConf.LogicRPCAddrs"),
 	}
 
 	WSConf = wsConf{
-		WSListenAddr:  ":8081",
-		RPCListenAddr: ":60001",
-		LogicRPCAddrs: "127.0.0.1:50000",
+		WSListenAddr: viper.GetString("WSConf.WSListenAddr"),
+		RPCListenAddr: viper.GetString("WSConf.RPCListenAddr"),
+		LogicRPCAddrs: viper.GetString("WSConf.LogicRPCAddrs"),
 	}
 }

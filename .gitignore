@@ -13,7 +13,7 @@
 *.out
 error.log
 *.log
-*.conf
+free.yaml
 
 main
 !main/

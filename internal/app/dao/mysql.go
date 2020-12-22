@@ -21,7 +21,7 @@ type Db struct {
 
 func (DB *Db) mysqlConnect() *Db {
 	if MysqlConn == nil {
-		MysqlConn, _ = sql.Open("mysql", config.LogicConf.MySQL)
+		MysqlConn, _ = sql.Open("mysql", config.CommonConf.MySQL)
 		MysqlConn.SetMaxOpenConns(100) //最大连接数
 		MysqlConn.SetMaxIdleConns(50)  //空闲连接数
 		MysqlConn.SetConnMaxLifetime(120 * time.Second) //设置超时时间（不设置就默认永久有效）

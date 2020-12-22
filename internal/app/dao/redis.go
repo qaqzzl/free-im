@@ -7,8 +7,8 @@ import (
 )
 
 func NewRedisPool() *redis.Pool {
-	RedisIP := config.LogicConf.RedisIP
-	password := ""
+	RedisIP := config.CommonConf.RedisIP
+	password := config.CommonConf.RedisAuth
 	return &redis.Pool{
 		// 最大的激活连接数，表示同时最多有N个连接 ，为0事表示没有限制
 		MaxActive: 10,
