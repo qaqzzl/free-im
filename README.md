@@ -58,6 +58,7 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 https://github.com/protocolbuffers/protobuf/releases
 protoc --go_out=plugins=grpc:./pbs *.proto
 
+nohup app > nohup.out 2>&1 & 
 ```
 
 #### 常见错误
