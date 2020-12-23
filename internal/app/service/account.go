@@ -2,11 +2,10 @@ package service
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"free-im/internal/app/dao"
 	"free-im/pkg/util/id"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"math/rand"
 	"strconv"
 	"time"
@@ -19,7 +18,7 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 	//判断是否已经注册
 	is_register, err := s.IsRegister(identifier, identity_type)
 	if err != nil {
-		return nil, errors.New("系统繁忙")
+		return nil, err
 	}
 	var member_id string
 	if is_register {
@@ -31,12 +30,12 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 		member_id, err = s.Register(identifier, identity_type, credential, data)
 	}
 	if err != nil {
-		return nil, errors.New("系统繁忙")
+		return nil, err
 	}
 	// 获取token
 	var token string
 	if token, err = s.GetToken(member_id, "app"); err != nil {
-		return nil, errors.New("系统繁忙")
+		return nil, err
 	}
 	ret := make(map[string]string)
 	ret["access_token"] = token
