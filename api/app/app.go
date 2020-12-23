@@ -9,7 +9,6 @@ import (
 func StartHttpServer() {
 	http.HandleFunc("/login", app_http.PhoneLogin)                                                                   // 手机号登录 / 注册
 	http.HandleFunc("/login/qq", app_http.QQLogin)                                                                   // 手机号登录 / 注册
-	http.HandleFunc("/login/send.login.sms", app_http.SendLoginSms)                                                  // 发送登录手机号验证码
 	http.HandleFunc("/user/member.info", app_http.GetMemberInfo)                                                     // 获取会员信息
 	http.HandleFunc("/user/update.member.info", app_http.UpdateMemberInfo)                                           // 修改会员信息
 	http.HandleFunc("/user/others.home.info", app_http.OthersHomeInfo)                                               // 获取用户基本信息(他人主页)
@@ -26,6 +25,7 @@ func StartHttpServer() {
 	http.HandleFunc("/chatroom/add.group", app_http.AddGroup)                                                        // 加入群组
 	http.HandleFunc("/chatroom/my.group.list", app_http.MyGroupList)                                                 // 我的群组列表
 	http.HandleFunc("/common/get.qiniu.upload.token", app_http.GetQiniuUploadToken)                                  // 获取七牛上传token
+	http.HandleFunc("/common/send.sms", app_http.SendLoginSms)                                                       // 发送手机号验证码
 	http.HandleFunc("/dynamic/publish", app_http.DynamicPublish)                                                     // 发布动态
 	http.HandleFunc("/dynamic/list", app_http.DynamicList)                                                           // 动态列表
 	http.HandleFunc("/app/new.version.get", app_http.AppNewVersionGet)                                               // app 最新版本获取

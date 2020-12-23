@@ -17,7 +17,7 @@ type AccountService struct {
 
 func (s *AccountService) Login(identifier string, identity_type string, credential string, data map[string]string) (interface{}, error) {
 	//判断是否已经注册
-	is_register, err := s.IsRegister(identifier, identity_type);
+	is_register, err := s.IsRegister(identifier, identity_type)
 	if err != nil {
 		return nil, errors.New("系统繁忙")
 	}
@@ -47,9 +47,11 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 // 账号注册
 func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member map[string]string) (member_id string, err error) {
 	// 创建用户
-	user_member = make(map[string]string)
+	if user_member == nil {
+		user_member = make(map[string]string)
+	}
 	rand.Seed(time.Now().Unix())
-	freeid,err := id.FreeID.GetID()
+	freeid, err := id.FreeID.GetID()
 	if err != nil {
 		return "", err
 	}

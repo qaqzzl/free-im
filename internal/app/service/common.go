@@ -7,6 +7,7 @@ import (
 	"free-im/internal/app/dao"
 	"free-im/pkg/library/extend/alisms"
 	"free-im/pkg/logger"
+	"free-im/pkg/util"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
 	"math/rand"
 	"time"
@@ -16,17 +17,21 @@ type CommonService struct {
 }
 
 // 判断手机验证码是否正确
-func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string) (bool, error) {
+func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string, sms_type string) (bool, error) {
+	if !util.PhoneVerify(phone) {
+		return false, errors.New("手机号格式错误")
+	}
+
 	if verify_code == "2020" {
 		return true, nil
 	}
 
-	verify_code_data, _ := dao.GetRConn().Do("GET", "sms_verify_code:"+phone)
+	verify_code_data, _ := dao.GetRConn().Do("GET", "sms_verify_code:"+sms_type+":"+phone)
 	if verify_code_data == nil {
 		return false, nil
 	}
 	if string(verify_code_data.([]uint8)) == verify_code {
-		dao.GetRConn().Do("DEL", "sms_verify_code:"+phone)
+		dao.GetRConn().Do("DEL", "sms_verify_code:"+sms_type+":"+phone)
 		return true, nil
 	}
 	return false, nil
@@ -34,13 +39,17 @@ func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string) (boo
 
 // 发送手机验证码
 func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
+	if !util.PhoneVerify(phone) {
+		return errors.New("手机号格式错误")
+	}
+	return errors.New("默认验证码: 2020")
 	timeStr := time.Now().Format("2006-01-02")
 	if sms_total_send_sum, err := dao.GetRConn().Do("INCR", "sms_total_send_sum:"+timeStr); err != nil {
 		return errors.New("系统繁忙")
 	} else {
 		dao.GetRConn().Do("EXPIRE", "sms_total_send_sum:"+timeStr, 3600*24)
 		if sms_total_send_sum.(int64) > 100 {
-			return errors.New("短信通过关闭,请使用QQ登陆")
+			return errors.New("短信通道今日关闭,请使用QQ登陆")
 		}
 	}
 	sms := alisms.Sms{
@@ -67,8 +76,8 @@ func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 		logger.Sugar.Error(err)
 		dao.GetRConn().Do("DECR", "sms_total_send_sum:"+timeStr)
 	} else {
-		dao.GetRConn().Do("SET", "sms_verify_code:"+phone, code)
-		dao.GetRConn().Do("EXPIRE", "sms_verify_code:"+phone, 60*30)
+		dao.GetRConn().Do("SET", "sms_verify_code:"+sms_type+":"+phone, code)
+		dao.GetRConn().Do("EXPIRE", "sms_verify_code:"+sms_type+":"+phone, 60*30)
 	}
 	return err
 }

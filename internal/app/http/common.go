@@ -20,7 +20,7 @@ func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
 	var (
-		scope string
+		scope  string
 		domain string
 	)
 	if formData["type"] == "private" {
@@ -53,6 +53,19 @@ func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
 	ret["message"] = "获取成功"
 	ret["code"] = "0"
 	util.RespOk(writer, ret, "")
+}
+
+// 发送登录短信验证码
+func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	if err := CommonService.SendSms(formData["phone"].(string), formData["type"].(string)); err != nil {
+		util.RespFail(writer, err.Error())
+		return
+	}
+	util.RespOk(writer, nil, "短信验证码发送成功")
 }
 
 func GetMessageId(writer http.ResponseWriter, request *http.Request) {

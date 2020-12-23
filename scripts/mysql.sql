@@ -26,7 +26,7 @@ create table if not exists `user_auths`(
     `id` int unsigned auto_increment primary key,
     `member_id` int not null comment '会员ID',
     `identity_type` char(20) not null comment '类型,wechat_applet,qq,wb,phone,number,email',
-    `identifier` varchar(64) not null default '' comment '微信,QQ,微博opendid | 手机号,邮箱,账号',
+    `identifier` varchar(64) not null default '' comment '微信,QQ,微博openid | 手机号,邮箱,账号',
     `credential` varchar(64) not null default '' comment '密码凭证（站内的保存密码，站外的不保存或保存access_token）',
     KEY `member_id` (`member_id`),
     UNIQUE KEY `identity_type_identifier` (`identity_type`,`identifier`) USING BTREE
