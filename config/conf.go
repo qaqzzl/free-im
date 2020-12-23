@@ -26,6 +26,8 @@ type commonConf struct {
 
 	AliYunSmsAccessKeyID     string
 	AliYunSmsAccessKeySecret string
+
+	QQAuthAppID	string
 }
 
 // logic配置
@@ -97,6 +99,8 @@ func init() {
 
 		AliYunSmsAccessKeyID:     viper.GetString("AliYunSmsAccessKeyID"),
 		AliYunSmsAccessKeySecret: viper.GetString("AliYunSmsAccessKeySecret"),
+
+		QQAuthAppID: viper.GetString("QQAuthAppID"),
 	}
 
 	LogicConf = logicConf{

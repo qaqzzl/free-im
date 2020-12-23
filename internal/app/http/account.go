@@ -2,10 +2,12 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
+	"free-im/config"
 	"free-im/internal/app/service"
 	"free-im/pkg/util"
+	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 var AccountService *service.AccountService
@@ -26,35 +28,13 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 		util.RespFail(writer, "短信验证码错误")
 		return
 	}
-	//判断是否已经注册
-	var is_register bool
-	if is_register, err = AccountService.IsRegister(formData["phone"].(string), "phone"); err != nil {
-		util.RespFail(writer, "系统繁忙")
-		return
-	}
-
-	var member_id int64
-	if is_register {
-		member_id, err = AccountService.PhoneLogin(formData["phone"].(string))
-	} else {
-		member_id, err = AccountService.Register(formData["phone"].(string), "phone", "")
-	}
+	ret, err := AccountService.Login(formData["phone"].(string), "phone","",nil)
 	if err != nil {
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
 
-	// 获取token
-	var token string
-	if token, err = AccountService.GetToken(member_id, "app"); err != nil {
-		util.RespFail(writer, "系统繁忙")
-		return
-	}
-
-	data := make(map[string]string)
-	data["access_token"] = token
-	data["uid"] = strconv.Itoa(int(member_id))
-	util.RespOk(writer, data, "")
+	util.RespOk(writer, ret, "")
 }
 
 // 发送登录短信验证码
@@ -68,4 +48,41 @@ func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	util.RespOk(writer, nil, "短信验证码发送成功")
+}
+
+// QQ登陆
+func QQLogin(writer http.ResponseWriter, request *http.Request) {
+	// 初始化请求变量结构
+	formData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.NewDecoder(request.Body).Decode(&formData)
+	var err error
+	resp, err := http.Get("https://graph.qq.com/user/get_user_info?access_token=" +formData["access_token"].(string) +
+		"&oauth_consumer_key=" + config.CommonConf.QQAuthAppID +
+		"&openid="+formData["openid"].(string))
+	if err != nil {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
+	defer resp.Body.Close()
+	authBody, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		util.RespFail(writer, "系统繁忙")
+		return
+	}
+	// 初始化请求变量结构
+	authData := make(map[string]interface{})
+	// 调用json包的解析，解析请求body
+	json.Unmarshal(authBody, &authData)
+	fmt.Println(string(authBody))
+	fmt.Println(authData)
+	// 获取unionid https://graph.qq.com/oauth2.0/me?access_token=ACCESSTOKEN&unionid=1
+
+	//ret, err := AccountService.Login(formData["phone"].(string), "qq_","",nil)
+	//if err != nil {
+	//	util.RespFail(writer, "系统繁忙")
+	//	return
+	//}
+
+	util.RespOk(writer, nil, "ok")
 }

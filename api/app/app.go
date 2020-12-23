@@ -8,6 +8,7 @@ import (
 
 func StartHttpServer() {
 	http.HandleFunc("/login", app_http.PhoneLogin)                                                                   // 手机号登录 / 注册
+	http.HandleFunc("/login/qq", app_http.QQLogin)                                                                   // 手机号登录 / 注册
 	http.HandleFunc("/login/send.login.sms", app_http.SendLoginSms)                                                  // 发送登录手机号验证码
 	http.HandleFunc("/user/member.info", app_http.GetMemberInfo)                                                     // 获取会员信息
 	http.HandleFunc("/user/update.member.info", app_http.UpdateMemberInfo)                                           // 修改会员信息
