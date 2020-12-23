@@ -27,13 +27,13 @@ type commonConf struct {
 	AliYunSmsAccessKeyID     string
 	AliYunSmsAccessKeySecret string
 
-	QQAuthAppID	string
+	QQAuthAppID string
 }
 
 // logic配置
 type logicConf struct {
-	RPCIntListenAddr string
-	ConnRPCAddrs     string
+	RPCListenAddr string
+	ConnRPCAddrs  string
 }
 
 // conn配置
@@ -104,8 +104,8 @@ func init() {
 	}
 
 	LogicConf = logicConf{
-		RPCIntListenAddr: viper.GetString("LogicConf.RPCIntListenAddr"),
-		ConnRPCAddrs:     viper.GetString("LogicConf.ConnRPCAddrs"),
+		RPCListenAddr: viper.GetString("LogicConf.RPCListenAddr"),
+		ConnRPCAddrs:  viper.GetString("LogicConf.ConnRPCAddrs"),
 	}
 
 	ConnConf = connConf{
