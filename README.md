@@ -65,15 +65,15 @@ cd ~/free-im
 
 killall app
 go build ~/free-im/cmd/app
-nohup ./app -c ~/free-im/free.yaml > nohup.out 2>&1 &
+nohup ./app -c ~/free-im/free.yaml > app.out 2>&1 &
 
 killall logic
 go build ~/free-im/cmd/im/logic
-nohup ./logic -c ~/free-im/free.yaml > nohup.out 2>&1 &
+nohup ./logic -c ~/free-im/free.yaml > logic.out 2>&1 &
 
 killall tcp_conn
 go build ~/free-im/cmd/im/tcp_conn
-nohup ./tcp_conn -c ~/free-im/free.yaml > nohup.out 2>&1 &
+nohup ./tcp_conn -c ~/free-im/free.yaml > tcp_conn.out 2>&1 &
 ```
 
 #### 常见错误

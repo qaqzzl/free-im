@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"free-im/config"
 	"free-im/internal/app/service"
+	"free-im/pkg/logger"
 	"free-im/pkg/util"
 	"io/ioutil"
 	"net/http"
@@ -31,6 +32,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	}
 	ret, err := AccountService.Login(formData["phone"].(string), "phone", "", nil)
 	if err != nil {
+		logger.Logger.Info(err.Error())
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
