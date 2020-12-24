@@ -1,5 +1,5 @@
 ## 客户端
-android APK下载:  https://cdn.qaqzz.com/app-release.apk
+android APK下载:  https://cdn.qaqzz.com/app-free-release-v1.apk
     
 android 项目地址:  https://github.com/qaqzzl/free-im-android
 ### 简要介绍
