@@ -1,23 +1,31 @@
+# 运行环境 dev(开发环境) |　pre(灰度环境) |  prod(生产环境)
 RunSetting: "dev"
 MySQL: "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4"
 RedisIP: "127.0.0.1:6379"
 RedisAuth: ""
+
+# http api 监听接口
 HttpListenAddr: ":8066"
 
+# 阿里云短信
 AliYunSmsAccessKeyID: ""
 AliYunSmsAccessKeySecret: ""
 
+# QQ互联APPID
 QQAuthAppID: ""
 
+# logic 模块配置
 LogicConf:
   RPCIntListenAddr: ":50000"
   ConnRPCAddrs: "127.0.0.1:60000"
 
+# conn 模块配置
 ConnConf:
   TCPListenAddr: ":1208"
   RPCIntListenAddr: ":60000"
   LogicRPCAddrs: "127.0.0.1:50000"
 
+# WS 模块配置
 WSConf:
   TCPListenAddr: ":1209"
   RPCIntListenAddr: ":60001"
