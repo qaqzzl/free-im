@@ -3,10 +3,12 @@ package tcp_conn
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"math"
 	"net"
+	"strconv"
 )
 
 func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
@@ -77,16 +79,18 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	if err != nil {
 		return mp, err
 	}
-	// Buffered 返回缓存中未读取的数据的长度
 
 	// debug
 	len := Bodylength + int32(headInt)
 	if int(len) > math.MaxInt32 || int(len) < 0 {
 		len = 0
 		// debug
-		logger.Sugar.Error("数据量超出: ", Bodylength, "  ,  "+string(mp.BodyData))
+		logger.Sugar.Error("数据量超出: ", Bodylength)
+		return mp, errors.New("数据量超出:"+ strconv.Itoa(int(Bodylength)))
 	}
 	// end debug
+
+	// Buffered 返回缓存中未读取的数据的长度
 	if int32(c.r.Buffered()) < len {
 		return mp, err
 	}
