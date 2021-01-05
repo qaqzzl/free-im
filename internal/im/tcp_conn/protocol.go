@@ -8,7 +8,6 @@ import (
 	"free-im/pkg/protos/pbs"
 	"math"
 	"net"
-	"strconv"
 )
 
 func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
@@ -86,7 +85,7 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 		len = 0
 		// debug
 		logger.Sugar.Error("数据量超出: ", Bodylength)
-		return mp, errors.New("数据量超出:"+ strconv.Itoa(int(Bodylength)))
+		return mp, errors.New("消息头错误")
 	}
 	// end debug
 
