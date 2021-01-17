@@ -81,6 +81,17 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 		return member_id, err
 	}
 
+	// 自动添加好友 id=1
+	timeUnix := time.Now().Unix()
+	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
+		member_id, "1", 0, timeUnix)
+	dao.MysqlConn.Exec(sql)
+	sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
+		"1", member_id, 0, timeUnix)
+	dao.MysqlConn.Exec(sql)
+
 	// 返回 id
 	return member_id, err
 }
