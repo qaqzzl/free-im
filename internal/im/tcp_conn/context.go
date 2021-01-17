@@ -58,6 +58,7 @@ func (ctx *Context) DoConn() {
 	for {
 		mp, err := ctx.Read()
 		if err == io.EOF || err != nil {
+			logger.Sugar.Error("connection close: ", err)
 			ctx.TcpConn.Close()
 			break
 		}

@@ -28,7 +28,7 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 	case pbs.Action_Quit:
 		ctx.TcpConn.Close()
 	default:
-		logger.Logger.Info("Unsupported command")
+		logger.Sugar.Error("Unsupported command:", mp)
 	}
 }
 
@@ -87,8 +87,8 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 	}
 	// 认证成功通知 code ...
 	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
-		Version: ctx.Version,
-		Action:  pbs.Action_Auth,
+		Version:  ctx.Version,
+		Action:   pbs.Action_Auth,
 		BodyData: []byte("ok"),
 	})
 }
@@ -109,7 +109,7 @@ func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
 
 func (h *handler) SyncTrigger(ctx *Context, mp pbs.MessagePackage) {
 	_, _ = rpc_client.LogicInit.MessageSync(context.TODO(), &pbs.MessageSyncReq{
-		UserId: ctx.UserID,
+		UserId:    ctx.UserID,
 		MessageId: string(mp.BodyData),
 	})
 }

@@ -81,8 +81,7 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 
 	// debug
 	len := Bodylength + int32(headInt)
-	if int(len) > math.MaxInt32 || int(len) < 0 {
-		len = 0
+	if int(len) > math.MaxInt32 || int(len) <= 0 {
 		// debug
 		logger.Sugar.Error("数据量超出: ", Bodylength)
 		return mp, errors.New("消息头错误")
