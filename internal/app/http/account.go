@@ -51,12 +51,14 @@ func QQLogin(writer http.ResponseWriter, request *http.Request) {
 		"&oauth_consumer_key=" + config.CommonConf.QQAuthAppID +
 		"&openid=" + formData["openid"].(string))
 	if err != nil {
+		logger.Sugar.Error(err)
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
 	defer resp.Body.Close()
 	authBody, err := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
+		logger.Sugar.Error(err)
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
@@ -74,12 +76,17 @@ func QQLogin(writer http.ResponseWriter, request *http.Request) {
 	}
 	times, _ := time.Parse("2006", authData["year"].(string))
 	timeUnix := times.Unix()
-	data["birthdate"] = strconv.Itoa(int(timeUnix))
+	var birthdate = "0"
+	if timeUnix > 0 {
+		birthdate = strconv.Itoa(int(timeUnix))
+	}
+	data["birthdate"] = birthdate
 	data["avatar"] = authData["figureurl_qq_2"].(string)
 	data["city"] = authData["city"].(string)
 	data["province"] = authData["province"].(string)
 	ret, err := AccountService.Login(formData["openid"].(string), "qq_openid", formData["access_token"].(string), data)
 	if err != nil {
+		logger.Sugar.Error(err)
 		util.RespFail(writer, "系统繁忙")
 		return
 	}
