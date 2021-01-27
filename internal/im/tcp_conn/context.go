@@ -8,6 +8,7 @@ import (
 	"github.com/orcaman/concurrent-map"
 	"io"
 	"net"
+	"time"
 )
 
 //var SocketConnPool = make(map[string]map[string] Context)		// 这是不支持并发的
@@ -52,9 +53,12 @@ func NewConnContext(conn *net.TCPConn) *Context {
 	}
 }
 
+var readTicker = time.NewTicker(time.Millisecond * 100)
+
 // DoConn 处理TCP连接
 func (ctx *Context) DoConn() {
 	ctx.HandleConnect()
+	var waitingReadCount = 0
 	for {
 		mp, err := ctx.Read()
 		if err == io.EOF || err != nil {
@@ -62,6 +66,20 @@ func (ctx *Context) DoConn() {
 			ctx.TcpConn.Close()
 			break
 		}
+
+		// debug , 临时解决方案 , 有空重写协议解码器
+		if waitingReadCount > 300 {
+			logger.Sugar.Error("time out")
+			ctx.TcpConn.Close()
+			break
+		}
+		if mp.BodyData == nil {
+			waitingReadCount++
+			<-readTicker.C
+			continue
+		}
+		// end debug
+
 		ctx.HandlePackage(mp)
 	}
 }

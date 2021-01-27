@@ -8,7 +8,6 @@ import (
 	"free-im/pkg/protos/pbs"
 	"math"
 	"net"
-	"time"
 )
 
 func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
@@ -61,8 +60,6 @@ func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 	return nn, nil
 }
 
-var readTicker = time.NewTicker(time.Millisecond * 100)
-
 func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	// Peek 返回缓存的一个切片，该切片引用缓存中前 n 个字节的数据，
 	// 该操作不会将数据读出，只是引用，引用的数据在下一次读取操作之
@@ -90,9 +87,9 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 		return mp, errors.New("消息头错误")
 	}
 	// end debug
+
 	// Buffered 返回缓存中未读取的数据的长度
 	if int32(c.r.Buffered()) < len {
-		<-readTicker.C
 		return mp, err
 	}
 	// 读取消息真正的内容
