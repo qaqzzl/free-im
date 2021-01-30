@@ -7,65 +7,22 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"math"
-	"net"
 )
 
-func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
-	// fmt.Println(strings.TrimSpace(string(p.BodyData)))
-	// 读取消息的长度
-	var length = int32(len(mp.BodyData))
-	var pkg = new(bytes.Buffer)
-	var Action int8
-	switch mp.Action {
-	case 0:
-		Action = 0
-	case 1:
-		Action = 1
-	case 2:
-		Action = 2
-	case 3:
-		Action = 3
-	case 4:
-		Action = 4
-	case 10:
-		Action = 10
-	case 11:
-		Action = 11
-	case 100:
-		Action = 100
-	}
-
-	//写入消息头
-	if err := binary.Write(pkg, binary.BigEndian, mp.Version); err != nil {
-		return 0, err
-	}
-	if err := binary.Write(pkg, binary.BigEndian, Action); err != nil {
-		return 0, err
-	}
-	if err := binary.Write(pkg, binary.BigEndian, mp.SequenceId); err != nil {
-		return 0, err
-	}
-	if err := binary.Write(pkg, binary.BigEndian, length); err != nil {
-		return 0, err
-	}
-
-	//写入消息体
-	if err := binary.Write(pkg, binary.BigEndian, mp.BodyData); err != nil {
-		return 0, err
-	}
-	nn, err := conn.Write(pkg.Bytes())
-	if err != nil {
-		return 0, err
-	}
-	return nn, nil
+type protocol struct {
+	headerLen int
 }
 
-func (c *Context) Read() (mp pbs.MessagePackage, err error) {
+var Protocol = protocol{
+	headerLen: 13,
+}
+
+func (p *protocol) Decode(c *Context) (mp pbs.MessagePackage, err error) {
 	// Peek 返回缓存的一个切片，该切片引用缓存中前 n 个字节的数据，
 	// 该操作不会将数据读出，只是引用，引用的数据在下一次读取操作之
 	// 前是有效的。如果切片长度小于 n，则返回一个错误信息说明原因。
 	// 如果 n 大于缓存的总大小，则返回 ErrBufferFull。
-	var headInt = 13
+	var headInt = p.headerLen
 	headByte, err := c.r.Peek(headInt)
 	if err != nil {
 		return mp, err
@@ -134,4 +91,51 @@ func (c *Context) Read() (mp pbs.MessagePackage, err error) {
 	mp.BodyData = pack[13:n]
 	// end debug
 	return mp, nil
+}
+
+func (p *protocol) Encode(mp pbs.MessagePackage) ([]byte, error) {
+	// fmt.Println(strings.TrimSpace(string(p.BodyData)))
+	// 读取消息的长度
+	var length = int32(len(mp.BodyData))
+	var pkg = new(bytes.Buffer)
+	var Action int8
+	switch mp.Action {
+	case 0:
+		Action = 0
+	case 1:
+		Action = 1
+	case 2:
+		Action = 2
+	case 3:
+		Action = 3
+	case 4:
+		Action = 4
+	case 10:
+		Action = 10
+	case 11:
+		Action = 11
+	case 100:
+		Action = 100
+	}
+
+	//写入消息头
+	if err := binary.Write(pkg, binary.BigEndian, mp.Version); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(pkg, binary.BigEndian, Action); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(pkg, binary.BigEndian, mp.SequenceId); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(pkg, binary.BigEndian, length); err != nil {
+		return nil, err
+	}
+
+	//写入消息体
+	if err := binary.Write(pkg, binary.BigEndian, mp.BodyData); err != nil {
+		return nil, err
+	}
+	return pkg.Bytes(), nil
+
 }
