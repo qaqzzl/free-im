@@ -26,7 +26,7 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 	case pbs.Action_Headbeat: // 心跳
 		h.Headbeat(ctx)
 	case pbs.Action_Quit:
-		ctx.TcpConn.Close()
+		ctx.Close()
 	default:
 		logger.Sugar.Error("Unsupported command:", mp)
 	}
@@ -65,17 +65,20 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 			if k == m.DeviceType { // 如果有同类型的设备登录了 ,通知其设备下线
 				device := v.(ClientDevice)
 				if device.DeviceID != m.DeviceID {
-					// 通知其设备下线 code...
-
+					// 通知其设备下线
+					databody := pbs.MessageQuit{
+						Title:   "其他设备登陆通知",
+						Content: "你的账号在其他设备登陆<br>如不是你本人登陆请<a href=''>修改密码</a>",
+					}
+					BodyData, _ := json.Marshal(databody)
+					ctx.SendMessage(device.Context.TcpConn, pbs.MessagePackage{
+						Version:  ctx.Version,
+						Action:   pbs.Action_Quit,
+						BodyData: BodyData,
+					})
 				}
 				// 关闭连接
-				device.Context.TcpConn.Close()
-				device.Context.IsConnStatus = false // 伪代码
-				for {                               // 等待上个连接完全关闭
-					if device.Context.IsConnStatus == false {
-						break
-					}
-				}
+				device.Context.Close()
 			}
 		}
 		device_map.Set(m.DeviceType, clientDevice)

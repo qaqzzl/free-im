@@ -26,17 +26,17 @@ type ClientDevice struct {
 
 // IM连接信息
 type Context struct {
-	TcpConn      net.Conn
-	r            *bufio.Reader
-	Version      int32
-	WriteChan    chan sendMessage // 出chan
-	ReadChan     chan sendMessage // 入chan
-	DeviceID     string           // 设备id 简写 DID
-	UserID       string           // 用户id 简写 UID
-	DeviceType   string           // 设备类型, 移动端:mobile , PC端:pc
-	ClientType   string           // 客户端类型, android, ios,
-	IsAuth       bool             // 是否认证(登录)
-	IsConnStatus bool             // 连接状态
+	TcpConn    net.Conn
+	r          *bufio.Reader
+	Version    int32
+	WriteChan  chan sendMessage // 出chan
+	ReadChan   chan sendMessage // 入chan
+	DeviceID   string           // 设备id 简写 DID
+	UserID     string           // 用户id 简写 UID
+	DeviceType string           // 设备类型, 移动端:mobile , PC端:pc
+	ClientType string           // 客户端类型, android, ios,
+	IsAuth     bool             // 是否认证(登录)
+	ConnStatus bool             // 连接状态
 }
 
 type sendMessage struct {
@@ -62,7 +62,7 @@ func (ctx *Context) DoConn() {
 	for {
 		if mp, err := ctx.Read(); err != nil {
 			logger.Sugar.Error(err)
-			ctx.TcpConn.Close()
+			ctx.Close()
 			break
 		} else {
 			ctx.HandlePackage(mp)
@@ -72,7 +72,7 @@ func (ctx *Context) DoConn() {
 
 // HandleConnect 建立连接
 func (ctx *Context) HandleConnect() {
-	ctx.IsConnStatus = true
+	ctx.ConnStatus = true
 }
 
 func (ctx *Context) Read() (mp pbs.MessagePackage, err error) {
@@ -106,6 +106,17 @@ func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 		}
 		return nn, nil
 	}
+}
+
+func (ctx *Context) Close() {
+	if ctx.ConnStatus != false {
+		if user_map, ok := SocketConnPool.Get(ctx.UserID); ok {
+			user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
+			SocketConnPool.Set(ctx.UserID, user_map)
+		}
+	}
+	ctx.ConnStatus = false
+	ctx.TcpConn.Close()
 }
 
 // HandlePackage 处理消息包
@@ -169,18 +180,6 @@ func DeliverMessageByUIDAndNotDID(ctx context.Context, req *pbs.DeliverMessageRe
 		ctxconn.SendMessage(ctxconn.TcpConn, *req.Message)
 	}
 	return nil
-}
-
-// 关闭链接
-func Close(ctx *Context) {
-	if ctx.IsConnStatus != false {
-		if user_map, ok := SocketConnPool.Get(ctx.UserID); ok {
-			user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
-			SocketConnPool.Set(ctx.UserID, user_map)
-		}
-	}
-	ctx.IsConnStatus = false
-	ctx.TcpConn.Close()
 }
 
 // store 存储

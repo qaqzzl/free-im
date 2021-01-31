@@ -35,7 +35,7 @@ const (
 	Action_Message      Action = 3   // 消息
 	Action_MessageACK   Action = 4   // 消息回执
 	Action_Auth         Action = 10  // 连接认证
-	Action_Quit         Action = 11  // 客户端退出
+	Action_Quit         Action = 11  // 退出
 	Action_Headbeat     Action = 100 // 心跳
 )
 
