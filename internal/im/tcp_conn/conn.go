@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-//var SocketConnPool = make(map[string]map[string] Context)		// 这是不支持并发的
 //[user_id][DeviceType]Context
 var SocketConnPool = cmap.New() //解决map并发读写
 
@@ -112,7 +111,7 @@ func (ctx *Context) Close() {
 	if ctx.ConnStatus != false {
 		if user_map, ok := SocketConnPool.Get(ctx.UserID); ok {
 			user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
-			SocketConnPool.Set(ctx.UserID, user_map)
+			// SocketConnPool.Set(ctx.UserID, user_map)
 		}
 	}
 	ctx.ConnStatus = false

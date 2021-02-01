@@ -6,15 +6,17 @@ import (
 	"errors"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
-	"math"
 )
 
 type protocol struct {
 	headerLen int
+	bodyLen   int
 }
 
 var Protocol = protocol{
 	headerLen: 13,
+	//bodyLen: 2048,
+	bodyLen: 2048 * 100000, // dubug
 }
 
 func (p *protocol) Decode(c *Context) (mp pbs.MessagePackage, err error) {
@@ -36,14 +38,12 @@ func (p *protocol) Decode(c *Context) (mp pbs.MessagePackage, err error) {
 		return mp, err
 	}
 
-	// debug
 	len := Bodylength + int32(headInt)
-	if int(len) > math.MaxInt32 || int(len) <= 0 {
+	if int(len) > p.bodyLen || int(len) <= 0 {
 		// debug
-		logger.Sugar.Error("数据量超出: ", Bodylength)
-		return mp, errors.New("消息头错误")
+		logger.Sugar.Error("body len error: ", Bodylength)
+		return mp, errors.New("body len error")
 	}
-	// end debug
 
 	// Buffered 返回缓存中未读取的数据的长度
 	if int32(c.r.Buffered()) < len {
@@ -62,31 +62,15 @@ func (p *protocol) Decode(c *Context) (mp pbs.MessagePackage, err error) {
 	if err != nil {
 		return mp, err
 	}
-	var Action int8
+	var action int8
 	Buff := bytes.NewBuffer(headByte[0:4])
 	err = binary.Read(Buff, binary.BigEndian, &mp.Version)
 	Buff = bytes.NewBuffer(headByte[4:5])
-	err = binary.Read(Buff, binary.BigEndian, &Action)
+	err = binary.Read(Buff, binary.BigEndian, &action)
 	Buff = bytes.NewBuffer(headByte[5:9])
 	err = binary.Read(Buff, binary.BigEndian, &mp.SequenceId)
-	switch Action {
-	case int8(0):
-		mp.Action = 0
-	case int8(1):
-		mp.Action = 1
-	case int8(2):
-		mp.Action = 2
-	case int8(3):
-		mp.Action = 3
-	case int8(4):
-		mp.Action = 4
-	case int8(10):
-		mp.Action = 10
-	case int8(11):
-		mp.Action = 11
-	case int8(100):
-		mp.Action = 100
-	}
+
+	mp.Action = actionTo(action)
 	mp.BodyLength = Bodylength
 	mp.BodyData = pack[13:n]
 	// end debug
@@ -98,31 +82,13 @@ func (p *protocol) Encode(mp pbs.MessagePackage) ([]byte, error) {
 	// 读取消息的长度
 	var length = int32(len(mp.BodyData))
 	var pkg = new(bytes.Buffer)
-	var Action int8
-	switch mp.Action {
-	case 0:
-		Action = 0
-	case 1:
-		Action = 1
-	case 2:
-		Action = 2
-	case 3:
-		Action = 3
-	case 4:
-		Action = 4
-	case 10:
-		Action = 10
-	case 11:
-		Action = 11
-	case 100:
-		Action = 100
-	}
+	action := actionToint8(mp.Action)
 
 	//写入消息头
 	if err := binary.Write(pkg, binary.BigEndian, mp.Version); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(pkg, binary.BigEndian, Action); err != nil {
+	if err := binary.Write(pkg, binary.BigEndian, action); err != nil {
 		return nil, err
 	}
 	if err := binary.Write(pkg, binary.BigEndian, mp.SequenceId); err != nil {
@@ -137,5 +103,49 @@ func (p *protocol) Encode(mp pbs.MessagePackage) ([]byte, error) {
 		return nil, err
 	}
 	return pkg.Bytes(), nil
+}
 
+func actionToint8(action pbs.Action) int8 {
+	var ac int8
+	switch action {
+	case 0:
+		ac = 0
+	case 1:
+		ac = 1
+	case 2:
+		ac = 2
+	case 3:
+		ac = 3
+	case 4:
+		ac = 4
+	case 10:
+		ac = 10
+	case 11:
+		ac = 11
+	case 100:
+		ac = 100
+	}
+	return ac
+}
+
+func actionTo(i int8) (ac pbs.Action) {
+	switch i {
+	case 0:
+		ac = 0
+	case 1:
+		ac = 1
+	case 2:
+		ac = 2
+	case 3:
+		ac = 3
+	case 4:
+		ac = 4
+	case 10:
+		ac = 10
+	case 11:
+		ac = 11
+	case 100:
+		ac = 100
+	}
+	return ac
 }
