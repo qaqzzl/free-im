@@ -46,15 +46,15 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		insert["chatroom_id"] = m.ChatroomId
 		insert["member_id"] = UserID
 		insert["content"] = string(BodyData)
-		if _,err := dao.NewMysql().Table("message").Insert(insert); err != nil {
+		if _, err := dao.NewMysql().Table("message").Insert(insert); err != nil {
 			logger.Sugar.Error("存储消息失败", err)
 			return err
 		}
 		//发送消息
 		rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
-			UserId:  UserID,
+			UserId:   UserID,
 			DeviceId: m.DeviceID,
-			Message: &packages,
+			Message:  &packages,
 		})
 	}
 	// 消息回执
@@ -69,19 +69,19 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 }
 
 func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
-	dao.GetRConn().Do("HDEL", "hash_message_ack_timeout_retransmit", mp.MessageId)
+
 	return nil
 }
 
 func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
-	messages,err := dao.NewMysql().Table("message").
-		Where("member_id = "+mp.UserId+" and message_id > '"+mp.MessageId+"'").
+	messages, err := dao.NewMysql().Table("message").
+		Where("member_id = " + mp.UserId + " and message_id > '" + mp.MessageId + "'").
 		Select("content").Get()
 	if err != nil {
 		logger.Sugar.Error("消息查询失败", err)
 		return err
 	}
-	for _,v := range messages {
+	for _, v := range messages {
 		packages := pbs.MessagePackage{
 			Action:   pbs.Action_Message,
 			BodyData: []byte(v["content"]),

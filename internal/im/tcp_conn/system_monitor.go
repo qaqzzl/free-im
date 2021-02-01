@@ -13,14 +13,14 @@ func SystemMonitor() {
 		for {
 			<-ticker.C
 			fmt.Println("-----------------------------------")
-			fmt.Println("连接用户数: ", SocketConnPool.Count())
-			for key, vo := range SocketConnPool.Items() {
+			fmt.Println("连接用户数: ", ServerConnPool.Count())
+			for key, vo := range ServerConnPool.Items() {
 				fmt.Println("--------------")
 				fmt.Println("连接用户ID: ", key)
 				ConcurrentMap := vo.(cmap.ConcurrentMap)
 				for k, v := range ConcurrentMap.Items() {
 					fmt.Println("连接设备类型: ", k)
-					fmt.Println("连接设备ID: ", v.(ClientDevice).DeviceID)
+					fmt.Println("连接设备ID: ", v.(Context).DeviceID)
 				}
 
 			}

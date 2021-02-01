@@ -71,9 +71,9 @@ type ClientDevice struct {
 	Context *Context
 }
 
-//var SocketConnPool = make(map[string]map[string] ClientConn)		// 这是不支持并发的
+//var ServerConnPool = make(map[string]map[string] ClientConn)		// 这是不支持并发的
 //[user_id][DeviceType]ClientConn
-var SocketConnPool = cmap.New()			//解决map并发读写
+var ServerConnPool = cmap.New()			//解决map并发读写
 
 // 消息重发结构体
 

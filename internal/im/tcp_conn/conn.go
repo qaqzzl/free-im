@@ -12,30 +12,17 @@ import (
 	"time"
 )
 
-//[user_id][DeviceType]Context
-var SocketConnPool = cmap.New() //解决map并发读写
-
-// 连接用户客户端结构体
-// DeviceType 设备类型, 移动端:mobile , PC端:pc
-type ClientDevice struct {
-	ClientType string // 客户端类型, (android, ios) | (windows, mac, linux)
-	DeviceID   string
-	Context    *Context
-}
-
 // IM连接信息
 type Context struct {
 	TcpConn    net.Conn
 	r          *bufio.Reader
 	Version    int32
-	WriteChan  chan sendMessage // 出chan
-	ReadChan   chan sendMessage // 入chan
-	DeviceID   string           // 设备id 简写 DID
-	UserID     string           // 用户id 简写 UID
-	DeviceType string           // 设备类型, 移动端:mobile , PC端:pc
-	ClientType string           // 客户端类型, android, ios,
-	IsAuth     bool             // 是否认证(登录)
-	ConnStatus bool             // 连接状态
+	DeviceID   string // 设备id 简写 DID
+	UserID     string // 用户id 简写 UID
+	DeviceType string // 设备类型, 移动端:mobile , PC端:pc
+	ClientType string // 客户端类型, (android, ios) | (windows, mac, linux)
+	IsAuth     bool   // 是否认证(登录)
+	ConnStatus bool   // 连接状态
 }
 
 type sendMessage struct {
@@ -46,14 +33,10 @@ type sendMessage struct {
 func NewConnContext(conn *net.TCPConn) *Context {
 	reader := bufio.NewReader(conn)
 	return &Context{
-		TcpConn:   conn,
-		r:         reader,
-		WriteChan: make(chan sendMessage, 1000),
-		ReadChan:  make(chan sendMessage, 1000),
+		TcpConn: conn,
+		r:       reader,
 	}
 }
-
-var readTicker = time.NewTicker(time.Millisecond * 100)
 
 // DoConn 处理TCP连接
 func (ctx *Context) DoConn() {
@@ -71,10 +54,12 @@ func (ctx *Context) DoConn() {
 
 // HandleConnect 建立连接
 func (ctx *Context) HandleConnect() {
+	logger.Logger.Info("connect")
 	ctx.ConnStatus = true
 }
 
 func (ctx *Context) Read() (mp pbs.MessagePackage, err error) {
+	var readTicker = time.NewTicker(time.Millisecond * 100)
 	var waitingReadCount = 0
 	for {
 		mp, err := Protocol.Decode(ctx)
@@ -95,7 +80,7 @@ func (ctx *Context) Read() (mp pbs.MessagePackage, err error) {
 	}
 }
 
-func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
+func (ctx *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 	if b, err := Protocol.Encode(mp); err != nil {
 		return 0, err
 	} else {
@@ -109,9 +94,9 @@ func (c *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
 
 func (ctx *Context) Close() {
 	if ctx.ConnStatus != false {
-		if user_map, ok := SocketConnPool.Get(ctx.UserID); ok {
+		if user_map, ok := ServerConnPool.Get(ctx.UserID); ok {
 			user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
-			// SocketConnPool.Set(ctx.UserID, user_map)
+			// ServerConnPool.Set(ctx.UserID, user_map)
 		}
 	}
 	ctx.ConnStatus = false
@@ -182,35 +167,46 @@ func DeliverMessageByUIDAndNotDID(ctx context.Context, req *pbs.DeliverMessageRe
 }
 
 // store 存储
-func storeConn(userId string, ctx *Context) {
+func storeConn(ctx *Context) {
+	if tmp, ok := ServerConnPool.Get(ctx.UserID); ok {
+		device_map := tmp.(cmap.ConcurrentMap)
+		device_map.Set(ctx.DeviceType, ctx)
+		ServerConnPool.Set(ctx.UserID, device_map)
+	} else {
+		device_map := cmap.New()
+		device_map.Set(ctx.DeviceType, ctx)
+		ServerConnPool.Set(ctx.UserID, device_map)
+	}
 }
 
 // load 获取链接
 func loadConnsByUID(UserID string) (ctxs []*Context) {
-	tmp, ok := SocketConnPool.Get(UserID)
+	tmp, ok := ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			device := vo.(ClientDevice)
-			ctxs = append(ctxs, device.Context)
+			ctx := vo.(Context)
+			ctxs = append(ctxs, &ctx)
 		}
 	}
 	return ctxs
 }
 
-// delete 删除
-func deleteConn(userId string) {
-}
-
 func loadConnsByUIDAndDID(UserID string, DeviceID string) (ctx *Context) {
-	tmp, ok := SocketConnPool.Get(UserID)
+	tmp, ok := ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			device := vo.(ClientDevice)
-			if device.DeviceID == DeviceID {
-				ctx = device.Context
+			ctx := vo.(Context)
+			if ctx.DeviceID == DeviceID {
 				break
 			}
 		}
 	}
 	return ctx
+}
+
+// delete 删除
+func delConnByUID(userId string) {
+}
+
+func delConnByUDID(userId string, DeviceID string) {
 }

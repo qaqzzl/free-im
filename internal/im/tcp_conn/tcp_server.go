@@ -2,8 +2,13 @@ package tcp_conn
 
 import (
 	"free-im/pkg/logger"
+	cmap "github.com/orcaman/concurrent-map"
 	"net"
 )
+
+// sync.Map
+// [user_id][DeviceType]Context
+var ServerConnPool = cmap.New() //解决map并发读写
 
 // TCPServer TCP服务器
 type TCPServer struct {

@@ -118,7 +118,7 @@ func ConnSocketHandler(conn net.Conn) {
 					log.Println(err.Error())
 					continue
 				}
-				tmp, ok := SocketConnPool.Get(ctx.UserID)
+				tmp, ok := ServerConnPool.Get(ctx.UserID)
 				if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 					for  _, vo := range tmp.(cmap.ConcurrentMap).Items() {
 						timeUnix := time.Now().UnixNano()  / 1e6
@@ -241,8 +241,8 @@ func SystemMonitor() {
 	//	for {
 	//		<-ticker.C
 	//		fmt.Println("-----------------------------------")
-	//		fmt.Println("连接用户数: ",SocketConnPool.Count())
-	//		for key,vo := range SocketConnPool.Items() {
+	//		fmt.Println("连接用户数: ",ServerConnPool.Count())
+	//		for key,vo := range ServerConnPool.Items() {
 	//			fmt.Println("--------------")
 	//			fmt.Println("连接用户ID: ", key)
 	//			ConcurrentMap := vo.(cmap.ConcurrentMap)

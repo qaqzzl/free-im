@@ -52,43 +52,32 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 	ctx.DeviceID = m.DeviceID
 	ctx.ClientType = m.ClientType
 	ctx.DeviceType = m.DeviceType
-	clientDevice := ClientDevice{
-		DeviceID:   m.DeviceID,
-		ClientType: m.ClientType,
-		Context:    ctx,
-	}
 	//加入连接集合
-	if tmp, ok := SocketConnPool.Get(ctx.UserID); ok {
+	if tmp, ok := ServerConnPool.Get(ctx.UserID); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
 		// 判断连接是否存在相同设备
 		for k, v := range device_map.Items() {
 			if k == m.DeviceType { // 如果有同类型的设备登录了 ,通知其设备下线
-				device := v.(ClientDevice)
-				if device.DeviceID != m.DeviceID {
+				vctx := v.(Context)
+				if vctx.DeviceID != m.DeviceID {
 					// 通知其设备下线
 					databody := pbs.MessageQuit{
 						Title:   "其他设备登陆通知",
 						Content: "你的账号在其他设备登陆<br>如不是你本人登陆请<a href=''>修改密码</a>",
 					}
 					BodyData, _ := json.Marshal(databody)
-					ctx.SendMessage(device.Context.TcpConn, pbs.MessagePackage{
+					ctx.SendMessage(vctx.TcpConn, pbs.MessagePackage{
 						Version:  ctx.Version,
 						Action:   pbs.Action_Quit,
 						BodyData: BodyData,
 					})
 				}
 				// 关闭连接
-				device.Context.Close()
+				vctx.Close()
 			}
 		}
-		device_map.Set(m.DeviceType, clientDevice)
-		SocketConnPool.Set(ctx.UserID, device_map)
-	} else {
-		device_map := cmap.New()
-		device_map.Set(m.DeviceType, clientDevice)
-		SocketConnPool.Set(ctx.UserID, device_map)
 	}
-	// 认证成功通知 code ...
+	storeConn(ctx)
 	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
 		Version:  ctx.Version,
 		Action:   pbs.Action_Auth,
