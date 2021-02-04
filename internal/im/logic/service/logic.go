@@ -34,7 +34,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		return err
 	}
 	// 给聊天室全员发送消息
-	packages := pbs.MessagePackage{
+	packages := pbs.MsgPackage{
 		Action:   pbs.Action_Message,
 		BodyData: BodyData,
 	}
@@ -82,7 +82,7 @@ func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
 		return err
 	}
 	for _, v := range messages {
-		packages := pbs.MessagePackage{
+		packages := pbs.MsgPackage{
 			Action:   pbs.Action_Message,
 			BodyData: []byte(v["content"]),
 		}

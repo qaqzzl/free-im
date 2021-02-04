@@ -27,7 +27,7 @@ type Context struct {
 
 type sendMessage struct {
 	Conn    net.Conn
-	Package pbs.MessagePackage
+	Package pbs.MsgPackage
 }
 
 func NewConnContext(conn *net.TCPConn) *Context {
@@ -58,7 +58,7 @@ func (ctx *Context) HandleConnect() {
 	ctx.ConnStatus = true
 }
 
-func (ctx *Context) Read() (mp pbs.MessagePackage, err error) {
+func (ctx *Context) Read() (mp pbs.MsgPackage, err error) {
 	var readTicker = time.NewTicker(time.Millisecond * 100)
 	var waitingReadCount = 0
 	for {
@@ -80,7 +80,7 @@ func (ctx *Context) Read() (mp pbs.MessagePackage, err error) {
 	}
 }
 
-func (ctx *Context) Write(conn net.Conn, mp pbs.MessagePackage) (int, error) {
+func (ctx *Context) Write(conn net.Conn, mp pbs.MsgPackage) (int, error) {
 	if b, err := Protocol.Encode(mp); err != nil {
 		return 0, err
 	} else {
@@ -104,12 +104,12 @@ func (ctx *Context) Close() {
 }
 
 // HandlePackage 处理消息包
-func (ctx *Context) HandlePackage(mp pbs.MessagePackage) {
+func (ctx *Context) HandlePackage(mp pbs.MsgPackage) {
 	Handler.Handler(ctx, mp)
 }
 
 //send message handle
-func (ctx *Context) SendMessage(conn net.Conn, mp pbs.MessagePackage) (n int, err error) {
+func (ctx *Context) SendMessage(conn net.Conn, mp pbs.MsgPackage) (n int, err error) {
 	if n, err = ctx.Write(conn, mp); err == nil {
 		return n, nil
 	} else {

@@ -13,7 +13,7 @@ type handler struct{}
 
 var Handler = new(handler)
 
-func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
+func (h *handler) Handler(ctx *Context, mp pbs.MsgPackage) {
 	switch mp.Action {
 	case pbs.Action_GetMessageID: // 获取消息ID
 	case pbs.Action_Auth: // 连接认证
@@ -21,6 +21,7 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 	case pbs.Action_Message: // 消息
 		h.MessageReceive(ctx, mp)
 	case pbs.Action_MessageACK: // 消息回执
+
 	case pbs.Action_SyncTrigger: // 消息同步
 		h.SyncTrigger(ctx, mp)
 	case pbs.Action_Headbeat: // 心跳
@@ -33,8 +34,8 @@ func (h *handler) Handler(ctx *Context, mp pbs.MessagePackage) {
 }
 
 // client auth handle
-func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
-	m := pbs.AuthMessage{}
+func (h *handler) Auth(ctx *Context, mp pbs.MsgPackage) {
+	m := pbs.MsgAuth{}
 	if err := json.Unmarshal(mp.BodyData, &m); err != nil {
 		logger.Sugar.Error(err)
 		return
@@ -61,12 +62,12 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 				vctx := v.(Context)
 				if vctx.DeviceID != m.DeviceID {
 					// 通知其设备下线
-					databody := pbs.MessageQuit{
+					databody := pbs.MsgQuit{
 						Title:   "其他设备登陆通知",
 						Content: "你的账号在其他设备登陆<br>如不是你本人登陆请<a href=''>修改密码</a>",
 					}
 					BodyData, _ := json.Marshal(databody)
-					ctx.SendMessage(vctx.TcpConn, pbs.MessagePackage{
+					ctx.SendMessage(vctx.TcpConn, pbs.MsgPackage{
 						Version:  ctx.Version,
 						Action:   pbs.Action_Quit,
 						BodyData: BodyData,
@@ -78,15 +79,15 @@ func (h *handler) Auth(ctx *Context, mp pbs.MessagePackage) {
 		}
 	}
 	storeConn(ctx)
-	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
+	ctx.SendMessage(ctx.TcpConn, pbs.MsgPackage{
 		Version:  ctx.Version,
 		Action:   pbs.Action_Auth,
 		BodyData: []byte("ok"),
 	})
 }
 
-func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
-	m := pbs.MessageItem{}
+func (h *handler) MessageReceive(ctx *Context, mp pbs.MsgPackage) {
+	m := pbs.MsgItem{}
 	if err := json.Unmarshal(mp.BodyData, &m); err != nil {
 		logger.Sugar.Error(err)
 		return
@@ -99,7 +100,11 @@ func (h *handler) MessageReceive(ctx *Context, mp pbs.MessagePackage) {
 	})
 }
 
-func (h *handler) SyncTrigger(ctx *Context, mp pbs.MessagePackage) {
+func (h *handler) MessageACK(ctx *Context, mp pbs.MsgPackage) {
+
+}
+
+func (h *handler) SyncTrigger(ctx *Context, mp pbs.MsgPackage) {
 	_, _ = rpc_client.LogicInit.MessageSync(context.TODO(), &pbs.MessageSyncReq{
 		UserId:    ctx.UserID,
 		MessageId: string(mp.BodyData),
@@ -107,7 +112,7 @@ func (h *handler) SyncTrigger(ctx *Context, mp pbs.MessagePackage) {
 }
 
 func (h *handler) Headbeat(ctx *Context) {
-	ctx.SendMessage(ctx.TcpConn, pbs.MessagePackage{
+	ctx.SendMessage(ctx.TcpConn, pbs.MsgPackage{
 		Version: ctx.Version,
 		Action:  pbs.Action_Headbeat,
 	})

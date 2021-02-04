@@ -4,14 +4,14 @@ import "im.proto";
 package pbs;
 
 message TokenAuthReq {
-    AuthMessage message = 1;
+    MsgAuth message = 1;
 }
 message TokenAuthResp {
     bool statu = 1;
 }
 
 message MessageReceiveReq {
-    MessageItem message = 1;
+    MsgItem message = 1;
 }
 message MessageReceiveResp {
 }

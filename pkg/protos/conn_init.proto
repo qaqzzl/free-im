@@ -7,7 +7,7 @@ package pbs;
 message DeliverMessageReq {
     string user_id = 1; // 用户ID
     string device_id = 2; // 设备ID
-    MessagePackage message = 3; // 数据
+    MsgPackage message = 3; // 数据
 }
 message DeliverMessageResp {
 }

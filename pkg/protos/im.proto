@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package pbs;
 
-// 消息操作类型 128
+// 消息操作类型 128 , 2字节
 enum Action {
     GetMessageID         	= 0; 		// 获取消息ID
     SignIn         			= 1; 		// 设备登录
@@ -35,7 +35,7 @@ enum ChatroomType {
 }
 
 // 消息包
-message MessagePackage {
+message MsgPackage {
     int32 Version                       = 1;    // 版本
     Action Action                       = 2;    // 操作方法
     int32 SequenceId 	                = 3;    // 用户消息发送序列号
@@ -44,7 +44,7 @@ message MessagePackage {
 }
 
 // 消息体 - 获取消息ID
-message MessageID {
+message MsgID {
     string ChatroomId			= 2; 	// 聊天室ID
     string UserId 		 		= 5;	// 用户ID
     string DeviceID 		 	= 6;	// 设备ID
@@ -52,19 +52,20 @@ message MessageID {
 }
 
 // 消息体 - 普通消息
-message MessageItem {
+message MsgItem {
     MessageCode Code    		= 1;	// 消息(类型)码
-    string ChatroomId			= 2; 	// 聊天室ID
-    string Content 	 			= 3;    // 消息内容
-    string MessageId 	 		= 4;	// 消息ID
-    string UserId 		 		= 5;	// 用户ID
-    string DeviceID 		 	= 6;	// 设备ID
-    string ClientType 	 		= 7;	// 客户端类型
-    int64 MessageSendTime 	 	= 8;	// 消息发送时间戳，精确到毫秒, 服务器接收到的时间算
+    ChatroomType ChatroomType	= 2; 	// 聊天室类型
+    string ChatroomId			= 3; 	// 聊天室ID
+    string Content 	 			= 4;    // 消息内容
+    string MessageId 	 		= 5;	// 消息ID
+    string UserId 		 		= 6;	// 用户ID
+    string DeviceID 		 	= 7;	// 设备ID
+    string ClientType 	 		= 8;	// 客户端类型
+    int64 MessageSendTime 	 	= 9;	// 消息发送时间戳，精确到毫秒, 服务器接收到的时间算
 }
 
 // 消息体 - 认证信息
-message AuthMessage {
+message MsgAuth {
 	string DeviceID         = 1;
 	string UserID           = 2;
 	string AccessToken      = 3;
@@ -72,8 +73,13 @@ message AuthMessage {
 	string ClientType 		= 5;		// 客户端类型, android, ios,
 }
 
+// 消息体 - 消息回执
+message MsgACK {
+    string MessageId    = 1;
+}
+
 // 消息体 - 客户端退出
-message MessageQuit {
+message MsgQuit {
     string Title 	 			= 1;    // 标题
     string Content 	 			= 2;    // 内容 html格式: (你的账号在其他设备登陆<br>如不是你本人登陆请<a href="">修改密码</a> | 系统奔溃 | 主动退出 | 等等)
 }
