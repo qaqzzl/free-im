@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"free-im/internal/im/ws_conn"
 	"net/http"
 )
@@ -16,7 +15,6 @@ func main() {
 	// Start the server on localhost port 8000 and log any errors
 	err := http.ListenAndServe(":8989", nil)
 	if err != nil {
-		fmt.Println("ListenAndServe: ")
-		panic( err )
+		panic(err)
 	}
 }

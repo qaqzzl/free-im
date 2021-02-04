@@ -2,7 +2,6 @@ package ws_conn
 
 import (
 	"free-im/pkg/logger"
-	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -10,12 +9,10 @@ import (
 )
 
 type Content struct {
-	RedisConn   redis.Conn
-	WsConn      *websocket.Conn
-	WsConnIndex string     // 房间index
-	closeChan   chan byte  // 关闭通知
-	mutex       sync.Mutex // 避免重复关闭管道
-	isClosed    bool
+	WsConn    *websocket.Conn
+	closeChan chan byte  // 关闭通知
+	mutex     sync.Mutex // 避免重复关闭管道
+	isClosed  bool
 	//inChan chan *[]byte								// 读队列
 	outChan chan *[]byte // 写队列
 }
@@ -24,7 +21,7 @@ type Content struct {
 var (
 	//完成握手操作
 	upgrader = websocket.Upgrader{
-		//允许跨域(一般来讲,websocket都是独立部署的)
+		//允许跨域
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
@@ -57,7 +54,6 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 //读协程 , 处理器
 func (content *Content) wsReadLoop() {
-	defer content.RedisConn.Close() //处理器退出后关闭redis连接资源
 	for {
 		var receiveStruct interface{}
 		// Read in a new message as JSON and map it to a Message object

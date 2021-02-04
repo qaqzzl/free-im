@@ -52,9 +52,9 @@ type wsConf struct {
 
 // Http配置
 type httpConf struct {
-	WSListenAddr  string
-	RPCListenAddr string
-	LogicRPCAddrs string
+	HttpListenAddr string
+	RPCListenAddr  string
+	LogicRPCAddrs  string
 }
 
 func init() {
@@ -118,5 +118,11 @@ func init() {
 		WSListenAddr:  viper.GetString("WSConf.WSListenAddr"),
 		RPCListenAddr: viper.GetString("WSConf.RPCListenAddr"),
 		LogicRPCAddrs: viper.GetString("WSConf.LogicRPCAddrs"),
+	}
+
+	HttpConf = httpConf{
+		HttpListenAddr: viper.GetString("WSConf.HttpListenAddr"),
+		RPCListenAddr:  viper.GetString("WSConf.RPCListenAddr"),
+		LogicRPCAddrs:  viper.GetString("WSConf.LogicRPCAddrs"),
 	}
 }
