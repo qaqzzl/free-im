@@ -74,7 +74,6 @@ func (ctx *Context) Read() (mp pbs.MsgPackage, err error) {
 			<-readTicker.C
 			continue
 		}
-
 		return mp, err
 	}
 }

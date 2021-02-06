@@ -10,7 +10,21 @@
     发布动态
 ```
 
+## 安卓客户端
+[Android 安装包下载](https://cdn.qaqzz.com/app-free-release-v1.apk)
+
+[Android 项目地址](https://github.com/qaqzzl/free-im-android)
+
+
 ### 部署
+安装
+```
+# 拉取
+git clone https://github.com/qaqzzl/free-im.git
+# 创建MySQL数据库，导入sql文件
+free-im/scripts/mysql.sql
+```
+
 配置文件
 ```
 # 复制配置文件模板
@@ -28,11 +42,11 @@ go build ~/free-im/cmd/app
 nohup ./app -c ~/free-im/free.yaml > app.out 2>&1 &
 
 killall logic
-go build ~/free-im/cmd/im/logic
+go build ~/free-im/cmd/logic
 nohup ./logic -c ~/free-im/free.yaml > logic.out 2>&1 &
 
 killall tcp_conn
-go build ~/free-im/cmd/im/tcp_conn
+go build ~/free-im/cmd/tcp_conn
 nohup ./tcp_conn -c ~/free-im/free.yaml > tcp_conn.out 2>&1 &
 ```
 
@@ -48,12 +62,6 @@ exec: "gcc": executable file not found in %PATH%
 下载gcc环境
 https://jmeubank.github.io/tdm-gcc/download/
 ```
-
-## 客户端
-[Android 安装包下载](https://cdn.qaqzz.com/app-free-release-v1.apk)
-
-[Android 项目地址](https://github.com/qaqzzl/free-im-android)
-
 
 ### android demo image
 <img src="http://free-im-qn.qaqzz.com/docs/app1.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app2.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app3.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app4.png" width="200"/>

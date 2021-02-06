@@ -73,7 +73,9 @@ func (p *protocol) Decode(c *Context) (mp pbs.MsgPackage, err error) {
 	mp.Action = actionTo(action)
 	mp.BodyLength = Bodylength
 	mp.BodyData = pack[13:n]
-	// end debug
+	if mp.BodyData == nil {
+		mp.BodyData = []byte("not nil")
+	}
 	return mp, nil
 }
 
