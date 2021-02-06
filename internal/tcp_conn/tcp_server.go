@@ -67,7 +67,7 @@ func (t *tcpServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
 	tmp, ok := t.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(Context)
+			ctx := vo.(*Context)
 			if ctx.DeviceID == DeviceID {
 				break
 			}
@@ -80,8 +80,8 @@ func (t *tcpServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
 	tmp, ok := t.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(Context)
-			ctxs = append(ctxs, &ctx)
+			ctx := vo.(*Context)
+			ctxs = append(ctxs, ctx)
 		}
 	}
 	return ctxs

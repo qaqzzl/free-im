@@ -39,6 +39,7 @@ func (h *handler) Auth(ctx *Context, mp pbs.MsgPackage) {
 		logger.Sugar.Error(err)
 		return
 	}
+
 	// 伪代码 认证 code ...
 	if resp, err := rpc_client.LogicInit.TokenAuth(context.TODO(), &pbs.TokenAuthReq{
 		Message: &m,
@@ -60,7 +61,7 @@ func (h *handler) Auth(ctx *Context, mp pbs.MsgPackage) {
 		// 判断连接是否存在相同设备
 		for k, v := range device_map.Items() {
 			if k == m.DeviceType { // 如果有同类型的设备登录了 ,通知其设备下线
-				vctx := v.(Context)
+				vctx := v.(*Context)
 				if vctx.DeviceID != m.DeviceID {
 					// 通知其设备下线
 					msgQuit := &pbs.MsgQuit{
