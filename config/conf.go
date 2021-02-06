@@ -91,11 +91,10 @@ func init() {
 	}
 
 	CommonConf = commonConf{
-		MySQL:          viper.GetString("MySQL"),
-		NSQIP:          "",
-		RedisIP:        viper.GetString("RedisIP"),
-		RedisAuth:      viper.GetString("RedisAuth"),
-		HttpListenAddr: viper.GetString("HttpListenAddr"),
+		MySQL:     viper.GetString("MySQL"),
+		NSQIP:     "",
+		RedisIP:   viper.GetString("RedisIP"),
+		RedisAuth: viper.GetString("RedisAuth"),
 
 		AliYunSmsAccessKeyID:     viper.GetString("AliYunSmsAccessKeyID"),
 		AliYunSmsAccessKeySecret: viper.GetString("AliYunSmsAccessKeySecret"),
