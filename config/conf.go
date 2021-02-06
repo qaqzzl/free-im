@@ -121,8 +121,8 @@ func init() {
 	}
 
 	HttpConf = httpConf{
-		HttpListenAddr: viper.GetString("WSConf.HttpListenAddr"),
-		RPCListenAddr:  viper.GetString("WSConf.RPCListenAddr"),
-		LogicRPCAddrs:  viper.GetString("WSConf.LogicRPCAddrs"),
+		HttpListenAddr: viper.GetString("HttpConf.HttpListenAddr"),
+		RPCListenAddr:  viper.GetString("HttpConf.RPCListenAddr"),
+		LogicRPCAddrs:  viper.GetString("HttpConf.LogicRPCAddrs"),
 	}
 }

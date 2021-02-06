@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"free-im/config"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/logger"
@@ -17,6 +18,7 @@ var CommonService *service.CommonService
 
 // 手机号登录 / 注册
 func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("PhoneLogin")
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
@@ -24,6 +26,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 	var err error
 	// 验证短信验证码是否正确
 	if verify, err := CommonService.IsPhoneVerifyCode(formData["phone"].(string), formData["verify_code"].(string), "login"); err != nil {
+		fmt.Println(err)
 		util.RespFail(writer, err.Error())
 		return
 	} else if verify == false {

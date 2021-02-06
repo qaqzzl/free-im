@@ -7,6 +7,9 @@ import (
 )
 
 func StartHttpServer() {
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("free-im v1.0"))
+	}) // 手机号登录 / 注册
 	http.HandleFunc("/login", app_http.PhoneLogin)                                                                   // 手机号登录 / 注册
 	http.HandleFunc("/login/qq", app_http.QQLogin)                                                                   // 手机号登录 / 注册
 	http.HandleFunc("/user/member.info", app_http.GetMemberInfo)                                                     // 获取会员信息

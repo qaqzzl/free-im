@@ -40,10 +40,12 @@ func (h *handler) Auth(ctx *Context, mp pbs.MsgPackage) {
 		return
 	}
 	// 伪代码 认证 code ...
-	resp, _ := rpc_client.LogicInit.TokenAuth(context.TODO(), &pbs.TokenAuthReq{
+	if resp, err := rpc_client.LogicInit.TokenAuth(context.TODO(), &pbs.TokenAuthReq{
 		Message: &m,
-	})
-	if resp.Statu == false {
+	}); err != nil {
+		logger.Sugar.Error(err)
+		return
+	} else if resp.Statu == false {
 		return
 	}
 
