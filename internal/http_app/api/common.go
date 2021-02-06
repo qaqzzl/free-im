@@ -1,4 +1,4 @@
-package controller
+package api
 
 import (
 	"encoding/json"
@@ -25,10 +25,10 @@ func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
 	)
 	if formData["type"] == "private" {
 		scope = "free-im-private"
-		domain = "controller://free-im-private-qn.qaqzz.com/"
+		domain = "http://free-im-private-qn.qaqzz.com/"
 	} else if formData["type"] == "public" {
 		scope = "free-im"
-		domain = "controller://free-im-qn.qaqzz.com/"
+		domain = "http://free-im-qn.qaqzz.com/"
 	}
 
 	saveKeyPrefix := "test"

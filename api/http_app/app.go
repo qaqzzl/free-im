@@ -2,7 +2,7 @@ package http_app
 
 import (
 	"free-im/config"
-	app_http "free-im/internal/http_app/controller"
+	app_http "free-im/internal/http_app/api"
 	"net/http"
 )
 

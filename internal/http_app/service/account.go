@@ -61,7 +61,7 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 		user_member["nickname"] += "-" + freeid
 	}
 	if user_member["avatar"] == "" {
-		user_member["avatar"] = "controller://free-im-qn.qaqzz.com/default_avatar.png"
+		user_member["avatar"] = "http://free-im-qn.qaqzz.com/default_avatar.png"
 	}
 	user_member["created_at"] = strconv.Itoa(int(time.Now().Unix()))
 	user_member["updated_at"] = user_member["created_at"]

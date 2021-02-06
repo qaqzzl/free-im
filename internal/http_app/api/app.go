@@ -1,4 +1,4 @@
-package controller
+package api
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ func AppNewVersionGet(writer http.ResponseWriter, request *http.Request) {
 	case "ios":
 		info["version_code"] = 1
 		info["version_name"] = "1.0.0"
-		info["version_download"] = "controller://freeim.qaqzz.com"
+		info["version_download"] = "http://freeim.qaqzz.com"
 		info["version_description"] = "修复已知bug\n修复部分机型无法接受消息"
 	}
 	util.RespOk(writer, info, "ok")
