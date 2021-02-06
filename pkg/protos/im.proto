@@ -76,6 +76,8 @@ message MsgAuth {
 // 消息体 - 消息回执
 message MsgACK {
     string MessageId    = 1;
+    string UserId 		= 2;	// 用户ID
+    string DeviceID 	= 3;	// 设备ID
 }
 
 // 消息体 - 客户端退出

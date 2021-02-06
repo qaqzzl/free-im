@@ -17,8 +17,8 @@ free.yaml
 
 main
 !main/
-app
-!app/
+api/http_app
+!api/http_app/
 logic
 !logic/
 tcp_conn
