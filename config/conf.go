@@ -64,9 +64,10 @@ func init() {
 	if confPath != "." {
 		viper.SetConfigFile(confPath)
 	} else {
-		viper.SetConfigName("free")   // 配置文件名
-		viper.SetConfigType("yaml")   // 配置文件类型，可以是yaml、json、xml。。。
-		viper.AddConfigPath(confPath) // 配置文件路径
+		viper.SetConfigName("free")                                // 配置文件名
+		viper.SetConfigType("yaml")                                // 配置文件类型，可以是yaml、json、xml。。。
+		viper.AddConfigPath("/Users/zerozz/work/golang/free-im/.") // 配置文件路径
+		//viper.AddConfigPath(confPath) // 配置文件路径
 	}
 
 	err := viper.ReadInConfig() // 读取配置文件信息

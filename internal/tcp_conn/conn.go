@@ -24,11 +24,6 @@ type Context struct {
 	ConnStatus bool   // 连接状态
 }
 
-type sendMessage struct {
-	Conn    net.Conn
-	Package pbs.MsgPackage
-}
-
 func NewConnContext(conn *net.TCPConn) *Context {
 	reader := bufio.NewReader(conn)
 	return &Context{
