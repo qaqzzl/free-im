@@ -33,3 +33,8 @@ HttpConf:
   HttpListenAddr: ":9002"
   RPCListenAddr: ":5003"
   LogicRPCAddrs: "127.0.0.1:5000"
+
+# 监控模块
+MonitorConf:
+  WSListenAddr: ":9003"
+  RPCListenAddr: ":5004"

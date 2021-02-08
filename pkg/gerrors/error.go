@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const name = "gim"
+const name = "free-im"
 
 const TypeUrlStack = "type_url_stack"
 

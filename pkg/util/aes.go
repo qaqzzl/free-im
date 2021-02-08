@@ -14,7 +14,6 @@ import (
 )
 
 type TokenInfo struct {
-	AppId    int64 `json:"app_id"`    // appId
 	UserId   int64 `json:"user_id"`   // 用户id
 	DeviceId int64 `json:"device_id"` // 设备id
 	Expire   int64 `json:"expire"`    // 过期时间
@@ -23,7 +22,6 @@ type TokenInfo struct {
 // GetToken 获取token
 func GetToken(appId, userId, deviceId int64, expire int64, publicKey string) (string, error) {
 	info := TokenInfo{
-		AppId:    appId,
 		UserId:   userId,
 		DeviceId: deviceId,
 		Expire:   expire,
