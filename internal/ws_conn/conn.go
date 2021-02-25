@@ -28,7 +28,7 @@ var (
 	}
 )
 
-func HandleConnections(w http.ResponseWriter, r *http.Request) {
+func Connections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -53,14 +53,14 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 }
 
 //读协程 , 处理器
-func (content *Content) wsReadLoop() {
+func (ctx *Content) wsReadLoop() {
 	for {
 		var receiveStruct interface{}
 		// Read in a new message as JSON and map it to a Message object
-		err := content.WsConn.ReadJSON(&receiveStruct)
+		err := ctx.WsConn.ReadJSON(&receiveStruct)
 
 		if err != nil {
-			content.wsClose()
+			ctx.wsClose()
 			break
 		}
 		// Send the newly received message to the broadcast channel
@@ -68,7 +68,7 @@ func (content *Content) wsReadLoop() {
 		case "ping":
 			// log.Println(receiveStruct.ClientType, receiveStruct.UserId)
 			msg := []byte(`{"code":200,"msg":"服务器响应正常"}`)
-			content.outChan <- &msg
+			ctx.outChan <- &msg
 		default:
 			logger.Sugar.Error("错误的请求方法")
 		}
@@ -76,30 +76,30 @@ func (content *Content) wsReadLoop() {
 }
 
 //写协程
-func (content *Content) wsWriteLoop() {
+func (ctx *Content) wsWriteLoop() {
 	for {
 		select {
 		// 取一个应答
-		case msg := <-content.outChan:
+		case msg := <-ctx.outChan:
 			// 写给websocket
-			if err := content.WsConn.WriteMessage(1, *msg); err != nil {
+			if err := ctx.WsConn.WriteMessage(1, *msg); err != nil {
 				goto error
 			}
-		case <-content.closeChan:
+		case <-ctx.closeChan:
 			goto closed
 		}
 	}
 error:
-	content.WsConn.Close()
+	ctx.WsConn.Close()
 closed:
 }
 
-func (content *Content) wsClose() {
-	content.WsConn.Close()
-	content.mutex.Lock()
-	defer content.mutex.Unlock()
-	if !content.isClosed {
-		content.isClosed = true
-		close(content.closeChan)
+func (ctx *Content) wsClose() {
+	//ctx.WsConn.Close()
+	ctx.mutex.Lock()
+	defer ctx.mutex.Unlock()
+	if !ctx.isClosed {
+		ctx.isClosed = true
+		close(ctx.closeChan)
 	}
 }

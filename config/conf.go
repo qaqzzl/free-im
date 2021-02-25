@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	CommonConf commonConf
-	LogicConf  logicConf
-	ConnConf   connConf
-	WSConf     wsConf
-	HttpConf   httpConf
+	CommonConf  commonConf
+	LogicConf   logicConf
+	TcpConnConf tcpConnConf
+	WSConnConf  wsConnConf
+	HttpConf    httpConf
 )
 
 //
@@ -36,15 +36,15 @@ type logicConf struct {
 	ConnRPCAddrs  string
 }
 
-// conn配置
-type connConf struct {
+// tcp conn配置
+type tcpConnConf struct {
 	TCPListenAddr string
 	RPCListenAddr string
 	LogicRPCAddrs string
 }
 
-// WS配置
-type wsConf struct {
+// WS conn 配置
+type wsConnConf struct {
 	WSListenAddr  string
 	RPCListenAddr string
 	LogicRPCAddrs string
@@ -108,13 +108,13 @@ func init() {
 		ConnRPCAddrs:  viper.GetString("LogicConf.ConnRPCAddrs"),
 	}
 
-	ConnConf = connConf{
+	TcpConnConf = tcpConnConf{
 		TCPListenAddr: viper.GetString("ConnConf.TCPListenAddr"),
 		RPCListenAddr: viper.GetString("ConnConf.RPCListenAddr"),
 		LogicRPCAddrs: viper.GetString("ConnConf.LogicRPCAddrs"),
 	}
 
-	WSConf = wsConf{
+	WSConnConf = wsConnConf{
 		WSListenAddr:  viper.GetString("WSConf.WSListenAddr"),
 		RPCListenAddr: viper.GetString("WSConf.RPCListenAddr"),
 		LogicRPCAddrs: viper.GetString("WSConf.LogicRPCAddrs"),

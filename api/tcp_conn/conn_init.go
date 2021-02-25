@@ -37,7 +37,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 
 // StartRPCServer 启动rpc服务器
 func StartRPCServer() {
-	listener, err := net.Listen("tcp", config.ConnConf.RPCListenAddr)
+	listener, err := net.Listen("tcp", config.TcpConnConf.RPCListenAddr)
 	if err != nil {
 		panic(err)
 	}
