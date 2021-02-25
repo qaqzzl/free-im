@@ -16,14 +16,14 @@ LogicConf:
   RPCListenAddr: ":5000"
   ConnRPCAddrs: "127.0.0.1:5001"
 
-# conn 模块配置
-ConnConf:
+# TCP conn 模块配置
+TCPConnConf:
   TCPListenAddr: ":9000"
   RPCListenAddr: ":5001"
   LogicRPCAddrs: "127.0.0.1:5000"
 
-# WS 模块配置
-WSConf:
+# WS conn 模块配置
+WSConnConf:
   WSListenAddr: ":9001"
   RPCListenAddr: ":5002"
   LogicRPCAddrs: "127.0.0.1:5000"
