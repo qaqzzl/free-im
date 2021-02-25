@@ -11,7 +11,7 @@ import (
 var (
 	CommonConf  commonConf
 	LogicConf   logicConf
-	TcpConnConf tcpConnConf
+	TCPConnConf tcpConnConf
 	WSConnConf  wsConnConf
 	HttpConf    httpConf
 )
@@ -108,16 +108,16 @@ func init() {
 		ConnRPCAddrs:  viper.GetString("LogicConf.ConnRPCAddrs"),
 	}
 
-	TcpConnConf = tcpConnConf{
-		TCPListenAddr: viper.GetString("ConnConf.TCPListenAddr"),
-		RPCListenAddr: viper.GetString("ConnConf.RPCListenAddr"),
-		LogicRPCAddrs: viper.GetString("ConnConf.LogicRPCAddrs"),
+	TCPConnConf = tcpConnConf{
+		TCPListenAddr: viper.GetString("TCPConnConf.TCPListenAddr"),
+		RPCListenAddr: viper.GetString("TCPConnConf.RPCListenAddr"),
+		LogicRPCAddrs: viper.GetString("TCPConnConf.LogicRPCAddrs"),
 	}
 
 	WSConnConf = wsConnConf{
-		WSListenAddr:  viper.GetString("WSConf.WSListenAddr"),
-		RPCListenAddr: viper.GetString("WSConf.RPCListenAddr"),
-		LogicRPCAddrs: viper.GetString("WSConf.LogicRPCAddrs"),
+		WSListenAddr:  viper.GetString("WSConnConf.WSListenAddr"),
+		RPCListenAddr: viper.GetString("WSConnConf.RPCListenAddr"),
+		LogicRPCAddrs: viper.GetString("WSConnConf.LogicRPCAddrs"),
 	}
 
 	HttpConf = httpConf{
