@@ -14,7 +14,7 @@ QQAuthAppID: ""
 # logic 模块配置
 LogicConf:
   RPCListenAddr: ":5000"
-  ConnRPCAddrs: "127.0.0.1:5001"
+  ConnRPCAddrs: "127.0.0.1:5001,127.0.0.1:5002"
 
 # TCP conn 模块配置
 TCPConnConf:

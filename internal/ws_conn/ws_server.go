@@ -1,6 +1,9 @@
 package ws_conn
 
-import "net/http"
+import (
+	"free-im/pkg/logger"
+	"net/http"
+)
 
 type wsServer struct {
 	Address string // 端口
@@ -21,7 +24,8 @@ func (ws *wsServer) Start() {
 	//go handleMessages()
 
 	// Start the server on localhost port 8000 and log any errors
-	err := http.ListenAndServe(":8989", nil)
+	logger.Sugar.Info("ws server start")
+	err := http.ListenAndServe(ws.Address, nil)
 	if err != nil {
 		panic(err)
 	}
