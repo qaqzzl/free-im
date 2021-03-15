@@ -18,23 +18,23 @@ LogicConf:
 
 # TCP conn 模块配置
 TCPConnConf:
-  TCPListenAddr: ":9000"
+  TCPListenAddr: ":1208"
   RPCListenAddr: ":5001"
   LogicRPCAddrs: "127.0.0.1:5000"
 
 # WS conn 模块配置
 WSConnConf:
-  WSListenAddr: ":9001"
+  WSListenAddr: ":1209"
   RPCListenAddr: ":5002"
   LogicRPCAddrs: "127.0.0.1:5000"
 
 # http 模块配置
 HttpConf:
-  HttpListenAddr: ":9002"
+  HttpListenAddr: ":8066"
   RPCListenAddr: ":5003"
   LogicRPCAddrs: "127.0.0.1:5000"
 
 # 监控模块
 MonitorConf:
-  WSListenAddr: ":9003"
+  WSListenAddr: ":8067"
   RPCListenAddr: ":5004"
