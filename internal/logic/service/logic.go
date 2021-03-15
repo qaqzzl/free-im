@@ -51,7 +51,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 			return err
 		}
 		//发送消息
-		rpc_client.TCPConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
+		rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
 			UserId:   UserID,
 			DeviceId: m.DeviceID,
 			Message:  &packages,
@@ -60,7 +60,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	// 消息回执
 	packages.Action = pbs.Action_MessageACK
 	packages.BodyData = []byte(m.MessageId)
-	rpc_client.TCPConnectInit.DeliverMessageByUIDAndDID(ctx, &pbs.DeliverMessageReq{
+	rpc_client.ConnectInit.DeliverMessageByUIDAndDID(ctx, &pbs.DeliverMessageReq{
 		UserId:   m.UserId,
 		DeviceId: m.DeviceID,
 		Message:  &packages,
@@ -87,7 +87,7 @@ func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
 			BodyData: []byte(v["content"]),
 		}
 		//发送消息
-		rpc_client.TCPConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
+		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
 			UserId:  mp.UserId,
 			Message: &packages,
 		})
