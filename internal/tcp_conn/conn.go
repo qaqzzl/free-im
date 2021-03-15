@@ -86,7 +86,7 @@ func (ctx *Context) Write(mp pbs.MsgPackage) (int, error) {
 func (ctx *Context) Close() {
 	if user_map, ok := TCPServer.ServerConnPool.Get(ctx.UserID); ok {
 		user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
-		// ServerConnPool.Set(ctx.UserID, user_map)
+		TCPServer.ServerConnPool.Set(ctx.UserID, user_map)
 	}
 	ctx.TcpConn.Close()
 }

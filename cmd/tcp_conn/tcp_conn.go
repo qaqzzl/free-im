@@ -5,6 +5,7 @@ import (
 	"free-im/config"
 	"free-im/internal/tcp_conn"
 	"free-im/pkg/rpc_client"
+	_ "net/http/pprof"
 )
 
 func main() {
