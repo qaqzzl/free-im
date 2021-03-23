@@ -91,7 +91,3 @@ func (content *Content) wsClose() {
 		close(content.closeChan)
 	}
 }
-
-func (e *export) export() {
-
-}
