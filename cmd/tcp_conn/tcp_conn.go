@@ -5,10 +5,15 @@ import (
 	"free-im/config"
 	"free-im/internal/tcp_conn"
 	"free-im/pkg/rpc_client"
+	"net/http"
 	_ "net/http/pprof"
 )
 
 func main() {
+	go func() {
+		http.ListenAndServe("0.0.0.0:8899", nil)
+	}()
+
 	// 启动rpc服务
 	go func() {
 		api_tcp_conn.StartRPCServer()

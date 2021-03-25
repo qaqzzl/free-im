@@ -59,4 +59,4 @@ https://jmeubank.github.io/tdm-gcc/download/
 ```
 
 ### android demo image
-<img src="http://free-im-qn.qaqzz.com/docs/app1.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app2.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app3.png" width="200"/><img src="http://free-im-qn.qaqzz.com/docs/app4.png" width="200"/>
+<img src="http://free-im-qn.qaqzz.com/docs/app1.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app2.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app3.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app4.png" width="25%"/>
