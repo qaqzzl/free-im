@@ -2,12 +2,17 @@ package ws_conn
 
 import (
 	"free-im/pkg/logger"
+	"free-im/pkg/msg"
 	"free-im/pkg/protos/pbs"
 )
 
 type handler struct{}
 
 var Handler = new(handler)
+
+var msgFormat = msg.MsgFormat{
+	Coding: "json",
+}
 
 func (h *handler) Handler(conn *Conn, mp pbs.MsgPackage) {
 	switch mp.Action {

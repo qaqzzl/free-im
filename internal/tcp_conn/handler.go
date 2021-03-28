@@ -3,6 +3,7 @@ package tcp_conn
 import (
 	"context"
 	"free-im/pkg/logger"
+	"free-im/pkg/msg"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
 	"github.com/orcaman/concurrent-map"
@@ -11,6 +12,10 @@ import (
 type handler struct{}
 
 var Handler = new(handler)
+
+var msgFormat = msg.MsgFormat{
+	Coding: "json",
+}
 
 func (h *handler) Handler(conn *Conn, mp pbs.MsgPackage) {
 	switch mp.Action {
@@ -35,7 +40,7 @@ func (h *handler) Handler(conn *Conn, mp pbs.MsgPackage) {
 // client auth handle
 func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 	m := pbs.MsgAuth{}
-	if err := MsgFormat.Decode(mp.BodyData, &m); err != nil {
+	if err := msgFormat.Decode(mp.BodyData, &m); err != nil {
 		logger.Sugar.Error(err)
 		return
 	}
@@ -67,7 +72,7 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 						Title:   "其他设备登陆通知",
 						Content: "你的账号在其他设备登陆<br>如不是你本人登陆请<a href=''>修改密码</a>",
 					}
-					BodyData, _ := MsgFormat.Encode(msgQuit)
+					BodyData, _ := msgFormat.Encode(msgQuit)
 					vconn.Write(pbs.MsgPackage{
 						Version:  conn.Version,
 						Action:   pbs.Action_Quit,
@@ -89,7 +94,7 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 
 func (h *handler) MessageReceive(conn *Conn, mp pbs.MsgPackage) {
 	m := &pbs.MsgItem{}
-	if err := MsgFormat.Decode(mp.BodyData, m); err != nil {
+	if err := msgFormat.Decode(mp.BodyData, m); err != nil {
 		return
 	}
 	m.DeviceID = conn.DeviceID
@@ -102,7 +107,7 @@ func (h *handler) MessageReceive(conn *Conn, mp pbs.MsgPackage) {
 
 func (h *handler) MessageACK(conn *Conn, mp pbs.MsgPackage) {
 	m := &pbs.MsgItem{}
-	if err := MsgFormat.Decode(mp.BodyData, m); err != nil {
+	if err := msgFormat.Decode(mp.BodyData, m); err != nil {
 		return
 	}
 
