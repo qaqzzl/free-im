@@ -20,7 +20,7 @@ func SystemMonitor() {
 				ConcurrentMap := vo.(cmap.ConcurrentMap)
 				for k, v := range ConcurrentMap.Items() {
 					fmt.Println("连接设备类型: ", k)
-					fmt.Println("连接设备ID: ", v.(Context).DeviceID)
+					fmt.Println("连接设备ID: ", v.(Conn).DeviceID)
 				}
 
 			}

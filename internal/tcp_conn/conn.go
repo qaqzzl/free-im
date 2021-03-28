@@ -12,8 +12,8 @@ import (
 )
 
 // IM连接信息
-type Context struct {
-	TcpConn    net.Conn
+type Conn struct {
+	c          net.Conn
 	r          *bufio.Reader
 	Version    int32
 	DeviceID   string // 设备id 简写 DID
@@ -23,38 +23,38 @@ type Context struct {
 	IsAuth     bool   // 是否认证(登录)
 }
 
-func NewConnContext(conn *net.TCPConn) *Context {
-	reader := bufio.NewReader(conn)
-	return &Context{
-		TcpConn: conn,
-		r:       reader,
+func NewConnContext(c *net.TCPConn) *Conn {
+	reader := bufio.NewReader(c)
+	return &Conn{
+		c: c,
+		r: reader,
 	}
 }
 
 // DoConn 处理TCP连接
-func (ctx *Context) DoConn() {
-	ctx.HandleConnect()
+func (conn *Conn) DoConn() {
+	conn.HandleConnect()
 	for {
-		if mp, err := ctx.Read(); err != nil {
+		if mp, err := conn.Read(); err != nil {
 			logger.Sugar.Error(err)
-			ctx.Close()
+			conn.Close()
 			break
 		} else {
-			ctx.HandlePackage(mp)
+			conn.HandlePackage(mp)
 		}
 	}
 }
 
 // HandleConnect 建立连接
-func (ctx *Context) HandleConnect() {
+func (conn *Conn) HandleConnect() {
 	logger.Logger.Info("connect")
 }
 
-func (ctx *Context) Read() (mp pbs.MsgPackage, err error) {
+func (conn *Conn) Read() (mp pbs.MsgPackage, err error) {
 	var readTicker = time.NewTicker(time.Millisecond * 100)
 	var waitingReadCount = 0
 	for {
-		mp, err := Protocol.Decode(ctx)
+		mp, err := Protocol.Decode(conn)
 		if err == io.EOF || err != nil {
 			return mp, err
 		}
@@ -71,11 +71,11 @@ func (ctx *Context) Read() (mp pbs.MsgPackage, err error) {
 	}
 }
 
-func (ctx *Context) Write(mp pbs.MsgPackage) (int, error) {
+func (conn *Conn) Write(mp pbs.MsgPackage) (int, error) {
 	if b, err := Protocol.Encode(mp); err != nil {
 		return 0, err
 	} else {
-		nn, err := ctx.TcpConn.Write(b)
+		nn, err := conn.c.Write(b)
 		if err != nil {
 			return 0, err
 		}
@@ -83,15 +83,15 @@ func (ctx *Context) Write(mp pbs.MsgPackage) (int, error) {
 	}
 }
 
-func (ctx *Context) Close() {
-	if user_map, ok := TCPServer.ServerConnPool.Get(ctx.UserID); ok {
-		user_map.(cmap.ConcurrentMap).Remove(ctx.DeviceType)
-		TCPServer.ServerConnPool.Set(ctx.UserID, user_map)
+func (conn *Conn) Close() {
+	if user_map, ok := TCPServer.ServerConnPool.Get(conn.UserID); ok {
+		user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
+		TCPServer.ServerConnPool.Set(conn.UserID, user_map)
 	}
-	ctx.TcpConn.Close()
+	conn.c.Close()
 }
 
 // HandlePackage 处理消息包
-func (ctx *Context) HandlePackage(mp pbs.MsgPackage) {
-	Handler.Handler(ctx, mp)
+func (conn *Conn) HandlePackage(mp pbs.MsgPackage) {
+	Handler.Handler(conn, mp)
 }

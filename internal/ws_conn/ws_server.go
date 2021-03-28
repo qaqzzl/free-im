@@ -35,8 +35,8 @@ func (ws *wsServer) Start() {
 }
 
 // load 获取链接
-func (t *wsServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
-	tmp, ok := t.ServerConnPool.Get(UserID)
+func (ws *wsServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
+	tmp, ok := ws.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
 			ctx := vo.(*Context)
@@ -48,8 +48,8 @@ func (t *wsServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
 	return ctx
 }
 
-func (t *wsServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
-	tmp, ok := t.ServerConnPool.Get(UserID)
+func (ws *wsServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
+	tmp, ok := ws.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
 			ctx := vo.(*Context)
@@ -60,14 +60,14 @@ func (t *wsServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
 }
 
 // store 存储
-func (t *wsServer) StoreConn(ctx *Context) {
-	if tmp, ok := t.ServerConnPool.Get(ctx.UserID); ok {
+func (ws *wsServer) StoreConn(ctx *Context) {
+	if tmp, ok := ws.ServerConnPool.Get(ctx.UserID); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
 		device_map.Set(ctx.DeviceType, ctx)
-		t.ServerConnPool.Set(ctx.UserID, device_map)
+		ws.ServerConnPool.Set(ctx.UserID, device_map)
 	} else {
 		device_map := cmap.New()
 		device_map.Set(ctx.DeviceType, ctx)
-		t.ServerConnPool.Set(ctx.UserID, device_map)
+		ws.ServerConnPool.Set(ctx.UserID, device_map)
 	}
 }

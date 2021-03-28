@@ -63,39 +63,39 @@ func (t *tcpServer) Accept(listener *net.TCPListener) {
 }
 
 // load 获取链接
-func (t *tcpServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
+func (t *tcpServer) LoadConn(UserID string, DeviceID string) (conn *Conn) {
 	tmp, ok := t.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(*Context)
-			if ctx.DeviceID == DeviceID {
+			conn := vo.(*Conn)
+			if conn.DeviceID == DeviceID {
 				break
 			}
 		}
 	}
-	return ctx
+	return conn
 }
 
-func (t *tcpServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
+func (t *tcpServer) LoadConnsByUID(UserID string) (conns []*Conn) {
 	tmp, ok := t.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(*Context)
-			ctxs = append(ctxs, ctx)
+			conn := vo.(*Conn)
+			conns = append(conns, conn)
 		}
 	}
-	return ctxs
+	return conns
 }
 
 // store 存储
-func (t *tcpServer) StoreConn(ctx *Context) {
-	if tmp, ok := t.ServerConnPool.Get(ctx.UserID); ok {
+func (t *tcpServer) StoreConn(conn *Conn) {
+	if tmp, ok := t.ServerConnPool.Get(conn.UserID); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
-		device_map.Set(ctx.DeviceType, ctx)
-		t.ServerConnPool.Set(ctx.UserID, device_map)
+		device_map.Set(conn.DeviceType, conn)
+		t.ServerConnPool.Set(conn.UserID, device_map)
 	} else {
 		device_map := cmap.New()
-		device_map.Set(ctx.DeviceType, ctx)
-		t.ServerConnPool.Set(ctx.UserID, device_map)
+		device_map.Set(conn.DeviceType, conn)
+		t.ServerConnPool.Set(conn.UserID, device_map)
 	}
 }

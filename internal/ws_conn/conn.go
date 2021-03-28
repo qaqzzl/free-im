@@ -8,8 +8,8 @@ import (
 	"sync"
 )
 
-type Context struct {
-	WsConn    *websocket.Conn
+type Conn struct {
+	c         *websocket.Conn
 	closeChan chan byte  // 关闭通知
 	mutex     sync.Mutex // 避免重复关闭管道
 	isClosed  bool
@@ -45,61 +45,61 @@ func Connections(w http.ResponseWriter, r *http.Request) {
 	//defer ws.Close()
 
 	//初始化
-	var content = Context{
-		WsConn:    ws,
+	var conn = Conn{
+		c:         ws,
 		outChan:   make(chan *[]byte, 100),
 		closeChan: make(chan byte),
 	}
 
 	//读协程
-	go content.wsReadLoop()
+	go conn.wsReadLoop()
 
 	// 写协程
-	go content.wsWriteLoop()
+	go conn.wsWriteLoop()
 }
 
 //读协程 , 处理器
-func (ctx *Context) wsReadLoop() {
+func (conn *Conn) wsReadLoop() {
 	for {
 		var mp pbs.MsgPackage
 		// Read in a new message as JSON and map it to a Message object
-		err := ctx.WsConn.ReadJSON(&mp)
+		err := conn.c.ReadJSON(&mp)
 
 		if err != nil {
-			ctx.Close()
+			conn.Close()
 			break
 		}
 
 		// Send the newly received message to the broadcast channel
-		Handler.Handler(ctx, mp)
+		Handler.Handler(conn, mp)
 	}
 }
 
 //写协程
-func (ctx *Context) wsWriteLoop() {
+func (conn *Conn) wsWriteLoop() {
 	for {
 		select {
 		// 取一个应答
-		case msg := <-ctx.outChan:
+		case msg := <-conn.outChan:
 			// 写给websocket
-			if err := ctx.WsConn.WriteMessage(1, *msg); err != nil {
+			if err := conn.c.WriteMessage(1, *msg); err != nil {
 				goto error
 			}
-		case <-ctx.closeChan:
+		case <-conn.closeChan:
 			goto closed
 		}
 	}
 error:
-	ctx.WsConn.Close()
+	conn.c.Close()
 closed:
 }
 
-func (ctx *Context) Close() {
-	//ctx.WsConn.Close()
-	ctx.mutex.Lock()
-	defer ctx.mutex.Unlock()
-	if !ctx.isClosed {
-		ctx.isClosed = true
-		close(ctx.closeChan)
+func (conn *Conn) Close() {
+	//conn.WsConn.Close()
+	conn.mutex.Lock()
+	defer conn.mutex.Unlock()
+	if !conn.isClosed {
+		conn.isClosed = true
+		close(conn.closeChan)
 	}
 }
