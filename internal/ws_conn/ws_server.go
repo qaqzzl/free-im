@@ -11,6 +11,8 @@ type wsServer struct {
 	ServerConnPool cmap.ConcurrentMap // 链接池
 }
 
+var WSServer *wsServer
+
 func NewWebSocketServer(address string) *wsServer {
 	ws := &wsServer{
 		Address:        address,
@@ -35,39 +37,39 @@ func (ws *wsServer) Start() {
 }
 
 // load 获取链接
-func (ws *wsServer) LoadConn(UserID string, DeviceID string) (ctx *Context) {
+func (ws *wsServer) LoadConn(UserID string, DeviceID string) (conn *Conn) {
 	tmp, ok := ws.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(*Context)
-			if ctx.DeviceID == DeviceID {
+			conn = vo.(*Conn)
+			if conn.DeviceID == DeviceID {
 				break
 			}
 		}
 	}
-	return ctx
+	return conn
 }
 
-func (ws *wsServer) LoadConnsByUID(UserID string) (ctxs []*Context) {
+func (ws *wsServer) LoadConnsByUID(UserID string) (conns []*Conn) {
 	tmp, ok := ws.ServerConnPool.Get(UserID)
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
-			ctx := vo.(*Context)
-			ctxs = append(ctxs, ctx)
+			conn := vo.(*Conn)
+			conns = append(conns, conn)
 		}
 	}
-	return ctxs
+	return conns
 }
 
 // store 存储
-func (ws *wsServer) StoreConn(ctx *Context) {
-	if tmp, ok := ws.ServerConnPool.Get(ctx.UserID); ok {
+func (ws *wsServer) StoreConn(conn *Conn) {
+	if tmp, ok := ws.ServerConnPool.Get(conn.UserID); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
-		device_map.Set(ctx.DeviceType, ctx)
-		ws.ServerConnPool.Set(ctx.UserID, device_map)
+		device_map.Set(conn.DeviceType, conn)
+		ws.ServerConnPool.Set(conn.UserID, device_map)
 	} else {
 		device_map := cmap.New()
-		device_map.Set(ctx.DeviceType, ctx)
-		ws.ServerConnPool.Set(ctx.UserID, device_map)
+		device_map.Set(conn.DeviceType, conn)
+		ws.ServerConnPool.Set(conn.UserID, device_map)
 	}
 }

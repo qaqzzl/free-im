@@ -1,4 +1,4 @@
-package tcp_conn
+package ws_conn
 
 import (
 	"context"

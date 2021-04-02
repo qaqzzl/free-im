@@ -9,12 +9,10 @@ import (
 )
 
 type Conn struct {
-	c         *websocket.Conn
-	closeChan chan byte  // 关闭通知
-	mutex     sync.Mutex // 避免重复关闭管道
-	isClosed  bool
-	//inChan chan *[]byte								// 读队列
-	outChan    chan *[]byte // 写队列
+	c          *websocket.Conn
+	closeChan  chan byte  // 关闭通知
+	mutex      sync.Mutex // 避免重复关闭管道
+	isClosed   bool
 	Version    int32
 	DeviceID   string // 设备id 简写 DID
 	UserID     string // 用户id 简写 UID
@@ -47,15 +45,11 @@ func Connections(w http.ResponseWriter, r *http.Request) {
 	//初始化
 	var conn = Conn{
 		c:         ws,
-		outChan:   make(chan *[]byte, 100),
 		closeChan: make(chan byte),
 	}
 
 	//读协程
 	go conn.wsReadLoop()
-
-	// 写协程
-	go conn.wsWriteLoop()
 }
 
 //读协程 , 处理器
@@ -75,25 +69,6 @@ func (conn *Conn) wsReadLoop() {
 	}
 }
 
-//写协程
-func (conn *Conn) wsWriteLoop() {
-	for {
-		select {
-		// 取一个应答
-		case msg := <-conn.outChan:
-			// 写给websocket
-			if err := conn.c.WriteMessage(1, *msg); err != nil {
-				goto error
-			}
-		case <-conn.closeChan:
-			goto closed
-		}
-	}
-error:
-	conn.c.Close()
-closed:
-}
-
 func (conn *Conn) Close() {
 	//conn.WsConn.Close()
 	conn.mutex.Lock()
@@ -102,4 +77,9 @@ func (conn *Conn) Close() {
 		conn.isClosed = true
 		close(conn.closeChan)
 	}
+}
+
+func (conn *Conn) Write(mp pbs.MsgPackage) error {
+	err := conn.c.WriteJSON(mp)
+	return err
 }
