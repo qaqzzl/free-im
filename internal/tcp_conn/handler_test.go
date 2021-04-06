@@ -11,7 +11,7 @@ import (
 
 func TestRpcLogicInit(t *testing.T) {
 	// 初始化 rpc 客户端
-	rpc_client.InitLogicInit("127.0.0.1:5000")
+	rpc_client.InitLogic("127.0.0.1:5000")
 
 	m := pbs.MsgAuth{
 		DeviceID:    "1",

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// 初始化 rpc 客户端
-	rpc_client.InitConnInit(config.LogicConf.ConnRPCAddrs)
+	rpc_client.InitConn(config.LogicConf.ConnRPCAddrs)
 
 	logic.StartRPCServer()
 }

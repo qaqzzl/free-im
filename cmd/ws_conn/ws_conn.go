@@ -14,7 +14,7 @@ func main() {
 	}()
 
 	// 初始化 rpc 客户端
-	rpc_client.InitLogicInit(config.WSConnConf.LogicRPCAddrs)
+	rpc_client.InitLogic(config.WSConnConf.LogicRPCAddrs)
 
 	// 启动长链接服务器
 	wsServer := ws_conn.NewWebSocketServer(config.WSConnConf.WSListenAddr)

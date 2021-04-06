@@ -1,0 +1,26 @@
+syntax = "proto3";
+import "im.proto";
+
+message AcceptReq {
+    string message = 1;
+}
+
+message AcceptResp {
+    bool statu = 1;
+}
+
+message ExportReq {
+    string message = 1;
+}
+
+message ExportResp {
+    string message = 1;
+}
+
+service MonitorInit {
+    // 接收监控信息
+    rpc Accept (AcceptReq) returns (AcceptResp);
+
+    // 输出监控信息
+    rpc Export (ExportReq) returns (ExportResp);
+}

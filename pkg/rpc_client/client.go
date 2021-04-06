@@ -13,7 +13,7 @@ var (
 	ConnectInit pbs.ConnInitClient
 )
 
-func InitLogicInit(addr string) {
+func InitLogic(addr string) {
 	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -27,7 +27,7 @@ func InitLogicInit(addr string) {
 	LogicInit = pbs.NewLogicInitClient(conn)
 }
 
-func InitConnInit(addr string) {
+func InitConn(addr string) {
 	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, "addr")))
 	if err != nil {
@@ -36,4 +36,13 @@ func InitConnInit(addr string) {
 	}
 
 	ConnectInit = pbs.NewConnInitClient(conn)
+}
+
+func InitMonitor(addr string) {
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
+	if err != nil {
+		logger.Sugar.Error(err)
+		panic(err)
+	}
+	LogicInit = pbs.NewLogicInitClient(conn)
 }
