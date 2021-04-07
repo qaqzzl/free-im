@@ -14,11 +14,11 @@ type wsServer struct {
 var WSServer *wsServer
 
 func NewWebSocketServer(address string) *wsServer {
-	ws := &wsServer{
+	WSServer = &wsServer{
 		Address:        address,
 		ServerConnPool: cmap.New(),
 	}
-	return ws
+	return WSServer
 }
 
 func (ws *wsServer) Start() {

@@ -1,6 +1,8 @@
 package ws_conn
 
 import (
+	"encoding/json"
+	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"github.com/gorilla/websocket"
 	"log"
@@ -40,8 +42,6 @@ func Connections(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	// Make sure we close the connection when the function returns
-	//defer ws.Close()
 
 	//初始化
 	var conn = Conn{
@@ -55,28 +55,34 @@ func Connections(w http.ResponseWriter, r *http.Request) {
 
 //读协程 , 处理器
 func (conn *Conn) wsReadLoop() {
+	// Make sure we close the connection when the function returns
+	defer conn.c.Close()
 	for {
 		var mp pbs.MsgPackage
 		// Read in a new message as JSON and map it to a Message object
-		err := conn.c.ReadJSON(&mp)
-
+		// err := conn.c.ReadJSON(mp)
+		_, data, err := conn.c.ReadMessage()
+		logger.Sugar.Info(string(data))
 		if err != nil {
 			conn.Close()
 			break
 		}
-
+		if err = json.Unmarshal(data, &mp); err != nil {
+			logger.Sugar.Info(err)
+			continue
+		}
 		// Send the newly received message to the broadcast channel
 		Handler.Handler(conn, mp)
 	}
 }
 
 func (conn *Conn) Close() {
-	//conn.WsConn.Close()
 	conn.mutex.Lock()
 	defer conn.mutex.Unlock()
 	if !conn.isClosed {
 		conn.isClosed = true
 		close(conn.closeChan)
+		conn.c.Close()
 	}
 }
 
