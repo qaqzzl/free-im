@@ -6,8 +6,8 @@ import (
 )
 
 type freeID struct {
-	redisPool *redis.Pool
-	redisKey string
+	redisPool  *redis.Pool
+	redisKey   string
 	errTimeOut error
 }
 
@@ -19,14 +19,14 @@ var FreeID freeID
 // len：缓冲池大小(长度可控制缓存中剩下多少id时，去DB中加载)
 func initFreeID(rdb *redis.Pool) error {
 	FreeID = freeID{
-		redisPool: rdb,
-		redisKey: "free_id",
+		redisPool:  rdb,
+		redisKey:   "free_id",
 		errTimeOut: errors.New("get free_id timeout"),
 	}
 	return nil
 }
 
-// 获取聊天室ID
+// 获取应用号（QQ号）
 func (id *freeID) GetID() (string, error) {
 	rconn := id.redisPool.Get()
 	max, err := rconn.Do("get", "id:"+id.redisKey+":max")

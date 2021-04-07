@@ -34,7 +34,7 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 	}
 	// 获取token
 	var token string
-	if token, err = s.GetToken(member_id, "http_app"); err != nil {
+	if token, err = s.GetToken(member_id, "android"); err != nil {
 		return nil, err
 	}
 	ret := make(map[string]string)

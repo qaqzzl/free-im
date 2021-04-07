@@ -1,15 +1,13 @@
 package monitor
 
-// grpc
-
-type logic struct {
+type handler struct {
 	Authorization string
 }
 
-func (loc *logic) accept() {
+func (h *handler) accept() {
 
 }
 
-func (loc *logic) export() {
+func (h *handler) export() {
 
 }

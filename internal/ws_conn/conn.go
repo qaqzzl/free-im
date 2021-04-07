@@ -33,6 +33,7 @@ var (
 )
 
 func Connections(w http.ResponseWriter, r *http.Request) {
+	log.Println("new conn")
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

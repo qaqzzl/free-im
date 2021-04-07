@@ -29,7 +29,7 @@ func (ws *wsServer) Start() {
 	//go handleMessages()
 
 	// Start the server on localhost port 8000 and log any errors
-	logger.Sugar.Info("ws server start")
+	logger.Sugar.Info("ws server start", ws.Address)
 	err := http.ListenAndServe(ws.Address, nil)
 	if err != nil {
 		panic(err)
