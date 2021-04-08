@@ -13,7 +13,9 @@ function check(){
 go build ./cmd/http_app
 go build ./cmd/logic
 go build ./cmd/tcp_conn
+go build ./cmd/ws_conn
 
 check http_app
 check logic
 check tcp_conn
+check ws_conn
