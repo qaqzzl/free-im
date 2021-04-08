@@ -7,6 +7,7 @@ function check(){
         killall $1
     fi
     nohup ./$1 -c ~/free-im/free.yaml > http_app.out 2>&1 &
+    echo "启动进程: $1"
 }
 
 go build ./cmd/http_app

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
-	"github.com/orcaman/concurrent-map"
+	cmap "github.com/orcaman/concurrent-map"
 	"io"
 	"net"
 	"time"
@@ -21,13 +21,15 @@ type Conn struct {
 	DeviceType string // 设备类型, 移动端:mobile , PC端:pc
 	ClientType string // 客户端类型, (android, ios) | (windows, mac, linux)
 	IsAuth     bool   // 是否认证(登录)
+	readTicker *time.Ticker
 }
 
 func NewConnContext(c *net.TCPConn) *Conn {
 	reader := bufio.NewReader(c)
 	return &Conn{
-		c: c,
-		r: reader,
+		c:          c,
+		r:          reader,
+		readTicker: time.NewTicker(time.Millisecond * 100),
 	}
 }
 
@@ -51,7 +53,6 @@ func (conn *Conn) HandleConnect() {
 }
 
 func (conn *Conn) Read() (mp pbs.MsgPackage, err error) {
-	var readTicker = time.NewTicker(time.Millisecond * 100)
 	var waitingReadCount = 0
 	for {
 		mp, err := Protocol.Decode(conn)
@@ -64,7 +65,7 @@ func (conn *Conn) Read() (mp pbs.MsgPackage, err error) {
 		}
 		if mp.BodyData == nil {
 			waitingReadCount++
-			<-readTicker.C
+			<-conn.readTicker.C
 			continue
 		}
 		return mp, err
@@ -84,9 +85,11 @@ func (conn *Conn) Write(mp pbs.MsgPackage) (int, error) {
 }
 
 func (conn *Conn) Close() {
-	if user_map, ok := TCPServer.ServerConnPool.Get(conn.UserID); ok {
-		user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
-		TCPServer.ServerConnPool.Set(conn.UserID, user_map)
+	if conn.IsAuth {
+		if user_map, ok := TCPServer.ServerConnPool.Get(conn.UserID); ok {
+			user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
+			TCPServer.ServerConnPool.Set(conn.UserID, user_map)
+		}
 	}
 	conn.c.Close()
 }
