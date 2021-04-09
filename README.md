@@ -29,17 +29,13 @@ cp ~/free-im/free.yaml.example ~/free-im/free.yaml
 vim ~/free-im/free.yaml
 ```
 
-编译运行
+linux编译运行
 ```shell
 cd ~/free-im
 
-go build ./cmd/http_app
-go build ./cmd/logic
-go build ./cmd/tcp_conn
+chmod a+x run.sh
 
-nohup ./http_app -c ~/free-im/free.yaml > http_app.out 2>&1 &
-nohup ./logic -c ~/free-im/free.yaml > logic.out 2>&1 &
-nohup ./tcp_conn -c ~/free-im/free.yaml > tcp_conn.out 2>&1 &
+./run.sh
 ```
 
 ### 常见错误

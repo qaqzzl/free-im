@@ -14,7 +14,7 @@ import (
 
 //发送信息
 func sender(conn net.Conn) {
-	c := time.Tick(time.Second * 6)
+	c := time.Tick(time.Second * 1)
 	var SequenceId int32
 	SequenceId = 1
 	go func() {
@@ -55,7 +55,7 @@ func sender(conn net.Conn) {
 
 		mp.Action = actionTo(action)
 		mp.BodyData = buffer[13:n]
-		//Log(conn.RemoteAddr().String(), "receive server back msg: ", mp)
+		// Log(conn.RemoteAddr().String(), "receive server back msg: ", mp)
 	}
 
 }
@@ -66,8 +66,8 @@ func Log(v ...interface{}) {
 }
 
 func NewServer() {
-	//server := "101.132.107.212:1208"
-	server := "127.0.0.1:1208"
+	server := "101.132.107.212:1208"
+	//server := "127.0.0.1:1208"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", server)
 	if err != nil {
 		Log(os.Stderr, "Fatal error:", err.Error())
@@ -85,10 +85,8 @@ func NewServer() {
 	go sender(conn)
 }
 
-var readTicker = time.Tick(time.Millisecond * 1000)
-
 func main() {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 800; i++ {
 		fmt.Println(i)
 		NewServer()
 	}
