@@ -91,6 +91,7 @@ func (conn *Conn) Close() {
 			TCPServer.ServerConnPool.Set(conn.UserID, user_map)
 		}
 	}
+	conn.readTicker.Stop()
 	conn.c.Close()
 }
 
