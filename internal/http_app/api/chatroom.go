@@ -31,7 +31,7 @@ func FriendIdGetChatroomId(writer http.ResponseWriter, request *http.Request) {
 	util.RespOk(writer, ret, "")
 }
 
-// 通过聊天室ID获取聊天室头像名称
+// 通过聊天室ID获取聊天室基础信息（头像，名称）
 func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http.Request) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
@@ -62,7 +62,7 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	util.RespOk(writer, ret, "")
 }
 
-// 聊天室列表 -- 废弃, 客户端维护
+// 聊天室列表
 func ChatroomList(writer http.ResponseWriter, request *http.Request) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})

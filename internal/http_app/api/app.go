@@ -18,12 +18,12 @@ func AppNewVersionGet(writer http.ResponseWriter, request *http.Request) {
 		info["version_code"] = 1
 		info["version_name"] = "1.0.0"
 		info["version_download"] = "https://cdn.qaqzz.com/free-im-v1.0.1.apk"
-		info["version_description"] = "修复已知bug\n修复部分机型无法接受消息"
+		info["version_description"] = "修复已知bug\n修复部分机型无法接收消息"
 	case "ios":
 		info["version_code"] = 1
 		info["version_name"] = "1.0.0"
 		info["version_download"] = "http://freeim.qaqzz.com"
-		info["version_description"] = "修复已知bug\n修复部分机型无法接受消息"
+		info["version_description"] = "修复已知bug\n修复部分机型无法接收消息"
 	}
 	util.RespOk(writer, info, "ok")
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var MysqlConn *sql.DB
+var MySQL *sql.DB
 
 type Db struct {
 	tables  string
@@ -20,13 +20,13 @@ type Db struct {
 }
 
 func (DB *Db) mysqlConnect() *Db {
-	if MysqlConn == nil {
-		MysqlConn, _ = sql.Open("mysql", config.CommonConf.MySQL)
-		MysqlConn.SetMaxOpenConns(100)                  //最大连接数
-		MysqlConn.SetMaxIdleConns(50)                   //空闲连接数
-		MysqlConn.SetConnMaxLifetime(120 * time.Second) //设置超时时间（不设置就默认永久有效）
+	if MySQL == nil {
+		MySQL, _ = sql.Open("mysql", config.CommonConf.MySQL)
+		MySQL.SetMaxOpenConns(100)                  //最大连接数
+		MySQL.SetMaxIdleConns(50)                   //空闲连接数
+		MySQL.SetConnMaxLifetime(120 * time.Second) //设置超时时间（不设置就默认永久有效）
 	}
-	//MysqlConn.Ping()
+	//MySQL.Ping()
 	return DB
 }
 
@@ -103,7 +103,7 @@ func (DB *Db) Get() ([]map[string]string, error) {
 	}
 	var data []map[string]string
 	//查询多条
-	select_rows, err := MysqlConn.Query(select_sql)
+	select_rows, err := MySQL.Query(select_sql)
 	if err != nil {
 		return data, err
 	}
@@ -147,7 +147,7 @@ func (DB *Db) GetInterface() (data []interface{}, err error) {
 	}
 
 	//查询多条
-	select_rows, err := MysqlConn.Query(select_sql)
+	select_rows, err := MySQL.Query(select_sql)
 	if err != nil {
 		return data, err
 	}
@@ -185,7 +185,7 @@ func (DB *Db) First(selects string) (data map[string]string, err error) {
 	for i := range values {
 		scanArgs[i] = &values[i]
 	}
-	select_err := MysqlConn.QueryRow(select_sql).Scan(scanArgs...)
+	select_err := MySQL.QueryRow(select_sql).Scan(scanArgs...)
 	//将数据保存到 record 字典
 	record := make(map[string]string)
 	for i, col := range values {
@@ -204,14 +204,14 @@ func (DB *Db) First(selects string) (data map[string]string, err error) {
 //删除
 func (DB *Db) Delete() (sql.Result, error) {
 	sql := "DELETE FROM `" + DB.tables + "` " + DB.wheres
-	return MysqlConn.Exec(sql)
+	return MySQL.Exec(sql)
 }
 
 //更新
 func (DB *Db) Update(set string) (sql.Result, error) {
-	//stmtOut, err := MysqlConn.Prepare("UPDATE `?` SET ? WHERE ?")
+	//stmtOut, err := MySQL.Prepare("UPDATE `?` SET ? WHERE ?")
 	sql := "UPDATE `" + DB.tables + "` SET " + set + " " + DB.wheres
-	return MysqlConn.Exec(sql)
+	return MySQL.Exec(sql)
 }
 
 //添加单条
@@ -226,12 +226,12 @@ func (DB *Db) Insert(data map[string]string) (sql.Result, error) {
 	value = strings.TrimRight(value, ",")
 
 	sql := "INSERT INTO `" + DB.tables + "` (" + field + ") VALUES (" + value + ");"
-	return MysqlConn.Exec(sql)
+	return MySQL.Exec(sql)
 }
 
 //添加多条
 func (DB *Db) InsertSql(sql string) (sql.Result, error) {
-	return MysqlConn.Exec(sql)
+	return MySQL.Exec(sql)
 }
 
 //count
@@ -241,11 +241,11 @@ func (DB *Db) Count() (int, error) {
 		sql += DB.wheres
 	}
 	var count int
-	err := MysqlConn.QueryRow(sql).Scan(&count)
+	err := MySQL.QueryRow(sql).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
-	//MysqlConn.Close()	 | 不需要关闭
+	//MySQL.Close()	 | 不需要关闭
 	return count, err
 }
 
@@ -257,7 +257,7 @@ func (DB *Db) _DoExec() {
 //原始查询Sql 查询多条
 func (DB *Db) QueryAll(sql string) ([]map[string]string, error) {
 	var data []map[string]string
-	select_rows, err := MysqlConn.Query(sql)
+	select_rows, err := MySQL.Query(sql)
 	if err != nil {
 		return data, err
 	}
