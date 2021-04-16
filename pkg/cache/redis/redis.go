@@ -1,4 +1,4 @@
-package db
+package redis
 
 import (
 	"free-im/config"
@@ -6,10 +6,14 @@ import (
 	"time"
 )
 
-func NewRedisPool() *redis.Pool {
+type Pool struct {
+	*redis.Pool
+}
+
+func NewPool() (p *Pool) {
 	RedisIP := config.CommonConf.RedisIP
 	password := config.CommonConf.RedisAuth
-	return &redis.Pool{
+	p.Pool = &redis.Pool{
 		// 最大的激活连接数，表示同时最多有N个连接 ，为0事表示没有限制
 		MaxActive: 10,
 		//最大的空闲连接数，表示即使没有redis连接时依然可以保持N个空闲的连接，而不被清除，随时处于待命状态
@@ -42,10 +46,5 @@ func NewRedisPool() *redis.Pool {
 			return err
 		},
 	}
-}
-
-func GetRConn() redis.Conn {
-	pool := NewRedisPool()
-	conn := pool.Get()
-	return conn
+	return
 }

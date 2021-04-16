@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/util"
@@ -37,29 +36,14 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	ret := make(map[string]string)
 	user_id := formData["uid"].(string)
 	chatroom_id := formData["chatroom_id"].(string)
-	chatroom_type := 1
-	switch chatroom_type {
-	case 1:
-		// 查询聊天室成员
-		members, _ := dao.GetRConn().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
-		for _, v := range members.([]interface{}) {
-			to_user_id := string(v.([]uint8))
-			if to_user_id == user_id {
-				continue
-			}
-			user_member, _ := dao.NewMysql().Table("user_member").
-				Where("member_id = " + to_user_id).
-				First("nickname,avatar")
-			ret["name"] = user_member["nickname"]
-			ret["avatar"] = user_member["avatar"]
-		}
-	case 2:
-
+	chatroom_type := "1"
+	if res, err := ChatRoomService.GetChatroomBaseInfo(chatroom_id, chatroom_type, user_id); err != nil {
+		util.RespFail(writer, err.Error())
+	} else {
+		util.RespOk(writer, res, "")
 	}
-	util.RespOk(writer, ret, "")
 }
 
 // 聊天室列表

@@ -16,6 +16,29 @@ import (
 type ChatRoomService struct {
 }
 
+func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, user_id string) (resres map[string]string, err error) {
+	res := make(map[string]string)
+	switch chatroom_type {
+	case "1":
+		// 查询聊天室成员
+		members, _ := dao.Chatroom.GetMembers(chatroom_id)
+		for _, v := range members {
+			to_user_id := strconv.Itoa(v)
+			if to_user_id == user_id {
+				continue
+			}
+			user_member, _ := dao.NewMysql().Table("user_member").
+				Where("member_id = " + to_user_id).
+				First("nickname,avatar")
+			res["name"] = user_member["nickname"]
+			res["avatar"] = user_member["avatar"]
+		}
+	case "2":
+
+	}
+	return
+}
+
 // 通过好友ID 获取 聊天室ID
 func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id string) (chatroom_id string, err error) {
 	var field string
