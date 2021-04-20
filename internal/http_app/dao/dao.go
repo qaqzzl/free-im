@@ -1,12 +1,12 @@
 package dao
 
 import (
-	"database/sql"
 	"free-im/pkg/cache/redis"
+	"free-im/pkg/db"
 )
 
 type dao struct {
-	db    *sql.DB
+	db    *db.Db
 	redis *redis.Pool
 }
 

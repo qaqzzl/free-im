@@ -8,9 +8,7 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util/id"
-	"math/rand"
 	"strconv"
-	"time"
 )
 
 type ChatRoomService struct {
@@ -75,23 +73,10 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 	// db
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
-	group_data := make(map[string]string)
-	rand.Seed(time.Now().Unix())
-	group_data["id"] = fmt.Sprintf("%06d", rand.Int31n(10000))
-	group_data["name"] = group.Name
-	group_data["avatar"] = group.Avatar
-	group_data["chatroom_id"] = chatroom_id
-	group_data["owner_member_id"] = member_id
-	group_data["founder_member_id"] = member_id
-	group_data["created_at"] = strconv.Itoa(int(time.Now().Unix()))
-	result, err := dao.NewMysql().Table("`group`").Insert(group_data)
-	id, _ := result.LastInsertId()
-	group_id = strconv.Itoa(int(id))
-
-	// redis
-	rconn := dao.GetRConn()
-	rconn.Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //创建聊天室
-
+	group.ChatroomId = chatroom_id
+	group.OwnerMemberId = member_id
+	group.FounderMemberId = member_id
+	group_id, err = dao.Chatroom.CreateGroup(group)
 	return group_id, err
 }
 
