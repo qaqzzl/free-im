@@ -63,7 +63,7 @@ func CreateGroup(writer http.ResponseWriter, request *http.Request) {
 	json.NewDecoder(request.Body).Decode(&formData)
 
 	var (
-		group_id string
+		group_id uint
 		err      error
 	)
 	if group_id, err = ChatRoomService.CreateGroup(formData["uid"].(string), model.Group{
@@ -74,7 +74,7 @@ func CreateGroup(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	ret := make(map[string]string)
+	ret := make(map[string]interface{})
 	ret["group_id"] = group_id
 	util.RespOk(writer, ret, "")
 }

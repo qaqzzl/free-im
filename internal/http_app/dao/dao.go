@@ -1,15 +1,19 @@
 package dao
 
 import (
+	"free-im/config"
 	"free-im/pkg/cache/redis"
-	"free-im/pkg/db"
+	"free-im/pkg/db/orm"
+	redis2 "github.com/gomodule/redigo/redis"
+	"gorm.io/gorm"
 )
 
 type dao struct {
-	db    *db.Db
-	redis *redis.Pool
+	db    *gorm.DB
+	redis *redis2.Pool
 }
 
 var Dao = dao{
-	redis: redis.NewPool(),
+	redis: redis.NewPool(redis.Config{Dial: config.CommonConf.RedisIP, Auth: config.CommonConf.RedisAuth}),
+	db:    orm.NewMySQL(&orm.Config{DSN: config.CommonConf.MySQL}),
 }

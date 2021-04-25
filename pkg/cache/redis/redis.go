@@ -1,19 +1,18 @@
 package redis
 
 import (
-	"free-im/config"
 	"github.com/gomodule/redigo/redis"
 	"time"
 )
 
-type Pool struct {
-	*redis.Pool
+// Config mysql config.
+type Config struct {
+	Dial string
+	Auth string
 }
 
-func NewPool() (p *Pool) {
-	RedisIP := config.CommonConf.RedisIP
-	password := config.CommonConf.RedisAuth
-	p.Pool = &redis.Pool{
+func NewPool(cnf Config) *redis.Pool {
+	return &redis.Pool{
 		// 最大的激活连接数，表示同时最多有N个连接 ，为0事表示没有限制
 		MaxActive: 10,
 		//最大的空闲连接数，表示即使没有redis连接时依然可以保持N个空闲的连接，而不被清除，随时处于待命状态
@@ -24,12 +23,12 @@ func NewPool() (p *Pool) {
 		Wait: false,
 		//Dial 是创建链接的方法
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", RedisIP)
+			c, err := redis.Dial("tcp", cnf.Dial)
 			if err != nil {
 				return nil, err
 			}
-			if password != "" {
-				if _, err := c.Do("AUTH", password); err != nil {
+			if cnf.Auth != "" {
+				if _, err := c.Do("AUTH", cnf.Auth); err != nil {
 					c.Close()
 					return nil, err
 				}
@@ -46,5 +45,4 @@ func NewPool() (p *Pool) {
 			return err
 		},
 	}
-	return
 }

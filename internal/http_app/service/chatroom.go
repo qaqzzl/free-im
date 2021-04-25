@@ -69,7 +69,7 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 }
 
 // 创建群组
-func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (group_id string, err error) {
+func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (group_id uint, err error) {
 	// db
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
