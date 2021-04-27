@@ -13,12 +13,17 @@ type chatroom struct {
 
 var Chatroom = new(chatroom)
 
+func (d *chatroom) GetGroup() (group model.Group, err error) {
+	Dao.DB().Table(group.TableName()).Select("Name", "Age").Where("id = ?", "id").Find(&group)
+	return
+}
+
 // * 获取聊天室成员
-func (d *chatroom) GetMembers(chatroom_id string) (uids []uint, err error) {
-	members, err := Dao.redis.Get().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
+func (d *chatroom) GetMembers(chatroom_id string) (member_ids []uint, err error) {
+	members, err := Dao.Ris().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
 	for _, v := range members.([]interface{}) {
 		user_id, _ := strconv.Atoi(string(v.([]uint8)))
-		uids = append(uids, uint(user_id))
+		member_ids = append(member_ids, uint(user_id))
 	}
 	return
 }
@@ -27,10 +32,29 @@ func (d *chatroom) GetMembers(chatroom_id string) (uids []uint, err error) {
 func (d *chatroom) CreateGroup(group model.Group) (group_id uint, err error) {
 	rand.Seed(time.Now().Unix())
 	group.Id = fmt.Sprintf("%06d", rand.Int31n(10000))
-	result := Dao.db.Table("`group`").Create(&group)
+	result := Dao.DB().Table("`group`").Create(&group)
 	group_id = group.GroupId
 	err = result.Error
 	// redis
-	Dao.redis.Get().Do("SADD", "set_im_chatroom_member:"+group.ChatroomId, group.OwnerMemberId) //创建聊天室
+	Dao.Ris().Do("SADD", "set_im_chatroom_member:"+group.ChatroomId, group.OwnerMemberId) //创建聊天室
+	return
+}
+
+// * 加入群组
+func (d *chatroom) JoinGroup(chatroom_id string, member_id uint) (err error) {
+	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //加入聊天室
+	return
+}
+
+// * 群组是否存在
+func (d *chatroom) IsExistByID(id string) (is bool, err error) {
+	var c int64
+	result := Dao.DB().Table("`group`").Where("id = ?", "id").Count(&c)
+	err = result.Error
+	if c > 0 {
+		is = true
+	} else {
+		is = false
+	}
 	return
 }

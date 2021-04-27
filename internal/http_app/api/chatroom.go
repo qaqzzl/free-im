@@ -36,10 +36,10 @@ func GetChatroomAvatarNameByChatRoomID(writer http.ResponseWriter, request *http
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
-	user_id := formData["uid"].(string)
+	user_id := formData["uid"].(int)
 	chatroom_id := formData["chatroom_id"].(string)
 	chatroom_type := "1"
-	if res, err := ChatRoomService.GetChatroomBaseInfo(chatroom_id, chatroom_type, user_id); err != nil {
+	if res, err := ChatRoomService.GetChatroomBaseInfo(chatroom_id, chatroom_type, uint(user_id)); err != nil {
 		util.RespFail(writer, err.Error())
 	} else {
 		util.RespOk(writer, res, "")
@@ -86,7 +86,7 @@ func AddGroup(writer http.ResponseWriter, request *http.Request) {
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
 
-	if ret, err := ChatRoomService.AddGroup(formData["uid"].(string), formData["group_id"].(string), formData["remark"].(string)); err != nil {
+	if ret, err := ChatRoomService.JoinGroup(uint(formData["uid"].(int)), formData["group_id"].(string), formData["remark"].(string)); err != nil {
 		util.RespFail(writer, err.Error())
 	} else {
 		util.RespOk(writer, ret, "")

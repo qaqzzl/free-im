@@ -17,3 +17,11 @@ var Dao = dao{
 	redis: redis.NewPool(redis.Config{Dial: config.CommonConf.RedisIP, Auth: config.CommonConf.RedisAuth}),
 	db:    orm.NewMySQL(&orm.Config{DSN: config.CommonConf.MySQL}),
 }
+
+func (d *dao) Ris() redis2.Conn {
+	return Dao.redis.Get()
+}
+
+func (d *dao) DB() *gorm.DB {
+	return d.db
+}

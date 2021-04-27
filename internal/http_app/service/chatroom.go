@@ -14,18 +14,18 @@ import (
 type ChatRoomService struct {
 }
 
-func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, member_id uint) (resres map[string]string, err error) {
-	res := make(map[string]string)
+func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, member_id uint) (res map[string]string, err error) {
+	res = make(map[string]string)
 	switch chatroom_type {
 	case "1":
 		// 查询聊天室成员
 		members, _ := dao.Chatroom.GetMembers(chatroom_id)
 		for _, v := range members {
-			to_user_id := v
-			if to_user_id == member_id {
+			to_member_id := v
+			if to_member_id == member_id {
 				continue
 			}
-			user_member, _ := dao.User.Get(to_user_id, "nickname", "avatar")
+			user_member, _ := dao.User.GetByUID(to_member_id, "nickname", "avatar")
 
 			res["name"] = user_member.Nickname
 			res["avatar"] = user_member.Avatar
@@ -45,7 +45,7 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id stri
 		field = friend_id + "," + member_id
 	}
 	var res interface{}
-	if res, err = dao.GetRConn().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
+	if res, err = dao.Dao.Ris().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
 		logger.Sugar.Error("获取聊天室ID失败", err)
 		return "", err
 	}
@@ -54,8 +54,8 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id string, friend_id stri
 		//生成聊天室ID
 		res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Single)
 		chatroom_id = strconv.Itoa(int(res_chatroom_id))
-		dao.GetRConn().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id)      //创建聊天室
-		dao.GetRConn().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id) //创建单聊跟聊天室关系
+		dao.Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id)      //创建聊天室
+		dao.Dao.Ris().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id) //创建单聊跟聊天室关系
 	} else {
 		chatroom_id = string(res.([]uint8))
 	}
@@ -69,7 +69,6 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 
 // 创建群组
 func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (group_id uint, err error) {
-	// db
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
 	group.ChatroomId = chatroom_id
@@ -80,12 +79,14 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 }
 
 // 加入群组
-func (s *ChatRoomService) AddGroup(member_id string, group_id string, remark string) (ret map[string]string, err error) {
+func (s *ChatRoomService) JoinGroup(member_id uint, id string, remark string) (ret map[string]string, err error) {
 	group, err := dao.NewMysql().Table("`group`").Where(fmt.Sprintf("group_id = %s ", group_id)).First("chatroom_id")
+	dao.Dao.DB().Table("`group`").Select("Name", "Age").Where("id = ?", "id").Find("")
 	if len(group) == 0 {
 		return ret, errors.New("群组不存在")
 	}
-	dao.GetRConn().Do("SADD", "set_im_chatroom_member:"+group["chatroom_id"], member_id) //加入聊天室
+	// 加入聊天室
+	dao.Chatroom.JoinGroup(group["chatroom_id"], member_id)
 
 	ret = make(map[string]string)
 	ret["code"] = "0"

@@ -7,8 +7,8 @@ type user struct {
 
 var User = new(user)
 
-func (d *user) Get(member_id uint, selects ...string) (model model.UserMember, err error) {
-	result := Dao.db.Table(model.TableName()).Select(selects).Find(&model, member_id)
+func (d *user) GetByUID(member_id uint, selects ...string) (UserMember model.UserMember, err error) {
+	result := Dao.DB().Table(UserMember.TableName()).Select(selects).Find(&UserMember, member_id)
 	err = result.Error
 	return
 }
