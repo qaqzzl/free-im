@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestUser_Get(t *testing.T) {
-	res, err := User.Get(1, "nickname", "avatar")
+func TestUser_GetByUID(t *testing.T) {
+	res, err := User.GetByUID(1, "nickname", "avatar")
 	fmt.Println(res, err)
 }

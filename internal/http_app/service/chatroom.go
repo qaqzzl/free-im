@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
 	"free-im/pkg/logger"
@@ -68,7 +67,7 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 }
 
 // 创建群组
-func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (group_id uint, err error) {
+func (s *ChatRoomService) CreateGroup(member_id int, group model.Group) (group_id uint, err error) {
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
 	group.ChatroomId = chatroom_id
@@ -80,22 +79,24 @@ func (s *ChatRoomService) CreateGroup(member_id string, group model.Group) (grou
 
 // 加入群组
 func (s *ChatRoomService) JoinGroup(member_id uint, id string, remark string) (ret map[string]string, err error) {
-	group, err := dao.NewMysql().Table("`group`").Where(fmt.Sprintf("group_id = %s ", group_id)).First("chatroom_id")
-	dao.Dao.DB().Table("`group`").Select("Name", "Age").Where("id = ?", "id").Find("")
-	if len(group) == 0 {
+	group, err := dao.Chatroom.GetGroupByID(id, "chatroom_id")
+	if err != nil {
+		return ret, errors.New("系统忙，请稍后再试")
+	}
+	if group.ChatroomId == "" {
 		return ret, errors.New("群组不存在")
 	}
 	// 加入聊天室
-	dao.Chatroom.JoinGroup(group["chatroom_id"], member_id)
+	dao.Chatroom.JoinGroup(group.ChatroomId, member_id)
 
 	ret = make(map[string]string)
 	ret["code"] = "0"
 	ret["message"] = "加入成功"
-	return ret, nil
+	return
 }
 
-// 我的群组列表
-func (s *ChatRoomService) MyGroupList(member_id string) (list []map[string]string, err error) {
+// 会员群组列表
+func (s *ChatRoomService) MemberGroupList(member_id string) (list []map[string]string, err error) {
 	list, err = dao.NewMysql().Table("group_member as gm").Where("gm.member_id = " + member_id + " and gm.status = 'normal'").
 		Join("INNER JOIN `group` g ON g.group_id=gm.group_id").
 		Select("g.group_id,g.name,g.avatar,g.id,g.chatroom_id,g.owner_member_id,g.founder_member_id,g.permissions,g.created_at").
@@ -108,5 +109,5 @@ func (s *ChatRoomService) MyGroupList(member_id string) (list []map[string]strin
 
 // 搜索群组
 func (s *ChatRoomService) SearchGroup(search string) (list []map[string]string, err error) {
-	return list, err
+	return
 }

@@ -3,6 +3,7 @@ package dao
 import (
 	"fmt"
 	"free-im/internal/http_app/model"
+	"gorm.io/gorm"
 	"math/rand"
 	"strconv"
 	"time"
@@ -13,8 +14,8 @@ type chatroom struct {
 
 var Chatroom = new(chatroom)
 
-func (d *chatroom) GetGroup() (group model.Group, err error) {
-	Dao.DB().Table(group.TableName()).Select("Name", "Age").Where("id = ?", "id").Find(&group)
+func (d *chatroom) GetGroupByID(id string, selects ...string) (group model.Group, err error) {
+	Dao.DB().Table(group.TableName()).Select(selects).Where("id = ?", "id").Find(&group)
 	return
 }
 
@@ -47,7 +48,7 @@ func (d *chatroom) JoinGroup(chatroom_id string, member_id uint) (err error) {
 }
 
 // * 群组是否存在
-func (d *chatroom) IsExistByID(id string) (is bool, err error) {
+func (d *chatroom) GroupIsExistByID(id string) (is bool, err error) {
 	var c int64
 	result := Dao.DB().Table("`group`").Where("id = ?", "id").Count(&c)
 	err = result.Error
@@ -56,5 +57,20 @@ func (d *chatroom) IsExistByID(id string) (is bool, err error) {
 	} else {
 		is = false
 	}
+	return
+}
+
+// * 会员群组列表 by member_id
+func (d *chatroom) MemberGroupListByUID(member_id uint) (MemberGroups []*model.GroupMember, err error) {
+	return d.MemberGroupList("member_id = ?", member_id)
+}
+
+// * 会员群组列表
+func (d *chatroom) MemberGroupList(query interface{}, args ...interface{}) (MemberGroups []*model.GroupMember, err error) {
+	model := model.GroupMember{}
+	result := Dao.DB().Table(model.TableName()).Preload("Group", func(db *gorm.DB) *gorm.DB {
+		return db.Select("*")
+	}).Where(query, args...).Find(&MemberGroups)
+	err = result.Error
 	return
 }
