@@ -35,9 +35,19 @@ func (d *chatroom) CreateGroup(group model.Group) (group_id uint, err error) {
 	group.Id = fmt.Sprintf("%06d", rand.Int31n(10000))
 	result := Dao.DB().Table("`group`").Create(&group)
 	group_id = group.GroupId
-	err = result.Error
+	if err = result.Error; err != nil {
+		return
+	}
+	// 群组成员
+	group_member := model.GroupMember{
+		GroupId:        group_id,
+		MemberId:       group.FounderMemberId,
+		MemberIdentity: "root",
+		Status:         "normal",
+	}
+	Dao.DB().Table("`group_member`").Create(&group_member)
 	// redis
-	Dao.Ris().Do("SADD", "set_im_chatroom_member:"+group.ChatroomId, group.OwnerMemberId) //创建聊天室
+	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+group.ChatroomId, group.OwnerMemberId) //创建聊天室
 	return
 }
 
