@@ -67,7 +67,7 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 }
 
 // 创建群组
-func (s *ChatRoomService) CreateGroup(member_id int, group model.Group) (group_id uint, err error) {
+func (s *ChatRoomService) CreateGroup(member_id uint, group model.Group) (group_id uint, err error) {
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
 	group.ChatroomId = chatroom_id
@@ -96,15 +96,9 @@ func (s *ChatRoomService) JoinGroup(member_id uint, id string, remark string) (r
 }
 
 // 会员群组列表
-func (s *ChatRoomService) MemberGroupList(member_id string) (list []map[string]string, err error) {
-	list, err = dao.NewMysql().Table("group_member as gm").Where("gm.member_id = " + member_id + " and gm.status = 'normal'").
-		Join("INNER JOIN `group` g ON g.group_id=gm.group_id").
-		Select("g.group_id,g.name,g.avatar,g.id,g.chatroom_id,g.owner_member_id,g.founder_member_id,g.permissions,g.created_at").
-		Get()
-	if len(list) == 0 {
-		list = make([]map[string]string, 0)
-	}
-	return list, err
+func (s *ChatRoomService) MemberGroupList(member_id uint) (MemberGroups []*model.GroupMember, err error) {
+	MemberGroups, err = dao.Chatroom.MemberGroupListByUID(member_id)
+	return
 }
 
 // 搜索群组

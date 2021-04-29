@@ -66,7 +66,7 @@ func CreateGroup(writer http.ResponseWriter, request *http.Request) {
 		group_id uint
 		err      error
 	)
-	if group_id, err = ChatRoomService.CreateGroup(formData["uid"].(string), model.Group{
+	if group_id, err = ChatRoomService.CreateGroup(uint(formData["uid"].(int)), model.Group{
 		Name:   formData["name"].(string),
 		Avatar: formData["avatar"].(string),
 	}); err != nil {
