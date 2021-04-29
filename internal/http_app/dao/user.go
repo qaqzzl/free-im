@@ -23,3 +23,8 @@ func (d *user) IsExistAccount(account string, _type string) (b bool, err error) 
 	}
 	return
 }
+
+// * 添加好友
+func (d *user) AddFriend() {
+
+}

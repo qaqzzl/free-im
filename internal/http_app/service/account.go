@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"free-im/internal/http_app/dao"
@@ -9,14 +8,19 @@ import (
 	"free-im/pkg/util/id"
 	"github.com/satori/go.uuid"
 	"math/rand"
-	"strconv"
 	"time"
 )
 
 type AccountService struct {
 }
 
-func (s *AccountService) Login(identifier string, identity_type string, credential string, data map[string]string) (interface{}, error) {
+func (s *AccountService) Login(identifier string, identity_type string, credential string, user_member model.UserMember) (interface{}, error) {
+	var (
+		err       error
+		member_id uint
+		token     string
+	)
+
 	//判断是否已经注册
 	var user_auths model.UserAuths
 	result := dao.Dao.DB().Table(user_auths.TableName()).
@@ -25,61 +29,55 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 	if result.Error != nil {
 		return nil, errors.New("系统忙，请稍后再试")
 	}
-	var member_id uint
 	if user_auths.MemberId != 0 {
 		member_id = user_auths.MemberId
 	} else {
-		member_id, err := s.Register(identifier, identity_type, credential, data)
+		member_id, err = s.Register(identifier, identity_type, credential, user_member)
 		if err != nil {
 			return nil, err
 		}
 	}
 	// 获取token
-	var token string
-	if token, err := s.GetToken(member_id, "android"); err != nil {
+	if token, err = s.GetToken(member_id, "android"); err != nil {
 		return nil, err
 	}
-	ret := make(map[string]string)
+	ret := make(map[string]interface{})
 	ret["access_token"] = token
 	ret["uid"] = member_id
 	return ret, nil
 }
 
-// 账号注册
-func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member map[string]string) (member_id uint, err error) {
+// * 账号注册
+// * identifier 账号
+// * identity_type 账号类型
+// * credential 密码凭证
+func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member model.UserMember) (member_id uint, err error) {
 	// 创建用户
-	if user_member == nil {
-		user_member = make(map[string]string)
-	}
 	rand.Seed(time.Now().Unix())
 	freeid, err := id.FreeID.GetID()
 	if err != nil {
 		return
 	}
-	user_member["id"] = freeid
-	if user_member["nickname"] == "" {
-		user_member["nickname"] = "会员-" + freeid
+	user_member.Id = freeid
+	if user_member.Nickname == "" {
+		user_member.Nickname = "会员-" + freeid
 	} else {
-		user_member["nickname"] += "-" + freeid
+		user_member.Nickname += "-" + freeid
 	}
-	if user_member["avatar"] == "" {
-		user_member["avatar"] = "http://free-im-qn.qaqzz.com/default_avatar.png"
+	if user_member.Avatar == "" {
+		user_member.Avatar = "http://free-im-qn.qaqzz.com/default_avatar.png"
 	}
-	user_member["created_at"] = strconv.Itoa(int(time.Now().Unix()))
-	user_member["updated_at"] = user_member["created_at"]
-	var result sql.Result
-	if result, err = dao.NewMysql().Table("user_member").Insert(user_member); err != nil {
+	result := dao.Dao.DB().Table(user_member.TableName()).Create(&user_member)
+	if result.Error != nil {
 		return member_id, err
 	}
 	// 创建用户账号
-	user_auths := make(map[string]string)
-	LastInsertId, _ := result.LastInsertId()
-	member_id = uint(LastInsertId)
-	user_auths["member_id"] = member_id
-	user_auths["identity_type"] = identity_type
-	user_auths["identifier"] = identifier
-	user_auths["credential"] = credential
-	if result, err = dao.NewMysql().Table("user_auths").Insert(user_auths); err != nil {
+	var user_auths model.UserAuths
+	user_auths.MemberId = user_member.MemberId
+	user_auths.IdentityType = identity_type
+	user_auths.Identifier = identifier
+	user_auths.Credential = credential
+	if result = dao.Dao.DB().Table("user_auths").Create(&user_auths); err != nil {
 		return member_id, err
 	}
 
@@ -88,11 +86,11 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
 		member_id, "1", 0, timeUnix)
-	dao.MysqlConn.Exec(sql)
+	dao.Dao.DB().Exec(sql)
 	sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
 		"1", member_id, 0, timeUnix)
-	dao.MysqlConn.Exec(sql)
+	dao.Dao.DB().Exec(sql)
 
 	// 返回 id
 	return member_id, err
@@ -101,12 +99,12 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 // 获取用户 token
 func (s *AccountService) GetToken(member_id uint, client string) (token string, err error) {
 	token = uuid.NewV4().String()
-	user_auths_token := make(map[string]string)
-	user_auths_token["member_id"] = member_id
-	user_auths_token["token"] = token
-	user_auths_token["client"] = client
-	user_auths_token["last_time"] = strconv.Itoa(int(time.Now().Unix()))
-	user_auths_token["created_at"] = user_auths_token["last_time"]
-	_, err = dao.NewMysql().Table("user_auths_token").Insert(user_auths_token)
-	return token, err
+	user_auths_token := model.UserAuthsToken{
+		MemberId: member_id,
+		Token:    token,
+		Client:   client,
+		LastTime: int(time.Now().Unix()),
+	}
+	result := dao.Dao.DB().Table(user_auths_token.TableName()).Create(&user_auths_token)
+	return token, result.Error
 }

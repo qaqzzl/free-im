@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"free-im/config"
+	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/logger"
 	"free-im/pkg/util"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -33,7 +33,7 @@ func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
 		util.RespFail(writer, "短信验证码错误")
 		return
 	}
-	ret, err := AccountService.Login(formData["phone"].(string), "phone", "", nil)
+	ret, err := AccountService.Login(formData["phone"].(string), "phone", "", model.UserMember{})
 	if err != nil {
 		logger.Logger.Info(err.Error())
 		util.RespFail(writer, "系统繁忙")
@@ -70,24 +70,22 @@ func QQLogin(writer http.ResponseWriter, request *http.Request) {
 	// 调用json包的解析，解析请求body
 	json.Unmarshal(authBody, &authData)
 	// 获取unionid https://graph.qq.com/oauth2.0/me?access_token=ACCESSTOKEN&unionid=1
-	data := make(map[string]string)
-	data["nickname"] = authData["nickname"].(string)
+	UserMember := model.UserMember{}
+	UserMember.Nickname = authData["nickname"].(string)
 	if authData["gender"].(string) == "女" {
-		data["gender"] = "w"
+		UserMember.Gender = "w"
 	} else {
-		data["gender"] = "m"
+		UserMember.Gender = "m"
 	}
 	times, _ := time.Parse("2006", authData["year"].(string))
 	timeUnix := times.Unix()
-	var birthdate = "0"
 	if timeUnix > 0 {
-		birthdate = strconv.Itoa(int(timeUnix))
+		UserMember.Birthdate = int(timeUnix)
 	}
-	data["birthdate"] = birthdate
-	data["avatar"] = authData["figureurl_qq_2"].(string)
-	data["city"] = authData["city"].(string)
-	data["province"] = authData["province"].(string)
-	ret, err := AccountService.Login(formData["openid"].(string), "qq_openid", formData["access_token"].(string), data)
+	UserMember.Avatar = authData["figureurl_qq_2"].(string)
+	UserMember.City = authData["city"].(string)
+	UserMember.Province = authData["province"].(string)
+	ret, err := AccountService.Login(formData["openid"].(string), "qq_openid", formData["access_token"].(string), UserMember)
 	if err != nil {
 		logger.Sugar.Error(err)
 		util.RespFail(writer, "系统繁忙")
