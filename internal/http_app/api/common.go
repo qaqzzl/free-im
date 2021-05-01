@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"free-im/pkg/id"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/util"
-	"free-im/pkg/util/id"
 	"github.com/qiniu/api.v7/v7/auth/qbox"
 	"github.com/qiniu/api.v7/v7/storage"
 	"net/http"
@@ -68,6 +68,7 @@ func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
 	util.RespOk(writer, nil, "短信验证码发送成功")
 }
 
+// * 获取消息ID
 func GetMessageId(writer http.ResponseWriter, request *http.Request) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})

@@ -45,8 +45,8 @@ message MsgPackage {
 
 // 消息体 - 获取消息ID
 message MsgID {
-    string ChatroomId			= 2; 	// 聊天室ID
-    string UserId 		 		= 5;	// 用户ID
+    int64 ChatroomId			= 2; 	// 聊天室ID
+    int64 UserId 		 		= 5;	// 用户ID
     string DeviceID 		 	= 6;	// 设备ID
     string ClientType 	 		= 7;	// 客户端类型
 }
@@ -55,10 +55,10 @@ message MsgID {
 message MsgItem {
     MessageCode Code    		= 1;	// 消息(类型)码
     ChatroomType ChatroomType	= 2; 	// 聊天室类型
-    string ChatroomId			= 3; 	// 聊天室ID
+    int64 ChatroomId			= 3; 	// 聊天室ID
     string Content 	 			= 4;    // 消息内容
     string MessageId 	 		= 5;	// 消息ID
-    string UserId 		 		= 6;	// 用户ID
+    int64 UserId 		 		= 6;	// 用户ID
     string DeviceID 		 	= 7;	// 设备ID
     string ClientType 	 		= 8;	// 客户端类型
     int64 MessageSendTime 	 	= 9;	// 消息发送时间戳，精确到毫秒, 服务器接收到的时间算
@@ -67,7 +67,7 @@ message MsgItem {
 // 消息体 - 认证信息
 message MsgAuth {
 	string DeviceID         = 1;
-	string UserID           = 2;
+	int64  UserID           = 2;
 	string AccessToken      = 3;
 	string DeviceType 		= 4;	    // 设备类型, 移动端:mobile , PC端:pc
 	string ClientType 		= 5;		// 客户端类型, android, ios,
@@ -76,7 +76,7 @@ message MsgAuth {
 // 消息体 - 消息回执
 message MsgACK {
     string MessageId    = 1;
-    string UserId 		= 2;	// 用户ID
+    int64 UserId 		= 2;	// 用户ID
     string DeviceID 	= 3;	// 设备ID
 }
 

@@ -5,7 +5,7 @@ import "im.proto";
 package pbs;
 
 message DeliverMessageReq {
-    string user_id = 1; // 用户ID
+    int64 user_id = 1; // 用户ID
     string device_id = 2; // 设备ID
     MsgPackage message = 3; // 数据
 }

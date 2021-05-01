@@ -84,3 +84,5 @@ func (d *chatroom) MemberGroupList(query interface{}, args ...interface{}) (Memb
 	err = result.Error
 	return
 }
+
+var d = new(model.GroupMember)

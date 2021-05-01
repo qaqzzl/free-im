@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"free-im/internal/logic/dao"
+	"free-im/internal/logic/model"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
+	"strconv"
 )
 
 // client conn auth
@@ -38,15 +40,17 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		Action:   pbs.Action_Message,
 		BodyData: BodyData,
 	}
-	insert := make(map[string]string)
 	for _, v := range members.([]interface{}) {
 		UserID := string(v.([]uint8))
 		// 存储消息
-		insert["message_id"] = m.MessageId
-		insert["chatroom_id"] = m.ChatroomId
-		insert["member_id"] = UserID
-		insert["content"] = string(BodyData)
-		if _, err := dao.NewMysql().Table("message").Insert(insert); err != nil {
+		store_message := model.Message{
+			MessageId: m.MessageId,
+			Content:   string(BodyData),
+		}
+		store_message.ChatroomId, _ = strconv.Atoi(m.ChatroomId)
+		store_message.MemberId, _ = strconv.Atoi(UserID)
+
+		if err := dao.Message.StoreMessage(&store_message); err != nil {
 			logger.Sugar.Error("存储消息失败", err)
 			return err
 		}
@@ -74,17 +78,16 @@ func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
 }
 
 func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
-	messages, err := dao.NewMysql().Table("message").
-		Where("member_id = " + mp.UserId + " and message_id > '" + mp.MessageId + "'").
-		Select("content").Get()
-	if err != nil {
-		logger.Sugar.Error("消息查询失败", err)
-		return err
+	var messages []*model.Message
+	result := dao.Dao.DB().Table("message").Where("member_id = ? and message_id > ?", mp.UserId, mp.MessageId).Select("content").Find(&messages)
+	if result.Error != nil {
+		logger.Sugar.Error("消息查询失败", result.Error)
+		return result.Error
 	}
-	for _, v := range messages {
+	for _, itme := range messages {
 		packages := pbs.MsgPackage{
 			Action:   pbs.Action_Message,
-			BodyData: []byte(v["content"]),
+			BodyData: []byte(itme.Content),
 		}
 		//发送消息
 		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
-	"free-im/pkg/util/id"
+	"free-im/pkg/id"
 	"github.com/satori/go.uuid"
 	"math/rand"
 	"time"

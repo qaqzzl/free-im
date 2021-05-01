@@ -106,7 +106,7 @@ func MyGroupList(writer http.ResponseWriter, request *http.Request) {
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(request.Body).Decode(&formData)
 
-	group_list, err := ChatRoomService.MemberGroupList(formData["uid"].(string))
+	group_list, err := ChatRoomService.MemberGroupList(formData["uid"].(uint))
 	if err != nil {
 		util.RespFail(writer, err.Error())
 		return
