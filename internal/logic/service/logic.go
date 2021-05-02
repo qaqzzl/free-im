@@ -8,13 +8,12 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
-	"strconv"
 )
 
 // client conn auth
 func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, error) {
 	m := req.Message
-	if m.UserID == "" || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
+	if m.UserID == 0 || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
 		return &pbs.TokenAuthResp{Statu: false}, nil
 	}
 	return &pbs.TokenAuthResp{Statu: true}, nil
@@ -30,7 +29,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	BodyData, _ := json.Marshal(m)
 
 	// 查询聊天室成员
-	members, err := dao.GetRConn().Do("SMEMBERS", "set_im_chatroom_member:"+m.ChatroomId)
+	members, err := dao.Chatroom.GetMembers(m.ChatroomId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -40,15 +39,15 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		Action:   pbs.Action_Message,
 		BodyData: BodyData,
 	}
-	for _, v := range members.([]interface{}) {
-		UserID := string(v.([]uint8))
+	for _, v := range members {
+		UserID := v
 		// 存储消息
 		store_message := model.Message{
 			MessageId: m.MessageId,
 			Content:   string(BodyData),
 		}
-		store_message.ChatroomId, _ = strconv.Atoi(m.ChatroomId)
-		store_message.MemberId, _ = strconv.Atoi(UserID)
+		store_message.ChatroomId = m.ChatroomId
+		store_message.MemberId = UserID
 
 		if err := dao.Message.StoreMessage(&store_message); err != nil {
 			logger.Sugar.Error("存储消息失败", err)

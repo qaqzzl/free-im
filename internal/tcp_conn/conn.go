@@ -8,6 +8,7 @@ import (
 	cmap "github.com/orcaman/concurrent-map"
 	"io"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type Conn struct {
 	r          *bufio.Reader
 	Version    int32
 	DeviceID   string // 设备id 简写 DID
-	UserID     string // 用户id 简写 UID
+	UserID     int64  // 用户id 简写 UID
 	DeviceType string // 设备类型, 移动端:mobile , PC端:pc
 	ClientType string // 客户端类型, (android, ios) | (windows, mac, linux)
 	IsAuth     bool   // 是否认证(登录)
@@ -86,9 +87,10 @@ func (conn *Conn) Write(mp pbs.MsgPackage) (int, error) {
 
 func (conn *Conn) Close() {
 	if conn.IsAuth {
-		if user_map, ok := TCPServer.ServerConnPool.Get(conn.UserID); ok {
+		key := strconv.Itoa(int(conn.UserID))
+		if user_map, ok := TCPServer.ServerConnPool.Get(key); ok {
 			user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
-			TCPServer.ServerConnPool.Set(conn.UserID, user_map)
+			TCPServer.ServerConnPool.Set(key, user_map)
 		}
 	}
 	conn.readTicker.Stop()

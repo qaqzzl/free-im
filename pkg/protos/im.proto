@@ -45,7 +45,7 @@ message MsgPackage {
 
 // 消息体 - 获取消息ID
 message MsgID {
-    int64 ChatroomId			= 2; 	// 聊天室ID
+    string ChatroomId			= 2; 	// 聊天室ID
     int64 UserId 		 		= 5;	// 用户ID
     string DeviceID 		 	= 6;	// 设备ID
     string ClientType 	 		= 7;	// 客户端类型
@@ -55,7 +55,7 @@ message MsgID {
 message MsgItem {
     MessageCode Code    		= 1;	// 消息(类型)码
     ChatroomType ChatroomType	= 2; 	// 聊天室类型
-    int64 ChatroomId			= 3; 	// 聊天室ID
+    string ChatroomId			= 3; 	// 聊天室ID
     string Content 	 			= 4;    // 消息内容
     string MessageId 	 		= 5;	// 消息ID
     int64 UserId 		 		= 6;	// 用户ID

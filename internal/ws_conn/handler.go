@@ -7,6 +7,7 @@ import (
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
 	cmap "github.com/orcaman/concurrent-map"
+	"strconv"
 )
 
 type handler struct{}
@@ -59,7 +60,7 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 	conn.ClientType = m.ClientType
 	conn.DeviceType = m.DeviceType
 	//加入连接集合
-	if tmp, ok := WSServer.ServerConnPool.Get(conn.UserID); ok {
+	if tmp, ok := WSServer.ServerConnPool.Get(strconv.Itoa(int(conn.UserID))); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
 		// 判断连接是否存在相同设备
 		for k, v := range device_map.Items() {
@@ -128,7 +129,7 @@ func (h *handler) Headbeat(conn *Conn) {
 }
 
 // 投递消息
-func (h *handler) DeliverMessageByUID(UserId string, mp pbs.MsgPackage) error {
+func (h *handler) DeliverMessageByUID(UserId int64, mp pbs.MsgPackage) error {
 	// 获取设备对应的WS连接
 	conns := WSServer.LoadConnsByUID(UserId)
 	if conns == nil {
@@ -143,7 +144,7 @@ func (h *handler) DeliverMessageByUID(UserId string, mp pbs.MsgPackage) error {
 }
 
 // 投递消息
-func (h *handler) DeliverMessageByUIDAndDID(UserId string, DeviceID string, mp pbs.MsgPackage) error {
+func (h *handler) DeliverMessageByUIDAndDID(UserId int64, DeviceID string, mp pbs.MsgPackage) error {
 	// 获取设备对应的WS连接
 	conns := WSServer.LoadConnsByUID(UserId)
 	if conns == nil {
@@ -159,7 +160,7 @@ func (h *handler) DeliverMessageByUIDAndDID(UserId string, DeviceID string, mp p
 	return nil
 }
 
-func (h *handler) DeliverMessageByUIDAndNotDID(UserId string, DeviceID string, mp pbs.MsgPackage) error {
+func (h *handler) DeliverMessageByUIDAndNotDID(UserId int64, DeviceID string, mp pbs.MsgPackage) error {
 	// 获取设备对应的WS连接
 	conns := WSServer.LoadConnsByUID(UserId)
 	if conns == nil {

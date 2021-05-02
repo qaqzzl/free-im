@@ -15,7 +15,7 @@ func TestRpcLogicInit(t *testing.T) {
 
 	m := pbs.MsgAuth{
 		DeviceID:    "1",
-		UserID:      "2",
+		UserID:      2,
 		AccessToken: "3",
 		DeviceType:  "mobile",
 		ClientType:  "android",

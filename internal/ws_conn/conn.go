@@ -17,7 +17,7 @@ type Conn struct {
 	isClosed   bool
 	Version    int32
 	DeviceID   string // 设备id 简写 DID
-	UserID     string // 用户id 简写 UID
+	UserID     int64  // 用户id 简写 UID
 	DeviceType string // 设备类型, 移动端:mobile , PC端:pc
 	ClientType string // 客户端类型, (android, ios) | (windows, mac, linux)
 	IsAuth     bool   // 是否认证(登录)

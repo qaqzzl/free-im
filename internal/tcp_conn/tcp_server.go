@@ -4,6 +4,7 @@ import (
 	"free-im/pkg/logger"
 	cmap "github.com/orcaman/concurrent-map"
 	"net"
+	"strconv"
 )
 
 // tcpServer TCP服务器
@@ -76,8 +77,8 @@ func (t *tcpServer) LoadConn(UserID string, DeviceID string) (conn *Conn) {
 	return conn
 }
 
-func (t *tcpServer) LoadConnsByUID(UserID string) (conns []*Conn) {
-	tmp, ok := t.ServerConnPool.Get(UserID)
+func (t *tcpServer) LoadConnsByUID(UserID int64) (conns []*Conn) {
+	tmp, ok := t.ServerConnPool.Get(strconv.Itoa(int(UserID)))
 	if ok && tmp.(cmap.ConcurrentMap).Count() > 0 {
 		for _, vo := range tmp.(cmap.ConcurrentMap).Items() {
 			conn := vo.(*Conn)
@@ -89,13 +90,14 @@ func (t *tcpServer) LoadConnsByUID(UserID string) (conns []*Conn) {
 
 // store 存储
 func (t *tcpServer) StoreConn(conn *Conn) {
-	if tmp, ok := t.ServerConnPool.Get(conn.UserID); ok {
+	key := strconv.Itoa(int(conn.UserID))
+	if tmp, ok := t.ServerConnPool.Get(key); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
 		device_map.Set(conn.DeviceType, conn)
-		t.ServerConnPool.Set(conn.UserID, device_map)
+		t.ServerConnPool.Set(key, device_map)
 	} else {
 		device_map := cmap.New()
 		device_map.Set(conn.DeviceType, conn)
-		t.ServerConnPool.Set(conn.UserID, device_map)
+		t.ServerConnPool.Set(key, device_map)
 	}
 }
