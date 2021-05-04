@@ -30,7 +30,7 @@ func (d *chatroom) GetMembers(chatroom_id string) (member_ids []int64, err error
 }
 
 // * 创建群组
-func (d *chatroom) CreateGroup(group model.Group) (group_id uint, err error) {
+func (d *chatroom) CreateGroup(group model.Group) (group_id int64, err error) {
 	rand.Seed(time.Now().Unix())
 	group.Id = fmt.Sprintf("%06d", rand.Int31n(10000))
 	result := Dao.DB().Table("`group`").Create(&group)
@@ -52,7 +52,7 @@ func (d *chatroom) CreateGroup(group model.Group) (group_id uint, err error) {
 }
 
 // * 加入群组
-func (d *chatroom) JoinGroup(chatroom_id string, member_id uint) (err error) {
+func (d *chatroom) JoinGroup(chatroom_id string, member_id int64) (err error) {
 	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //加入聊天室
 	return
 }

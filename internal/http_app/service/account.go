@@ -17,7 +17,7 @@ type AccountService struct {
 func (s *AccountService) Login(identifier string, identity_type string, credential string, user_member model.UserMember) (interface{}, error) {
 	var (
 		err       error
-		member_id uint
+		member_id int64
 		token     string
 	)
 
@@ -51,7 +51,7 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 // * identifier 账号
 // * identity_type 账号类型
 // * credential 密码凭证
-func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member model.UserMember) (member_id uint, err error) {
+func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member model.UserMember) (member_id int64, err error) {
 	// 创建用户
 	rand.Seed(time.Now().Unix())
 	freeid, err := id.FreeID.GetID()
@@ -97,7 +97,7 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 }
 
 // 获取用户 token
-func (s *AccountService) GetToken(member_id uint, client string) (token string, err error) {
+func (s *AccountService) GetToken(member_id int64, client string) (token string, err error) {
 	token = uuid.NewV4().String()
 	user_auths_token := model.UserAuthsToken{
 		MemberId: member_id,

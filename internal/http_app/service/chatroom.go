@@ -13,7 +13,7 @@ import (
 type ChatRoomService struct {
 }
 
-func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, member_id uint) (res map[string]string, err error) {
+func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, member_id int64) (res map[string]string, err error) {
 	res = make(map[string]string)
 	switch chatroom_type {
 	case "1":
@@ -67,7 +67,7 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 }
 
 // 创建群组
-func (s *ChatRoomService) CreateGroup(member_id uint, group model.Group) (group_id uint, err error) {
+func (s *ChatRoomService) CreateGroup(member_id int64, group model.Group) (group_id int64, err error) {
 	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	chatroom_id := strconv.Itoa(int(res_chatroom_id))
 	group.ChatroomId = chatroom_id
@@ -78,7 +78,7 @@ func (s *ChatRoomService) CreateGroup(member_id uint, group model.Group) (group_
 }
 
 // 加入群组
-func (s *ChatRoomService) JoinGroup(member_id uint, id string, remark string) (ret map[string]string, err error) {
+func (s *ChatRoomService) JoinGroup(member_id int64, id string, remark string) (ret map[string]string, err error) {
 	group, err := dao.Chatroom.GetGroupByID(id, "chatroom_id")
 	if err != nil {
 		return ret, errors.New("系统忙，请稍后再试")

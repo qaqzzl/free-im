@@ -69,9 +69,9 @@ CREATE TABLE `group` (
 -- ----------------------------
 DROP TABLE IF EXISTS `group_member`;
 CREATE TABLE `group_member` (
-  `group_member_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `group_id` int(11) NOT NULL COMMENT '群组ID',
-  `member_id` int(11) NOT NULL COMMENT '会员ID',
+  `group_member_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` bigint(20) NOT NULL COMMENT '群组ID',
+  `member_id` bigint(20) NOT NULL COMMENT '会员ID',
   `member_identity` char(10) NOT NULL COMMENT '成员身份: admin-管理员, root-群主, common-普通成员',
   `status` char(10) NOT NULL COMMENT '状态: wait-等待同意, normal-正常, refuse-拒绝, blacklist-黑名单',
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
@@ -139,7 +139,7 @@ CREATE TABLE `user_friend` (
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `member_id_friend_id` (`member_id`,`friend_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户好友表(好友申请也是这个表)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户好友表';
 
 -- ----------------------------
 -- Table structure for user_friend_apply

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 	"free-im/pkg/logger"
 	"github.com/spf13/viper"
@@ -57,22 +58,18 @@ type httpConf struct {
 }
 
 func init() {
-	//var confPath string
-	//flag.StringVar(&confPath, "c", ".", "set config file")
-	//flag.Parse()
-	//if confPath != "." {
-	//	viper.SetConfigFile(confPath)
-	//} else {
-	//	viper.SetConfigName("free")   // 配置文件名
-	//	viper.SetConfigType("yaml")   // 配置文件类型，可以是yaml、json、xml。。。
-	//	viper.AddConfigPath(confPath) // 配置文件路径
-	//	// author local dev
-	//	viper.AddConfigPath("/Users/zerozz/work/project/free-im/free-im/.") // 配置文件路径
-	//}
-
-	viper.SetConfigName("free")                                        // 配置文件名
-	viper.SetConfigType("yaml")                                        // 配置文件类型，可以是yaml、json、xml。。。
-	viper.AddConfigPath("/Users/zerozz/work/project/free-im/free-im/") // 配置文件路径
+	var confPath string
+	flag.StringVar(&confPath, "c", ".", "set config file")
+	flag.Parse()
+	if confPath != "." {
+		viper.SetConfigFile(confPath)
+	} else {
+		viper.SetConfigName("free")   // 配置文件名
+		viper.SetConfigType("yaml")   // 配置文件类型，可以是yaml、json、xml。。。
+		viper.AddConfigPath(confPath) // 配置文件路径
+		// author local dev
+		viper.AddConfigPath("/Users/zerozz/work/project/free-im/free-im/.") // 配置文件路径
+	}
 
 	err := viper.ReadInConfig() // 读取配置文件信息
 	if err != nil {
