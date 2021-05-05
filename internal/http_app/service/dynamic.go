@@ -1,13 +1,12 @@
 package service
 
+import "free-im/internal/http_app/model"
+
 type DynamicService struct {
 }
 
-func NewDynamicService() (s *AccountService) {
-	return s
-}
-
 // 创建动态
-func (s DynamicService) Create() {
+func (s DynamicService) Create(m model.Dynamic) (dynamic_id int64, err error) {
 
+	return
 }

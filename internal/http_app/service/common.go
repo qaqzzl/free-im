@@ -26,12 +26,12 @@ func (s *CommonService) IsPhoneVerifyCode(phone string, verify_code string, sms_
 		return true, nil
 	}
 
-	verify_code_data, _ := dao.GetRConn().Do("GET", "sms_verify_code:"+sms_type+":"+phone)
+	verify_code_data, _ := dao.Dao.Ris().Do("GET", "sms_verify_code:"+sms_type+":"+phone)
 	if verify_code_data == nil {
 		return false, nil
 	}
 	if string(verify_code_data.([]uint8)) == verify_code {
-		dao.GetRConn().Do("DEL", "sms_verify_code:"+sms_type+":"+phone)
+		dao.Dao.Ris().Do("DEL", "sms_verify_code:"+sms_type+":"+phone)
 		return true, nil
 	}
 	return false, nil
@@ -44,10 +44,10 @@ func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 	}
 	return errors.New("默认验证码: 2020")
 	timeStr := time.Now().Format("2006-01-02")
-	if sms_total_send_sum, err := dao.GetRConn().Do("INCR", "sms_total_send_sum:"+timeStr); err != nil {
+	if sms_total_send_sum, err := dao.Dao.Ris().Do("INCR", "sms_total_send_sum:"+timeStr); err != nil {
 		return errors.New("系统繁忙")
 	} else {
-		dao.GetRConn().Do("EXPIRE", "sms_total_send_sum:"+timeStr, 3600*24)
+		dao.Dao.Ris().Do("EXPIRE", "sms_total_send_sum:"+timeStr, 3600*24)
 		if sms_total_send_sum.(int64) > 100 {
 			return errors.New("短信通道今日关闭,请使用QQ登陆")
 		}
@@ -74,10 +74,10 @@ func (s *CommonService) SendSms(phone string, sms_type string) (err error) {
 	}
 	if err != nil {
 		logger.Sugar.Error(err)
-		dao.GetRConn().Do("DECR", "sms_total_send_sum:"+timeStr)
+		dao.Dao.Ris().Do("DECR", "sms_total_send_sum:"+timeStr)
 	} else {
-		dao.GetRConn().Do("SET", "sms_verify_code:"+sms_type+":"+phone, code)
-		dao.GetRConn().Do("EXPIRE", "sms_verify_code:"+sms_type+":"+phone, 60*30)
+		dao.Dao.Ris().Do("SET", "sms_verify_code:"+sms_type+":"+phone, code)
+		dao.Dao.Ris().Do("EXPIRE", "sms_verify_code:"+sms_type+":"+phone, 60*30)
 	}
 	return err
 }

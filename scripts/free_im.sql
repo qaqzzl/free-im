@@ -22,8 +22,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `dynamic`;
 CREATE TABLE `dynamic` (
-  `dynamic_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `member_id` int(11) NOT NULL COMMENT '会员ID',
+  `dynamic_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` bigint(20) NOT NULL COMMENT '会员ID',
   `content` varchar(500) NOT NULL DEFAULT '' COMMENT '内容',
   `type` char(10) NOT NULL DEFAULT 'common' COMMENT '类型, 普通(文字或加图片):common, 视频:video',
   `image_url` varchar(1000) NOT NULL DEFAULT '' COMMENT '图片地址',
