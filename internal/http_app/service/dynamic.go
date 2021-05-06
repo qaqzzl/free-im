@@ -15,6 +15,6 @@ func (s *DynamicService) Create(m model.Dynamic) (dynamic_id int64, err error) {
 }
 
 // 动态列表
-func (s *DynamicService) DynamicList() {
-
+func (s *DynamicService) DynamicList(page int, prepage int) (total int64, lists []*model.Dynamic) {
+	return dao.Dynamic.DynamicList(page, prepage)
 }

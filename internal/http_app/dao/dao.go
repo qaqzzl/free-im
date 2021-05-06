@@ -25,3 +25,21 @@ func (d *dao) Ris() redis2.Conn {
 func (d *dao) DB() *gorm.DB {
 	return d.db
 }
+
+func Paginate(page int, prepage int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if page == 0 {
+			page = 1
+		}
+
+		switch {
+		case prepage > 100:
+			prepage = 100
+		case prepage <= 0:
+			prepage = 10
+		}
+
+		offset := (page - 1) * prepage
+		return db.Offset(offset).Limit(prepage)
+	}
+}
