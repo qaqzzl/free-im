@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"free-im/internal/http_app/dao"
+	"free-im/internal/http_app/model"
 	"strconv"
 	"strings"
 	"time"
@@ -12,12 +13,13 @@ type UserService struct {
 }
 
 // 获取会员信息
-func (s *UserService) GetMemberInfo(member_id string) (user_member map[string]string, err error) {
-	user_member = make(map[string]string)
-	user_member, err = dao.NewMysql().Table("user_member").
-		Where("member_id = " + member_id).
-		First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
-	return user_member, err
+func (s *UserService) GetMemberInfo(member_id string) (user_member model.UserMember, err error) {
+	result := dao.Dao.DB().Table("user_member").
+		Where("member_id = ?", member_id).
+		Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").
+		Find(&user_member)
+	err = result.Error
+	return
 }
 
 // 修改会员信息
