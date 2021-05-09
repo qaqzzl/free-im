@@ -1,6 +1,8 @@
 package dao
 
-import "free-im/internal/http_app/model"
+import (
+	"free-im/internal/http_app/model"
+)
 
 type user struct {
 }
@@ -25,6 +27,23 @@ func (d *user) IsExistAccount(account string, _type string) (b bool, err error) 
 }
 
 // * 添加好友
-func (d *user) AddFriend() {
+func (d *user) AddFriend(member_id int64, friend_id int64, remark string) (err error) {
+	var friend model.UserFriend
+	friend.MemberId = member_id
+	friend.FriendId = friend_id
+	friend.FriendRemark = remark
+	result := Dao.DB().Table("user_friend_apply").Create(&friend)
+	err = result.Error
+	return err
+}
 
+// * 查询好友关系状态
+// return int 0:正常好友关系, 1:删除, 2: 非好友关系
+func (d *user) QueryFriendBindStatus(member_id int64, to_member_id int64) (int, error) {
+	var friend model.UserFriend
+	result := Dao.DB().Table("user_friend").Where("member_id = ? and friend_id = ?", member_id, to_member_id).Select("status").First(&friend)
+	if result.Error != nil {
+		return 2, nil
+	}
+	return friend.Status, nil
 }

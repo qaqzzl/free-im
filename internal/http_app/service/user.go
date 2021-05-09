@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -23,37 +21,36 @@ func (s *UserService) GetMemberInfo(member_id string) (user_member model.UserMem
 }
 
 // 修改会员信息
-func (s *UserService) UpdateMemberInfo(member_id string, data map[string]string) (err error) {
-	var update string
-	for k, v := range data {
-		update += "`" + k + "`='" + v + "',"
-	}
-	update = strings.Trim(update, ",")
-	_, err = dao.NewMysql().Table("user_member").
-		Where("member_id = " + member_id).Update(update)
-	return err
+func (s *UserService) UpdateMemberInfo(member_id string, data model.UserMember) (err error) {
+	result := dao.Dao.DB().Table("user_member").
+		Where("member_id = ?", member_id).Save(data)
+	err = result.Error
+	return
 }
 
 // 判断用户昵称是否存在
 func (s *UserService) IsMemberNickname(member_id string, nickname string) bool {
-	c, _ := dao.NewMysql().Table("user_member").
-		Where(fmt.Sprintf("member_id != %s and nickname = %s", member_id, nickname)).Count()
-	if c > 0 {
+	var count int64
+	dao.Dao.DB().Table("user_member").
+		Where("member_id != ? and nickname = ?", member_id, nickname).Count(&count)
+	if count > 0 {
 		return true
 	}
 	return false
 }
 
 // 添加好友
-func (s *UserService) AddFriend(member_id string, friend_id string, remark string) (ret map[string]string, err error) {
+func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string) (ret map[string]string, err error) {
 	ret = make(map[string]string)
 	// 判断是否已经申请
-	user_friend, _ := dao.NewMysql().Table("user_friend_apply").
-		Where(fmt.Sprintf("member_id = %s and friend_id = %s", member_id, friend_id)).
+	var user_friend map[string]interface{}
+	dao.Dao.DB().Table("user_friend_apply").
+		Where("member_id = ? and friend_id = ?", member_id, friend_id).
 		Order("id desc").
-		First("member_id,friend_id,status")
+		Select("member_id", "friend_id", "status").
+		Find(&user_friend)
 	if len(user_friend) == 0 {
-		if err = addFriendInsert(member_id, friend_id, remark); err != nil {
+		if err = dao.User.AddFriend(member_id, friend_id, remark); err != nil {
 			return ret, err
 		}
 		ret["message"] = "已发送, 等待对方同意"
@@ -68,10 +65,10 @@ func (s *UserService) AddFriend(member_id string, friend_id string, remark strin
 		break
 	case "1":
 		// 判断是否为正常好友关系
-		me_is_friend, _ := queryFriendBindStatus(member_id, user_friend["friend_id"])
-		to_is_friend, _ := queryFriendBindStatus(member_id, user_friend["friend_id"])
+		me_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend["friend_id"].(int64))
+		to_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend["friend_id"].(int64))
 		if me_is_friend != 0 || to_is_friend != 0 {
-			addFriendInsert(member_id, friend_id, remark)
+			dao.User.AddFriend(member_id, friend_id, remark)
 			ret["message"] = "已发送, 等待对方同意"
 			ret["code"] = "1"
 		} else {
@@ -80,7 +77,7 @@ func (s *UserService) AddFriend(member_id string, friend_id string, remark strin
 		}
 		break
 	case "2":
-		if err = addFriendInsert(member_id, friend_id, remark); err != nil {
+		if err = dao.User.AddFriend(member_id, friend_id, remark); err != nil {
 			return ret, err
 		}
 		ret["message"] = "已发送, 等待对方同意"
@@ -88,37 +85,30 @@ func (s *UserService) AddFriend(member_id string, friend_id string, remark strin
 	}
 	return ret, err
 }
-func addFriendInsert(member_id string, friend_id string, remark string) (err error) {
-	friend_insert := make(map[string]string)
-	friend_insert["member_id"] = member_id
-	friend_insert["friend_id"] = friend_id
-	friend_insert["remark"] = remark
-	friend_insert["created_at"] = strconv.Itoa(int(time.Now().Unix()))
-	_, err = dao.NewMysql().Table("user_friend_apply").Insert(friend_insert)
-	return err
-}
 
 // 删除好友
-func (s *UserService) DelFriend(member_id string, friend_id string) (err error) {
+func (s *UserService) DelFriend(member_id int64, friend_id int64) (err error) {
 	// 判断是否已经存在
-	_, err = dao.NewMysql().Table("user_friend").
-		Where(fmt.Sprintf("member_id = %s and friend_id = %s or member_id = %s and friend_id = %s", member_id, friend_id, friend_id, member_id)).
-		Delete()
+	result := dao.Dao.DB().Table("user_friend").
+		Where("member_id = %s and friend_id = ? or member_id = ? and friend_id = ?", member_id, friend_id, friend_id, member_id).
+		Delete(model.UserFriend{})
+	err = result.Error
 	// 删除聊天室 && 聊天室消息
 	return err
 }
 
 // 好友申请列表
-func (s *UserService) FriendApplyList(member_id string) ([]map[string]string, error) {
-	list, err := dao.NewMysql().Table("user_friend_apply as ufa").Where("ufa.friend_id = " + member_id).
-		Join("INNER JOIN user_member um ON um.member_id=ufa.member_id").
+func (s *UserService) FriendApplyList(member_id int64) (list []map[string]string, err error) {
+	result := dao.Dao.DB().Table("user_friend_apply as ufa").Where("ufa.friend_id = ?", member_id).
+		Joins("INNER JOIN user_member um ON um.member_id=ufa.member_id").
 		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender,ufa.remark, ufa.status, ufa.id").
 		Order("id desc").
-		Get()
+		Find(&list)
 	if len(list) == 0 {
 		list = make([]map[string]string, 0)
 	}
-	return list, err
+	err = result.Error
+	return
 }
 
 // 好友申请同意/拒绝操作
@@ -160,11 +150,11 @@ func (s *UserService) FriendApplyAction(id string, member_id string, action stri
 }
 
 // 好友列表
-func (s *UserService) FriendList(member_id string) (list []map[string]string, err error) {
-	list, err = dao.NewMysql().Table("user_friend").
-		Where("member_id = " + member_id + " and status = 0").
+func (s *UserService) FriendList(member_id int64) (list []map[string]string, err error) {
+	err = dao.Dao.DB().Table("user_friend").
+		Where("member_id = ? and status = 0", member_id).
 		Select("member_id,friend_id").
-		Get()
+		Find(&list).Error
 	if len(list) == 0 {
 		list = make([]map[string]string, 0)
 	}
@@ -192,28 +182,18 @@ func (s *UserService) SearchMember(search string) (list []map[string]string, err
 }
 
 // 他人基本信息(他人主页)
-func (s *UserService) OthersHomeInfo(member_id string, to_member_id string) (user_member map[string]string, err error) {
-	user_member = make(map[string]string)
-	user_member, err = dao.NewMysql().Table("user_member").Where("member_id = " + to_member_id).First("member_id,nickname,gender,birthdate,avatar,signature,city,province")
+func (s *UserService) OthersHomeInfo(member_id int64, to_member_id int64) (info map[string]interface{}, err error) {
+	user_member := model.UserMember{}
+	result := dao.Dao.DB().Table("user_member").Where("member_id = ?", to_member_id).Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").First(&user_member)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	// 判断是否是好友关系
-	user_member["is_friend"] = "no"
-	is_friend, _ := queryFriendBindStatus(member_id, to_member_id)
+	info["is_friend"] = "no"
+	is_friend, _ := dao.User.QueryFriendBindStatus(member_id, to_member_id)
 	if is_friend == 0 {
-		user_member["is_friend"] = "yes"
+		info["is_friend"] = "yes"
 	}
-
-	return user_member, err
-}
-
-// 查询好友关系状态
-// return int 0:正常好友关系, 1:删除, 2: 非好友关系
-func queryFriendBindStatus(member_id string, to_member_id string) (int, error) {
-	user_friend, _ := dao.NewMysql().Table("user_friend").Where(fmt.Sprintf("member_id = %s and friend_id = %s", member_id, to_member_id)).First("status")
-	if len(user_friend) == 0 {
-		return 2, nil
-	}
-	if user_friend["status"] == "1" {
-		return 1, nil
-	}
-	return 0, nil
+	info["member_info"] = user_member
+	return info, err
 }
