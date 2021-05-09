@@ -2,23 +2,23 @@ package api
 
 import (
 	"encoding/json"
+	"free-im/pkg/http"
 	"free-im/pkg/id"
 	"free-im/pkg/protos/pbs"
-	"free-im/pkg/util"
+	"github.com/gin-gonic/gin"
 	"github.com/qiniu/api.v7/v7/auth/qbox"
 	"github.com/qiniu/api.v7/v7/storage"
-	"net/http"
 	"strconv"
 	"time"
 )
 
 // 获取七牛上传token
 // https://developer.qiniu.com/kodo/manual/1206/put-policy
-func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
+func GetQiniuUploadToken(c *gin.Context) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
-	json.NewDecoder(request.Body).Decode(&formData)
+	json.NewDecoder(c.Request.Body).Decode(&formData)
 	var (
 		scope  string
 		domain string
@@ -52,30 +52,30 @@ func GetQiniuUploadToken(writer http.ResponseWriter, request *http.Request) {
 	ret["domain"] = domain
 	ret["message"] = "获取成功"
 	ret["code"] = "0"
-	util.RespOk(writer, ret, "")
+	http.RespOk(c, ret, "")
 }
 
 // 发送登录短信验证码
-func SendLoginSms(writer http.ResponseWriter, request *http.Request) {
+func SendLoginSms(c *gin.Context) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
-	json.NewDecoder(request.Body).Decode(&formData)
+	json.NewDecoder(c.Request.Body).Decode(&formData)
 	if err := CommonService.SendSms(formData["phone"].(string), formData["type"].(string)); err != nil {
-		util.RespFail(writer, err.Error())
+		http.RespFail(c, err.Error())
 		return
 	}
-	util.RespOk(writer, nil, "短信验证码发送成功")
+	http.RespOk(c, nil, "短信验证码发送成功")
 }
 
 // * 获取消息ID
-func GetMessageId(writer http.ResponseWriter, request *http.Request) {
+func GetMessageId(c *gin.Context) {
 	// 初始化请求变量结构
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
-	json.NewDecoder(request.Body).Decode(&formData)
+	json.NewDecoder(c.Request.Body).Decode(&formData)
 	ret := make(map[string]interface{})
 	chatroom_id, _ := strconv.Atoi(formData["chatroom_id"].(string))
 	ret["message_id"] = id.MessageID.GetId(int64(chatroom_id), pbs.ChatroomType_Single)
-	util.RespOk(writer, ret, "")
+	http.RespOk(c, ret, "")
 }

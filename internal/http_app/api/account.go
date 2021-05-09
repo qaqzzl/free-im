@@ -6,8 +6,9 @@ import (
 	"free-im/config"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
+	http2 "free-im/pkg/http"
 	"free-im/pkg/logger"
-	"free-im/pkg/util"
+	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -17,52 +18,58 @@ var AccountService *service.AccountService
 var CommonService *service.CommonService
 
 // 手机号登录 / 注册
-func PhoneLogin(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("PhoneLogin")
+func PhoneLogin(c *gin.Context) {
 	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(request.Body).Decode(&formData)
-	var err error
-	// 验证短信验证码是否正确
-	if verify, err := CommonService.IsPhoneVerifyCode(formData["phone"].(string), formData["verify_code"].(string), "login"); err != nil {
-		fmt.Println(err)
-		util.RespFail(writer, err.Error())
-		return
-	} else if verify == false {
-		util.RespFail(writer, "短信验证码错误")
+	// Parse JSON
+	var req struct {
+		Phone      string `json:"phone" binding:"required"`
+		VerifyCode string `json:"verify_code" binding:"required"`
+	}
+	if http2.ReqBin(c, &req) != nil {
 		return
 	}
-	ret, err := AccountService.Login(formData["phone"].(string), "phone", "", model.UserMember{})
+	// 验证短信验证码是否正确
+	if verify, err := CommonService.IsPhoneVerifyCode(req.Phone, req.VerifyCode, "login"); err != nil {
+		fmt.Println(err)
+		http2.RespFail(c, err.Error())
+		return
+	} else if verify == false {
+		http2.RespFail(c, "短信验证码错误")
+		return
+	}
+	ret, err := AccountService.Login(req.Phone, "phone", "", model.UserMember{})
 	if err != nil {
 		logger.Logger.Info(err.Error())
-		util.RespFail(writer, "系统繁忙")
+		http2.RespFail(c, "系统繁忙")
 		return
 	}
 
-	util.RespOk(writer, ret, "")
+	http2.RespOk(c, ret, "")
 }
 
 // QQ登陆
-func QQLogin(writer http.ResponseWriter, request *http.Request) {
+func QQLogin(c *gin.Context) {
 	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(request.Body).Decode(&formData)
-	var err error
-	resp, err := http.Get("https://graph.qq.com/user/get_user_info?access_token=" + formData["access_token"].(string) +
+	var req struct {
+		Openid      string `json:"openid"`
+		AccessToken string `json:"access_token"`
+	}
+	if http2.ReqBin(c, &req) != nil {
+		return
+	}
+	resp, err := http.Get("https://graph.qq.com/user/get_user_info?access_token=" + req.AccessToken +
 		"&oauth_consumer_key=" + config.CommonConf.QQAuthAppID +
-		"&openid=" + formData["openid"].(string))
+		"&openid=" + req.Openid)
 	if err != nil {
 		logger.Sugar.Error(err)
-		util.RespFail(writer, "系统繁忙")
+		http2.RespFail(c, "系统繁忙")
 		return
 	}
 	defer resp.Body.Close()
 	authBody, err := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
 		logger.Sugar.Error(err)
-		util.RespFail(writer, "系统繁忙")
+		http2.RespFail(c, "系统繁忙")
 		return
 	}
 	// 初始化请求变量结构
@@ -85,12 +92,12 @@ func QQLogin(writer http.ResponseWriter, request *http.Request) {
 	UserMember.Avatar = authData["figureurl_qq_2"].(string)
 	UserMember.City = authData["city"].(string)
 	UserMember.Province = authData["province"].(string)
-	ret, err := AccountService.Login(formData["openid"].(string), "qq_openid", formData["access_token"].(string), UserMember)
+	ret, err := AccountService.Login(req.Openid, "qq_openid", req.AccessToken, UserMember)
 	if err != nil {
 		logger.Sugar.Error(err)
-		util.RespFail(writer, "系统繁忙")
+		http2.RespFail(c, "系统繁忙")
 		return
 	}
 
-	util.RespOk(writer, ret, "ok")
+	http2.RespOk(c, ret, "ok")
 }
