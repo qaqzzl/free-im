@@ -22,7 +22,7 @@ func TestChatroom_CreateGroup(t *testing.T) {
 }
 
 func TestChatroom_GetGroupByID(T *testing.T) {
-	group, err := Chatroom.GetGroupByID("1", "chatroom_id")
+	group, err := Chatroom.GetGroupByID(1, "chatroom_id")
 	fmt.Println(group.ChatroomId == "")
 	fmt.Println(err)
 }

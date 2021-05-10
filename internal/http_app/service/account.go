@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
+	http2 "free-im/pkg/http"
 	"free-im/pkg/id"
-	"github.com/satori/go.uuid"
 	"math/rand"
 	"time"
 )
@@ -14,7 +14,7 @@ import (
 type AccountService struct {
 }
 
-func (s *AccountService) Login(identifier string, identity_type string, credential string, user_member model.UserMember) (interface{}, error) {
+func (s *AccountService) Login(user_auths model.UserAuths, user_member model.UserMember, device_id, client string) (interface{}, error) {
 	var (
 		err       error
 		member_id int64
@@ -22,9 +22,8 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 	)
 
 	//判断是否已经注册
-	var user_auths model.UserAuths
 	result := dao.Dao.DB().Table(user_auths.TableName()).
-		Where(fmt.Sprintf("identifier = '%s' and identity_type = '%s'", identifier, identity_type)).
+		Where(fmt.Sprintf("identifier = '%s' and identity_type = '%s'", user_auths.Identifier, user_auths.IdentityType)).
 		Select("member_id").First(&user_auths)
 	if result.Error != nil {
 		return nil, errors.New("系统忙，请稍后再试")
@@ -32,13 +31,13 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 	if user_auths.MemberId != 0 {
 		member_id = user_auths.MemberId
 	} else {
-		member_id, err = s.Register(identifier, identity_type, credential, user_member)
+		member_id, err = s.Register(user_auths, user_member)
 		if err != nil {
 			return nil, err
 		}
 	}
 	// 获取token
-	if token, err = s.GetToken(member_id, "android"); err != nil {
+	if token, err = s.GetToken(member_id, device_id, client); err != nil {
 		return nil, err
 	}
 	ret := make(map[string]interface{})
@@ -51,7 +50,7 @@ func (s *AccountService) Login(identifier string, identity_type string, credenti
 // * identifier 账号
 // * identity_type 账号类型
 // * credential 密码凭证
-func (s *AccountService) Register(identifier string, identity_type string, credential string, user_member model.UserMember) (member_id int64, err error) {
+func (s *AccountService) Register(user_auths model.UserAuths, user_member model.UserMember) (member_id int64, err error) {
 	// 创建用户
 	rand.Seed(time.Now().Unix())
 	freeid, err := id.FreeID.GetID()
@@ -72,11 +71,7 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 		return member_id, err
 	}
 	// 创建用户账号
-	var user_auths model.UserAuths
 	user_auths.MemberId = user_member.MemberId
-	user_auths.IdentityType = identity_type
-	user_auths.Identifier = identifier
-	user_auths.Credential = credential
 	if result = dao.Dao.DB().Table("user_auths").Create(&user_auths); err != nil {
 		return member_id, err
 	}
@@ -97,14 +92,14 @@ func (s *AccountService) Register(identifier string, identity_type string, crede
 }
 
 // 获取用户 token
-func (s *AccountService) GetToken(member_id int64, client string) (token string, err error) {
-	token = uuid.NewV4().String()
-	user_auths_token := model.UserAuthsToken{
-		MemberId: member_id,
-		Token:    token,
-		Client:   client,
-		LastTime: int(time.Now().Unix()),
-	}
-	result := dao.Dao.DB().Table(user_auths_token.TableName()).Create(&user_auths_token)
-	return token, result.Error
+func (s *AccountService) GetToken(member_id int64, device_id, client string) (token string, err error) {
+	token, err = http2.GetToken(member_id, device_id, time.Now().Unix()+3600*12, "")
+	//user_auths_token := model.UserAuthsToken{
+	//	MemberId: member_id,
+	//	Token:    token,
+	//	Client:   client,
+	//	LastTime: int(time.Now().Unix()),
+	//}
+	//result := dao.Dao.DB().Table(user_auths_token.TableName()).Create(&user_auths_token)
+	return token, err
 }

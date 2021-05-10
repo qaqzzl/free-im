@@ -6,6 +6,8 @@ import (
 	http2 "free-im/pkg/http"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
+	"time"
 )
 
 func StartHttpServer() {
@@ -59,10 +61,31 @@ func setupRouter() *gin.Engine {
 func authorizedMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		if false {
+		authorization := c.Request.Header.Get("Authorization")
+		if authorization == "" {
 			http2.Resp(c, 401, nil, "请登陆")
+			c.Abort()
 			return
 		}
+		parts := strings.SplitN(authorization, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+			http2.Resp(c, 401, nil, "请求头中auth格式有误")
+			c.Abort()
+			return
+		}
+		token, err := http2.DecryptToken(parts[1])
+		if err != nil {
+			http2.Resp(c, 401, nil, "Token 解析失败")
+			c.Abort()
+			return
+		}
+		if token.Expire < time.Now().Unix() {
+			http2.Resp(c, 401, nil, "token 已过期")
+			c.Abort()
+			return
+		}
+		c.Set("authorized_member_id", token.UserId)
+		c.Set("token_info", token)
 
 		c.Next()
 

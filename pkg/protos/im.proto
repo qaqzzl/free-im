@@ -69,8 +69,8 @@ message MsgAuth {
 	string DeviceID         = 1;
 	int64  UserID           = 2;
 	string AccessToken      = 3;
-	string DeviceType 		= 4;	    // 设备类型, 移动端:mobile , PC端:pc
-	string ClientType 		= 5;		// 客户端类型, android, ios,
+	string DeviceType 		= 4;	    // 设备类型, 移动端:mobile , 桌面端:desktop
+	string ClientType 		= 5;		// 客户端类型, android, ios, web, mac, windows, linux ...
 }
 
 // 消息体 - 消息回执

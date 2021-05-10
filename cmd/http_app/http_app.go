@@ -3,8 +3,8 @@ package main
 import (
 	"free-im/api/http_app"
 	"free-im/config"
-	"free-im/pkg/cache/redis"
 	"free-im/pkg/id"
+	"free-im/pkg/library/cache/redis"
 )
 
 func main() {

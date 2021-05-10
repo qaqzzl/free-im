@@ -16,3 +16,13 @@ func GetUid(c *gin.Context) int64 {
 	}
 	return 0
 }
+
+func GetDeviceId(c *gin.Context) string {
+	value := c.Request.Header.Get("device_id")
+	return value
+}
+
+func GetClientType(c *gin.Context) string {
+	value := c.Request.Header.Get("client_type")
+	return value
+}

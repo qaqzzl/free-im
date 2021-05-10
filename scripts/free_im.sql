@@ -73,7 +73,7 @@ CREATE TABLE `group_member` (
   `group_id` bigint(20) NOT NULL COMMENT '群组ID',
   `member_id` bigint(20) NOT NULL COMMENT '会员ID',
   `member_identity` char(10) NOT NULL COMMENT '成员身份: admin-管理员, root-群主, common-普通成员',
-  `status` char(10) NOT NULL COMMENT '状态: wait-等待同意, normal-正常, refuse-拒绝, blacklist-黑名单',
+  `status` char(10) NOT NULL COMMENT '状态: normal-正常, blacklist-黑名单',
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
   PRIMARY KEY (`group_member_id`),
   KEY `group_id` (`group_id`),

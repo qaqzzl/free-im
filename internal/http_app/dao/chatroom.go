@@ -14,8 +14,8 @@ type chatroom struct {
 
 var Chatroom = new(chatroom)
 
-func (d *chatroom) GetGroupByID(id string, selects ...string) (group model.Group, err error) {
-	Dao.DB().Table(group.TableName()).Select(selects).Where("id = ?", "id").Find(&group)
+func (d *chatroom) GetGroupByID(group_id int64, selects ...string) (group model.Group, err error) {
+	Dao.DB().Table(group.TableName()).Select(selects).Where("group_id = ?", group_id).Find(&group)
 	return
 }
 
@@ -52,8 +52,12 @@ func (d *chatroom) CreateGroup(group model.Group) (group_id int64, err error) {
 }
 
 // * 加入群组
-func (d *chatroom) JoinGroup(chatroom_id string, member_id int64) (err error) {
-	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id) //加入聊天室
+func (d *chatroom) JoinGroup(m *model.GroupMember, chatroom_id string) (err error) {
+	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, m.MemberId) //加入聊天室
+	if err == nil {
+		reslut := Dao.DB().Create(&m)
+		err = reslut.Error
+	}
 	return
 }
 

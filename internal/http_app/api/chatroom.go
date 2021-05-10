@@ -12,16 +12,17 @@ var ChatRoomService service.ChatRoomService
 
 // 通过好友ID 获取 聊天室ID
 func FriendIdGetChatroomId(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
+	var req struct {
+		FriendId int64 `json:"friend_id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
 	var (
 		chatroom_id string
 		err         error
 	)
-
-	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(formData["uid"].(string), formData["friend_id"].(string)); err != nil {
+	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(http.GetUid(c), req.FriendId); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
@@ -57,18 +58,20 @@ func ChatroomList(c *gin.Context) {
 
 // 创建群组
 func CreateGroup(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-
+	var req struct {
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
 	var (
 		group_id int64
 		err      error
 	)
-	if group_id, err = ChatRoomService.CreateGroup(int64(formData["uid"].(int)), model.Group{
-		Name:   formData["name"].(string),
-		Avatar: formData["avatar"].(string),
+	if group_id, err = ChatRoomService.CreateGroup(http.GetUid(c), model.Group{
+		Name:   req.Name,
+		Avatar: req.Avatar,
 	}); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
@@ -81,12 +84,15 @@ func CreateGroup(c *gin.Context) {
 
 // 加入群组
 func AddGroup(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
+	var req struct {
+		GroupID int64  `json:"group_id"`
+		Remark  string `json:"remark"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
 
-	if ret, err := ChatRoomService.JoinGroup(int64(formData["uid"].(int)), formData["group_id"].(string), formData["remark"].(string)); err != nil {
+	if ret, err := ChatRoomService.JoinGroup(http.GetUid(c), req.GroupID, req.Remark); err != nil {
 		http.RespFail(c, err.Error())
 	} else {
 		http.RespOk(c, ret, "")

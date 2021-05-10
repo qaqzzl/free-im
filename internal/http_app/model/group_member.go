@@ -6,7 +6,7 @@ type GroupMember struct {
 	GroupId        int64  `gorm:"column:group_id;type:bigint(20);NOT NULL" json:"group_id"`             // 群组ID
 	MemberId       int64  `gorm:"column:member_id;type:bigint(20);NOT NULL" json:"member_id"`           // 会员ID
 	MemberIdentity string `gorm:"column:member_identity;type:char(10);NOT NULL" json:"member_identity"` // 成员身份: admin-管理员, root-群主, common-普通成员
-	Status         string `gorm:"column:status;type:char(10);NOT NULL" json:"status"`                   // 状态: wait-等待同意, normal-正常, refuse-拒绝, blacklist-黑名单
+	Status         string `gorm:"column:status;type:char(10);NOT NULL" json:"status"`                   // 状态: normal-正常, blacklist-黑名单
 	CreatedAt      int    `gorm:"column:created_at;type:int(11);default:0;NOT NULL" json:"created_at"`  // 添加时间
 }
 

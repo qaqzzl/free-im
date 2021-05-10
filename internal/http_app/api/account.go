@@ -37,7 +37,9 @@ func PhoneLogin(c *gin.Context) {
 		http2.RespFail(c, "短信验证码错误")
 		return
 	}
-	ret, err := AccountService.Login(req.Phone, "phone", "", model.UserMember{})
+	ret, err := AccountService.
+		Login(model.UserAuths{Identifier: req.Phone,
+			IdentityType: "phone"}, model.UserMember{}, http2.GetDeviceId(c), http2.GetClientType(c))
 	if err != nil {
 		logger.Logger.Info(err.Error())
 		http2.RespFail(c, "系统繁忙")
@@ -92,7 +94,9 @@ func QQLogin(c *gin.Context) {
 	UserMember.Avatar = authData["figureurl_qq_2"].(string)
 	UserMember.City = authData["city"].(string)
 	UserMember.Province = authData["province"].(string)
-	ret, err := AccountService.Login(req.Openid, "qq_openid", req.AccessToken, UserMember)
+	ret, err := AccountService.
+		Login(model.UserAuths{Identifier: req.Openid, IdentityType: "qq_openid",
+			Credential: req.AccessToken}, UserMember, http2.GetDeviceId(c), http2.GetClientType(c))
 	if err != nil {
 		logger.Sugar.Error(err)
 		http2.RespFail(c, "系统繁忙")
