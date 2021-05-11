@@ -74,26 +74,54 @@ func QQLogin(c *gin.Context) {
 		http2.RespFail(c, "系统繁忙")
 		return
 	}
-	// 初始化请求变量结构
-	authData := make(map[string]interface{})
+	// 初始化变量结构
+	var authData struct {
+		Ret             int    `json:"ret"`
+		Msg             string `json:"msg"`
+		IsLost          int    `json:"is_lost"`
+		Nickname        string `json:"nickname"`
+		Gender          string `json:"gender"`
+		GenderType      int    `json:"gender_type"`
+		Province        string `json:"province"`
+		City            string `json:"city"`
+		Year            string `json:"year"`
+		Constellation   string `json:"constellation"`
+		Figureurl       string `json:"figureurl"`
+		Figureurl1      string `json:"figureurl_1"`
+		Figureurl2      string `json:"figureurl_2"`
+		FigureurlQq1    string `json:"figureurl_qq_1"`
+		FigureurlQq2    string `json:"figureurl_qq_2"`
+		FigureurlQq     string `json:"figureurl_qq"`
+		FigureurlType   string `json:"figureurl_type"`
+		IsYellowVip     string `json:"is_yellow_vip"`
+		Vip             string `json:"vip"`
+		YellowVipLevel  string `json:"yellow_vip_level"`
+		Level           string `json:"level"`
+		IsYellowYearVip string `json:"is_yellow_year_vip"`
+	}
 	// 调用json包的解析，解析请求body
 	json.Unmarshal(authBody, &authData)
+	if authData.Ret != 0 {
+		http2.RespFail(c, authData.Msg)
+		return
+	}
+
 	// 获取unionid https://graph.qq.com/oauth2.0/me?access_token=ACCESSTOKEN&unionid=1
 	UserMember := model.UserMember{}
-	UserMember.Nickname = authData["nickname"].(string)
-	if authData["gender"].(string) == "女" {
+	UserMember.Nickname = authData.Nickname
+	if authData.Gender == "女" {
 		UserMember.Gender = "w"
 	} else {
 		UserMember.Gender = "m"
 	}
-	times, _ := time.Parse("2006", authData["year"].(string))
+	times, _ := time.Parse("2006", authData.Year)
 	timeUnix := times.Unix()
 	if timeUnix > 0 {
 		UserMember.Birthdate = int(timeUnix)
 	}
-	UserMember.Avatar = authData["figureurl_qq_2"].(string)
-	UserMember.City = authData["city"].(string)
-	UserMember.Province = authData["province"].(string)
+	UserMember.Avatar = authData.Figureurl2
+	UserMember.City = authData.City
+	UserMember.Province = authData.Province
 	ret, err := AccountService.
 		Login(model.UserAuths{Identifier: req.Openid, IdentityType: "qq_openid",
 			Credential: req.AccessToken}, UserMember, http2.GetDeviceId(c), http2.GetClientType(c))

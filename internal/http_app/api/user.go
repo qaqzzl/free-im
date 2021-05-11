@@ -12,11 +12,7 @@ var UserService service.UserService
 
 // 获取个人信息
 func GetMemberInfo(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-	info, _ := UserService.GetMemberInfo(formData["uid"].(string))
+	info, _ := UserService.GetMemberInfo(http.GetUid(c))
 	http.RespOk(c, info, "")
 }
 
@@ -109,7 +105,7 @@ func FriendApplyAction(c *gin.Context) {
 	formData := make(map[string]interface{})
 	// 调用json包的解析，解析请求body
 	json.NewDecoder(c.Request.Body).Decode(&formData)
-	ret, err := UserService.FriendApplyAction(formData["id"].(string), formData["uid"].(string), formData["action"].(string))
+	ret, err := UserService.FriendApplyAction(formData["id"].(string), http.GetUid(c), formData["action"].(string))
 	if err != nil {
 		http.RespFail(c, "系统繁忙")
 		return

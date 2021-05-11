@@ -14,7 +14,8 @@ func (d *dynamic) Create(m model.Dynamic) (dynamic_id int64, err error) {
 	return
 }
 
-func (d *dynamic) DynamicList(page int, prepage int) (total int64, lists []*model.Dynamic) {
+func (d *dynamic) DynamicList(page int, prepage int) (total int64, lists []map[string]interface{}) {
+	lists = make([]map[string]interface{}, 0)
 	Dao.DB().Table("dynamic").Count(&total)
 	Dao.DB().Table("dynamic as d").Joins("join user_member um on um.member_id = d.member_id").
 		Select("d.*,um.nickname,um.avatar,um.gender,um.birthdate").

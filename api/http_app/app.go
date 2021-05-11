@@ -26,8 +26,10 @@ func setupRouter() *gin.Engine {
 	})
 
 	// 登陆 ｜ 注册
-	r.POST("/login", app_http.PhoneLogin) // 手机号登录 / 注册                                                             // 手机号登录 / 注册
+	r.POST("/login", app_http.PhoneLogin) // 手机号登录 / 注册                                                            // 手机号登录 / 注册
 	r.POST("/login/qq", app_http.QQLogin) // QQ登陆
+
+	r.Any("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
 
 	authorized := r.Group("/").Use(authorizedMiddleware())
 	{
@@ -50,7 +52,6 @@ func setupRouter() *gin.Engine {
 		authorized.Any("/common/send.sms", app_http.SendLoginSms)                                                       // 发送手机号验证码
 		authorized.Any("/dynamic/publish", app_http.DynamicPublish)                                                     // 发布动态
 		authorized.Any("/dynamic/list", app_http.DynamicList)                                                           // 动态列表
-		authorized.Any("/http_app/new.version.get", app_http.AppNewVersionGet)                                          // http_app 最新版本获取
 		authorized.Any("/common/get.message.id", app_http.GetMessageId)                                                 // 获取消息ID , 临时使用
 
 	}

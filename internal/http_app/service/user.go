@@ -12,7 +12,7 @@ type UserService struct {
 }
 
 // 获取会员信息
-func (s *UserService) GetMemberInfo(member_id string) (user_member model.UserMember, err error) {
+func (s *UserService) GetMemberInfo(member_id int64) (user_member model.UserMember, err error) {
 	result := dao.Dao.DB().Table("user_member").
 		Where("member_id = ?", member_id).
 		Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").
@@ -31,7 +31,7 @@ func (s *UserService) UpdateMemberInfo(member_id int64, data model.UserMember) (
 		return errors.New("昵称已经被使用")
 	}
 	result := dao.Dao.DB().Table("user_member").
-		Where("member_id = ?", member_id).Save(data)
+		Where("member_id = ?", member_id).Updates(&data)
 	err = result.Error
 	return
 }
@@ -98,7 +98,7 @@ func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string)
 func (s *UserService) DelFriend(member_id int64, friend_id int64) (err error) {
 	// 判断是否已经存在
 	result := dao.Dao.DB().Table("user_friend").
-		Where("member_id = %s and friend_id = ? or member_id = ? and friend_id = ?", member_id, friend_id, friend_id, member_id).
+		Where("member_id = ? and friend_id = ? or member_id = ? and friend_id = ?", member_id, friend_id, friend_id, member_id).
 		Delete(model.UserFriend{})
 	err = result.Error
 	// 删除聊天室 && 聊天室消息
@@ -106,49 +106,48 @@ func (s *UserService) DelFriend(member_id int64, friend_id int64) (err error) {
 }
 
 // 好友申请列表
-func (s *UserService) FriendApplyList(member_id int64) (list []map[string]string, err error) {
+func (s *UserService) FriendApplyList(member_id int64) (list []map[string]interface{}, err error) {
+	list = make([]map[string]interface{}, 0)
 	result := dao.Dao.DB().Table("user_friend_apply as ufa").Where("ufa.friend_id = ?", member_id).
 		Joins("INNER JOIN user_member um ON um.member_id=ufa.member_id").
 		Select("um.member_id,um.nickname,um.avatar,um.signature,um.gender,ufa.remark, ufa.status, ufa.id").
 		Order("id desc").
 		Find(&list)
-	if len(list) == 0 {
-		list = make([]map[string]string, 0)
-	}
 	err = result.Error
 	return
 }
 
 // 好友申请同意/拒绝操作
-func (s *UserService) FriendApplyAction(id string, member_id string, action string) (ret map[string]string, err error) {
+func (s *UserService) FriendApplyAction(id string, member_id int64, action string) (ret map[string]string, err error) {
 	ret = make(map[string]string)
-	friend_apply, err := dao.NewMysql().Table("user_friend_apply").Where("id = " + id + " and status = 0").
-		First("member_id,friend_id")
-	if len(friend_apply) == 0 {
+	var friend_apply model.UserFriendApply
+	if dao.Dao.DB().Table("user_friend_apply").Where("id = ? and status = 0", id).
+		Select("member_id,friend_id").
+		First(&friend_apply).Error != nil {
 		ret["message"] = "操作失败"
 		ret["code"] = "1"
 		return ret, err
 	}
-	if friend_apply["friend_id"] != member_id {
+	if friend_apply.FriendId != member_id {
 		ret["message"] = "违法操作"
 		ret["code"] = "1"
 		return ret, err
 	}
-	if _, err = dao.NewMysql().Table("user_friend_apply").Where("id = " + id + " and status = 0").Update("status=" + action); err != nil {
+	if err = dao.Dao.DB().Table("user_friend_apply").Where("id = ? and status = 0", id).Update("status", action).Error; err != nil {
 		return ret, err
 	}
 	if action == "1" {
 		timeUnix := time.Now().Unix()
-		sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+		sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 			"ON DUPLICATE KEY UPDATE status=VALUES(status)",
-			friend_apply["member_id"], friend_apply["friend_id"], 0, timeUnix)
-		if _, err = dao.MysqlConn.Exec(sql); err != nil {
+			friend_apply.MemberId, friend_apply.FriendId, 0, timeUnix)
+		if err = dao.Dao.DB().Exec(sql).Error; err != nil {
 			return ret, err
 		}
-		sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+		sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 			"ON DUPLICATE KEY UPDATE status=VALUES(status)",
-			friend_apply["friend_id"], friend_apply["member_id"], 0, timeUnix)
-		if _, err = dao.MysqlConn.Exec(sql); err != nil {
+			friend_apply.FriendId, friend_apply.MemberId, 0, timeUnix)
+		if err = dao.Dao.DB().Exec(sql).Error; err != nil {
 			return ret, err
 		}
 	}
@@ -158,39 +157,35 @@ func (s *UserService) FriendApplyAction(id string, member_id string, action stri
 }
 
 // 好友列表
-func (s *UserService) FriendList(member_id int64) (list []map[string]string, err error) {
+func (s *UserService) FriendList(member_id int64) (list []map[string]interface{}, err error) {
+	list = make([]map[string]interface{}, 0)
+	var user_friends []model.UserFriend
 	err = dao.Dao.DB().Table("user_friend").
 		Where("member_id = ? and status = 0", member_id).
-		Select("member_id,friend_id").
-		Find(&list).Error
-	if len(list) == 0 {
-		list = make([]map[string]string, 0)
+		Select("member_id", "friend_id").
+		Find(&user_friends).Error
+
+	var friend_ids []int64
+	for _, vo := range user_friends {
+		friend_ids = append(friend_ids, vo.FriendId)
 	}
-	for k, vo := range list {
-		var (
-			where string
-		)
-		where = "member_id = " + vo["friend_id"]
-		member, _ := dao.NewMysql().Table("user_member").Where(where).First("avatar,gender,member_id,nickname,signature")
-		list[k] = member
-	}
+	dao.Dao.DB().Table("user_member").Select("avatar,gender,member_id,nickname,signature").
+		Where("member_id IN ?", friend_ids).Find(&list)
 	return list, err
 }
 
 // 搜索好友
-func (s *UserService) SearchMember(search string) (list []map[string]string, err error) {
-	list, err = dao.NewMysql().Table("user_member").Where("nickname like '%" + search + "%' or id = '" + search + "'").
+func (s *UserService) SearchMember(search string) (list []map[string]interface{}, err error) {
+	list = make([]map[string]interface{}, 0)
+	err = dao.Dao.DB().Table("user_member").Where("nickname like ? or id = ?", "%"+search+"%", search).
 		Select("member_id,nickname,avatar,signature,gender,birthdate").
-		Get()
-
-	if len(list) == 0 {
-		list = make([]map[string]string, 0)
-	}
+		Find(&list).Error
 	return list, err
 }
 
 // 他人基本信息(他人主页)
 func (s *UserService) OthersHomeInfo(member_id int64, to_member_id int64) (info map[string]interface{}, err error) {
+	info = make(map[string]interface{})
 	user_member := model.UserMember{}
 	result := dao.Dao.DB().Table("user_member").Where("member_id = ?", to_member_id).Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").First(&user_member)
 	if result.Error != nil {

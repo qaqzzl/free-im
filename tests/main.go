@@ -14,7 +14,7 @@ import (
 
 //发送信息
 func sender(conn net.Conn) {
-	c := time.Tick(time.Second * 1)
+	c := time.Tick(time.Second * 8)
 	var SequenceId int32
 	SequenceId = 1
 	go func() {
@@ -86,10 +86,16 @@ func NewServer() {
 }
 
 func main() {
-	for i := 0; i < 800; i++ {
-		fmt.Println(i)
-		NewServer()
+	for {
+		NewTicker := time.NewTicker(time.Millisecond * 1)
+		<-NewTicker.C
+		NewTicker.Stop()
 	}
+
+	//for i := 0; i < 800; i++ {
+	//	fmt.Println(i)
+	//	NewServer()
+	//}
 	c := time.Tick(time.Second * 100)
 	for {
 		<-c

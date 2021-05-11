@@ -15,7 +15,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6
 	github.com/qiniu/api.v7/v7 v7.4.1
-	github.com/satori/go.uuid v1.2.0
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/ugorji/go v1.2.5 // indirect
 	go.uber.org/zap v1.16.0

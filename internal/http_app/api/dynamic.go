@@ -32,7 +32,7 @@ func DynamicList(c *gin.Context) {
 	page, _ := strconv.Atoi(formData["page"])
 	perpage, _ := strconv.Atoi(formData["perpage"])
 
-	list, total := DynamicService.DynamicList(page, perpage)
+	total, list := DynamicService.DynamicList(page, perpage)
 	info["list"] = list
 	info["total"] = total
 	http.RespOk(c, info, "ok")

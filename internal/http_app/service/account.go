@@ -7,6 +7,7 @@ import (
 	"free-im/internal/http_app/model"
 	http2 "free-im/pkg/http"
 	"free-im/pkg/id"
+	"gorm.io/gorm"
 	"math/rand"
 	"time"
 )
@@ -23,18 +24,18 @@ func (s *AccountService) Login(user_auths model.UserAuths, user_member model.Use
 
 	//判断是否已经注册
 	result := dao.Dao.DB().Table(user_auths.TableName()).
-		Where(fmt.Sprintf("identifier = '%s' and identity_type = '%s'", user_auths.Identifier, user_auths.IdentityType)).
-		Select("member_id").First(&user_auths)
+		Where("identifier = ? and identity_type = ?", user_auths.Identifier, user_auths.IdentityType).
+		Select("member_id").Find(&user_auths)
 	if result.Error != nil {
 		return nil, errors.New("系统忙，请稍后再试")
 	}
-	if user_auths.MemberId != 0 {
-		member_id = user_auths.MemberId
-	} else {
+	if user_auths.MemberId == 0 {
 		member_id, err = s.Register(user_auths, user_member)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		member_id = user_auths.MemberId
 	}
 	// 获取token
 	if token, err = s.GetToken(member_id, device_id, client); err != nil {
@@ -51,6 +52,7 @@ func (s *AccountService) Login(user_auths model.UserAuths, user_member model.Use
 // * identity_type 账号类型
 // * credential 密码凭证
 func (s *AccountService) Register(user_auths model.UserAuths, user_member model.UserMember) (member_id int64, err error) {
+	var errCreateFail = errors.New("创建账户失败")
 	// 创建用户
 	rand.Seed(time.Now().Unix())
 	freeid, err := id.FreeID.GetID()
@@ -66,25 +68,30 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 	if user_member.Avatar == "" {
 		user_member.Avatar = "http://free-im-qn.qaqzz.com/default_avatar.png"
 	}
-	result := dao.Dao.DB().Table(user_member.TableName()).Create(&user_member)
-	if result.Error != nil {
-		return member_id, err
+	err = dao.Dao.DB().Transaction(func(tx *gorm.DB) error {
+		if dao.Dao.DB().Table(user_member.TableName()).Create(&user_member).Error != nil {
+			return errCreateFail
+		}
+		// 创建用户账号
+		user_auths.MemberId = user_member.MemberId
+		if dao.Dao.DB().Table("user_auths").Create(&user_auths).Error != nil {
+			return errCreateFail
+		}
+		return nil
+	})
+	if err != nil {
+		return member_id, errCreateFail
 	}
-	// 创建用户账号
-	user_auths.MemberId = user_member.MemberId
-	if result = dao.Dao.DB().Table("user_auths").Create(&user_auths); err != nil {
-		return member_id, err
-	}
-
+	member_id = user_member.MemberId
 	// 自动添加好友 id=1
 	timeUnix := time.Now().Unix()
-	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
-		member_id, "1", 0, timeUnix)
+		member_id, 1, 0, timeUnix)
 	dao.Dao.DB().Exec(sql)
-	sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%s,%s,%d,%d) "+
+	sql = fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
-		"1", member_id, 0, timeUnix)
+		1, member_id, 0, timeUnix)
 	dao.Dao.DB().Exec(sql)
 
 	// 返回 id

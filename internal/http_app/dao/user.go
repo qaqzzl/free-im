@@ -28,10 +28,10 @@ func (d *user) IsExistAccount(account string, _type string) (b bool, err error) 
 
 // * 添加好友
 func (d *user) AddFriend(member_id int64, friend_id int64, remark string) (err error) {
-	var friend model.UserFriend
+	var friend model.UserFriendApply
 	friend.MemberId = member_id
 	friend.FriendId = friend_id
-	friend.FriendRemark = remark
+	friend.Remark = remark
 	result := Dao.DB().Table("user_friend_apply").Create(&friend)
 	err = result.Error
 	return err
