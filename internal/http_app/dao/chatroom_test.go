@@ -11,7 +11,7 @@ func TestChatroom_CreateGroup(t *testing.T) {
 	group := model.Group{
 		Name:            "test",
 		Avatar:          "http://avatar.com",
-		ChatroomId:      "1",
+		ChatroomId:      1,
 		OwnerMemberId:   1,
 		FounderMemberId: 1,
 	}
@@ -23,7 +23,7 @@ func TestChatroom_CreateGroup(t *testing.T) {
 
 func TestChatroom_GetGroupByID(T *testing.T) {
 	group, err := Chatroom.GetGroupByID(1, "chatroom_id")
-	fmt.Println(group.ChatroomId == "")
+	fmt.Println(group.ChatroomId)
 	fmt.Println(err)
 }
 

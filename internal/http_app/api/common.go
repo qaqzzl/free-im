@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"free-im/pkg/http"
 	"free-im/pkg/id"
 	"free-im/pkg/protos/pbs"
@@ -70,12 +71,14 @@ func SendLoginSms(c *gin.Context) {
 
 // * 获取消息ID
 func GetMessageId(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
+	var req struct {
+		ChatroomID int64 `json:"chatroom_id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	fmt.Println(strconv.Itoa(int(req.ChatroomID)))
 	ret := make(map[string]interface{})
-	chatroom_id, _ := strconv.Atoi(formData["chatroom_id"].(string))
-	ret["message_id"] = id.MessageID.GetId(int64(chatroom_id), pbs.ChatroomType_Single)
+	ret["message_id"] = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType_Single)
 	http.RespOk(c, ret, "")
 }

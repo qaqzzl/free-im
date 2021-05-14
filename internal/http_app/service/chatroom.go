@@ -69,8 +69,7 @@ func (s *ChatRoomService) ChatroomList(member_id string) {
 
 // 创建群组
 func (s *ChatRoomService) CreateGroup(member_id int64, group model.Group) (group_id int64, err error) {
-	res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
-	chatroom_id := strconv.Itoa(int(res_chatroom_id))
+	chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Group)
 	group.ChatroomId = chatroom_id
 	group.OwnerMemberId = member_id
 	group.FounderMemberId = member_id
@@ -86,7 +85,7 @@ func (s *ChatRoomService) JoinGroup(member_id int64, group_id int64, remark stri
 	if err != nil {
 		return ret, errors.New("系统忙，请稍后再试")
 	}
-	if group.ChatroomId == "" {
+	if group.ChatroomId == 0 {
 		return ret, errors.New("群组不存在")
 	}
 	var GroupMember model.GroupMember

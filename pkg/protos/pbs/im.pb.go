@@ -291,10 +291,10 @@ type MsgID struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ChatroomId string `protobuf:"bytes,2,opt,name=ChatroomId,proto3" json:"ChatroomId,omitempty"` // 聊天室ID
-	UserId     int64  `protobuf:"varint,5,opt,name=UserId,proto3" json:"UserId,omitempty"`        // 用户ID
-	DeviceID   string `protobuf:"bytes,6,opt,name=DeviceID,proto3" json:"DeviceID,omitempty"`     // 设备ID
-	ClientType string `protobuf:"bytes,7,opt,name=ClientType,proto3" json:"ClientType,omitempty"` // 客户端类型
+	ChatroomId int64  `protobuf:"varint,2,opt,name=ChatroomId,proto3" json:"ChatroomId,omitempty"` // 聊天室ID
+	UserId     int64  `protobuf:"varint,5,opt,name=UserId,proto3" json:"UserId,omitempty"`         // 用户ID
+	DeviceID   string `protobuf:"bytes,6,opt,name=DeviceID,proto3" json:"DeviceID,omitempty"`      // 设备ID
+	ClientType string `protobuf:"bytes,7,opt,name=ClientType,proto3" json:"ClientType,omitempty"`  // 客户端类型
 }
 
 func (x *MsgID) Reset() {
@@ -329,11 +329,11 @@ func (*MsgID) Descriptor() ([]byte, []int) {
 	return file_im_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MsgID) GetChatroomId() string {
+func (x *MsgID) GetChatroomId() int64 {
 	if x != nil {
 		return x.ChatroomId
 	}
-	return ""
+	return 0
 }
 
 func (x *MsgID) GetUserId() int64 {
@@ -365,7 +365,7 @@ type MsgItem struct {
 
 	Code            MessageCode  `protobuf:"varint,1,opt,name=Code,proto3,enum=pbs.MessageCode" json:"Code,omitempty"`                  // 消息(类型)码
 	ChatroomType    ChatroomType `protobuf:"varint,2,opt,name=ChatroomType,proto3,enum=pbs.ChatroomType" json:"ChatroomType,omitempty"` // 聊天室类型
-	ChatroomId      string       `protobuf:"bytes,3,opt,name=ChatroomId,proto3" json:"ChatroomId,omitempty"`                            // 聊天室ID
+	ChatroomId      int64        `protobuf:"varint,3,opt,name=ChatroomId,proto3" json:"ChatroomId,omitempty"`                           // 聊天室ID
 	Content         string       `protobuf:"bytes,4,opt,name=Content,proto3" json:"Content,omitempty"`                                  // 消息内容
 	MessageId       string       `protobuf:"bytes,5,opt,name=MessageId,proto3" json:"MessageId,omitempty"`                              // 消息ID
 	UserId          int64        `protobuf:"varint,6,opt,name=UserId,proto3" json:"UserId,omitempty"`                                   // 用户ID
@@ -420,11 +420,11 @@ func (x *MsgItem) GetChatroomType() ChatroomType {
 	return ChatroomType_Unknown
 }
 
-func (x *MsgItem) GetChatroomId() string {
+func (x *MsgItem) GetChatroomId() int64 {
 	if x != nil {
 		return x.ChatroomId
 	}
-	return ""
+	return 0
 }
 
 func (x *MsgItem) GetContent() string {
@@ -478,8 +478,8 @@ type MsgAuth struct {
 	DeviceID    string `protobuf:"bytes,1,opt,name=DeviceID,proto3" json:"DeviceID,omitempty"`
 	UserID      int64  `protobuf:"varint,2,opt,name=UserID,proto3" json:"UserID,omitempty"`
 	AccessToken string `protobuf:"bytes,3,opt,name=AccessToken,proto3" json:"AccessToken,omitempty"`
-	DeviceType  string `protobuf:"bytes,4,opt,name=DeviceType,proto3" json:"DeviceType,omitempty"` // 设备类型, 移动端:mobile , PC端:pc
-	ClientType  string `protobuf:"bytes,5,opt,name=ClientType,proto3" json:"ClientType,omitempty"` // 客户端类型, android, ios,
+	DeviceType  string `protobuf:"bytes,4,opt,name=DeviceType,proto3" json:"DeviceType,omitempty"` // 设备类型, 移动端:mobile , 桌面端:desktop
+	ClientType  string `protobuf:"bytes,5,opt,name=ClientType,proto3" json:"ClientType,omitempty"` // 客户端类型, android, ios, web, mac, windows, linux ...
 }
 
 func (x *MsgAuth) Reset() {
@@ -685,7 +685,7 @@ var file_im_proto_rawDesc = []byte{
 	0x08, 0x42, 0x6f, 0x64, 0x79, 0x44, 0x61, 0x74, 0x61, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x52,
 	0x08, 0x42, 0x6f, 0x64, 0x79, 0x44, 0x61, 0x74, 0x61, 0x22, 0x7b, 0x0a, 0x05, 0x4d, 0x73, 0x67,
 	0x49, 0x44, 0x12, 0x1e, 0x0a, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x49, 0x64,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d,
 	0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x64, 0x18, 0x05, 0x20, 0x01,
 	0x28, 0x03, 0x52, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x44, 0x65,
 	0x76, 0x69, 0x63, 0x65, 0x49, 0x44, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x44, 0x65,
@@ -699,7 +699,7 @@ var file_im_proto_rawDesc = []byte{
 	0x2e, 0x70, 0x62, 0x73, 0x2e, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x54, 0x79, 0x70,
 	0x65, 0x52, 0x0c, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x54, 0x79, 0x70, 0x65, 0x12,
 	0x1e, 0x0a, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x49, 0x64, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x49, 0x64, 0x12,
+	0x01, 0x28, 0x03, 0x52, 0x0a, 0x43, 0x68, 0x61, 0x74, 0x72, 0x6f, 0x6f, 0x6d, 0x49, 0x64, 0x12,
 	0x18, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x07, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x4d, 0x65, 0x73,
 	0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x4d, 0x65,

@@ -47,13 +47,13 @@ func (d *chatroom) CreateGroup(group model.Group) (group_id int64, err error) {
 	}
 	Dao.DB().Table("`group_member`").Create(&group_member)
 	// redis
-	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+group.ChatroomId, group.OwnerMemberId) //创建聊天室
+	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(group.ChatroomId)), group.OwnerMemberId) //创建聊天室
 	return
 }
 
 // * 加入群组
-func (d *chatroom) JoinGroup(m *model.GroupMember, chatroom_id string) (err error) {
-	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, m.MemberId) //加入聊天室
+func (d *chatroom) JoinGroup(m *model.GroupMember, chatroom_id int64) (err error) {
+	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), m.MemberId) //加入聊天室
 	if err == nil {
 		reslut := Dao.DB().Create(&m)
 		err = reslut.Error

@@ -101,12 +101,5 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 // 获取用户 token
 func (s *AccountService) GetToken(member_id int64, device_id, client string) (token string, err error) {
 	token, err = http2.GetToken(member_id, device_id, time.Now().Unix()+3600*12, "")
-	//user_auths_token := model.UserAuthsToken{
-	//	MemberId: member_id,
-	//	Token:    token,
-	//	Client:   client,
-	//	LastTime: int(time.Now().Unix()),
-	//}
-	//result := dao.Dao.DB().Table(user_auths_token.TableName()).Create(&user_auths_token)
 	return token, err
 }
