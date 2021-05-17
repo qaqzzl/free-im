@@ -13,7 +13,7 @@ var ChatRoomService service.ChatRoomService
 // 通过好友ID 获取 聊天室ID
 func FriendIdGetChatroomId(c *gin.Context) {
 	var req struct {
-		FriendId int64 `json:"friend_id"`
+		FriendID int64 `json:"friend_id"`
 	}
 	if http.ReqBin(c, &req) != nil {
 		return
@@ -22,7 +22,7 @@ func FriendIdGetChatroomId(c *gin.Context) {
 		chatroom_id string
 		err         error
 	)
-	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(http.GetUid(c), req.FriendId); err != nil {
+	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(http.GetUid(c), req.FriendID); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
@@ -33,14 +33,13 @@ func FriendIdGetChatroomId(c *gin.Context) {
 
 // 通过聊天室ID获取聊天室基础信息（头像，名称）
 func GetChatroomAvatarNameByChatRoomID(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-	user_id := formData["uid"].(int)
-	chatroom_id := formData["chatroom_id"].(string)
-	chatroom_type := "1"
-	if res, err := ChatRoomService.GetChatroomBaseInfo(chatroom_id, chatroom_type, int64(user_id)); err != nil {
+	var req struct {
+		ChatroomID int64 `json:"chatroom_id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	if res, err := ChatRoomService.GetChatroomBaseInfo(req.ChatroomID, http.GetUid(c)); err != nil {
 		http.RespFail(c, err.Error())
 	} else {
 		http.RespOk(c, res, "")
@@ -107,12 +106,7 @@ func OutGroup(c *gin.Context) {
 
 // 我的群组列表
 func MyGroupList(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-
-	group_list, err := ChatRoomService.MemberGroupList(formData["uid"].(uint))
+	group_list, err := ChatRoomService.MemberGroupList(http.GetUid(c))
 	if err != nil {
 		http.RespFail(c, err.Error())
 		return

@@ -20,8 +20,8 @@ func (d *chatroom) GetGroupByID(group_id int64, selects ...string) (group model.
 }
 
 // * 获取聊天室成员
-func (d *chatroom) GetMembers(chatroom_id string) (member_ids []int64, err error) {
-	members, err := Dao.Ris().Do("SMEMBERS", "set_im_chatroom_member:"+chatroom_id)
+func (d *chatroom) GetMembers(chatroom_id int64) (member_ids []int64, err error) {
+	members, err := Dao.Ris().Do("SMEMBERS", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)))
 	for _, v := range members.([]interface{}) {
 		user_id, _ := strconv.Atoi(string(v.([]uint8)))
 		member_ids = append(member_ids, int64(user_id))
@@ -75,7 +75,7 @@ func (d *chatroom) GroupIsExistByID(id string) (is bool, err error) {
 }
 
 // * 会员群组列表 by member_id
-func (d *chatroom) MemberGroupListByUID(member_id uint) (MemberGroups []*model.GroupMember, err error) {
+func (d *chatroom) MemberGroupListByUID(member_id int64) (MemberGroups []*model.GroupMember, err error) {
 	return d.MemberGroupList("member_id = ?", member_id)
 }
 

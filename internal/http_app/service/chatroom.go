@@ -14,7 +14,8 @@ import (
 type ChatRoomService struct {
 }
 
-func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id string, chatroom_type string, member_id int64) (res map[string]string, err error) {
+func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id int64, member_id int64) (res map[string]string, err error) {
+	var chatroom_type = "1"
 	res = make(map[string]string)
 	switch chatroom_type {
 	case "1":
@@ -118,7 +119,7 @@ func (s *ChatRoomService) JoinGroup(member_id int64, group_id int64, remark stri
 }
 
 // 会员群组列表
-func (s *ChatRoomService) MemberGroupList(member_id uint) (MemberGroups []*model.GroupMember, err error) {
+func (s *ChatRoomService) MemberGroupList(member_id int64) (MemberGroups []*model.GroupMember, err error) {
 	MemberGroups, err = dao.Chatroom.MemberGroupListByUID(member_id)
 	return
 }
