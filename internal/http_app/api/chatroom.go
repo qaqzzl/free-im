@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/http"
@@ -48,11 +47,7 @@ func GetChatroomAvatarNameByChatRoomID(c *gin.Context) {
 
 // 聊天室列表
 func ChatroomList(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-	ChatRoomService.ChatroomList(formData["uid"].(string))
+	ChatRoomService.ChatroomList(http.GetUid(c))
 }
 
 // 创建群组

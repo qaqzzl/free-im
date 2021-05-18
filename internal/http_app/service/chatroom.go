@@ -64,7 +64,7 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id int64, friend_id int64
 }
 
 // 聊天室列表
-func (s *ChatRoomService) ChatroomList(member_id string) {
+func (s *ChatRoomService) ChatroomList(member_id int64) {
 
 }
 

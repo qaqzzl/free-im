@@ -118,7 +118,7 @@ func (s *UserService) FriendApplyList(member_id int64) (list []map[string]interf
 }
 
 // 好友申请同意/拒绝操作
-func (s *UserService) FriendApplyAction(id string, member_id int64, action string) (ret map[string]string, err error) {
+func (s *UserService) FriendApplyAction(id int64, member_id int64, action int) (ret map[string]string, err error) {
 	ret = make(map[string]string)
 	var friend_apply model.UserFriendApply
 	if dao.Dao.DB().Table("user_friend_apply").Where("id = ? and status = 0", id).
@@ -136,7 +136,7 @@ func (s *UserService) FriendApplyAction(id string, member_id int64, action strin
 	if err = dao.Dao.DB().Table("user_friend_apply").Where("id = ? and status = 0", id).Update("status", action).Error; err != nil {
 		return ret, err
 	}
-	if action == "1" {
+	if action == 1 {
 		timeUnix := time.Now().Unix()
 		sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 			"ON DUPLICATE KEY UPDATE status=VALUES(status)",

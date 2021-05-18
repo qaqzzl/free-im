@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/http"
@@ -101,11 +100,14 @@ func FriendApplyList(c *gin.Context) {
 
 // 好友申请同意/拒绝操作
 func FriendApplyAction(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-	ret, err := UserService.FriendApplyAction(formData["id"].(string), http.GetUid(c), formData["action"].(string))
+	var req struct {
+		ID     int64 `json:"id"`
+		Action int   `json:"action"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	ret, err := UserService.FriendApplyAction(req.ID, http.GetUid(c), req.Action)
 	if err != nil {
 		http.RespFail(c, "系统繁忙")
 		return

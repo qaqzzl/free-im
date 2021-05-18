@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"free-im/pkg/http"
 	"free-im/pkg/id"
@@ -16,18 +15,20 @@ import (
 // 获取七牛上传token
 // https://developer.qiniu.com/kodo/manual/1206/put-policy
 func GetQiniuUploadToken(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
+	var req struct {
+		Type string `json:"type"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
 	var (
 		scope  string
 		domain string
 	)
-	if formData["type"] == "private" {
+	if req.Type == "private" {
 		scope = "free-im-private"
 		domain = "http://free-im-private-qn.qaqzz.com/"
-	} else if formData["type"] == "public" {
+	} else if req.Type == "public" {
 		scope = "free-im"
 		domain = "http://free-im-qn.qaqzz.com/"
 	}
@@ -58,11 +59,14 @@ func GetQiniuUploadToken(c *gin.Context) {
 
 // 发送登录短信验证码
 func SendLoginSms(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]interface{})
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
-	if err := CommonService.SendSms(formData["phone"].(string), formData["type"].(string)); err != nil {
+	var req struct {
+		Phone string `json:"phone"`
+		Type  string `json:"type"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	if err := CommonService.SendSms(req.Phone, req.Type); err != nil {
 		http.RespFail(c, err.Error())
 		return
 	}

@@ -1,12 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/http"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 var DynamicService = new(service.DynamicService)
@@ -14,7 +12,9 @@ var DynamicService = new(service.DynamicService)
 // 动态发布
 func DynamicPublish(c *gin.Context) {
 	m := model.Dynamic{}
-	json.NewDecoder(c.Request.Body).Decode(&m)
+	if http.ReqBin(c, &m) != nil {
+		return
+	}
 	if _, err := DynamicService.Create(m); err != nil {
 		http.RespFail(c, "系统忙, 稍后再试")
 		return
@@ -24,15 +24,16 @@ func DynamicPublish(c *gin.Context) {
 
 // 动态列表
 func DynamicList(c *gin.Context) {
-	// 初始化请求变量结构
-	formData := make(map[string]string)
-	// 调用json包的解析，解析请求body
-	json.NewDecoder(c.Request.Body).Decode(&formData)
+	var req struct {
+		Page    int `json:"page"`
+		Perpage int `json:"perpage"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
 	info := make(map[string]interface{})
-	page, _ := strconv.Atoi(formData["page"])
-	perpage, _ := strconv.Atoi(formData["perpage"])
 
-	total, list := DynamicService.DynamicList(page, perpage)
+	total, list := DynamicService.DynamicList(req.Page, req.Perpage)
 	info["list"] = list
 	info["total"] = total
 	http.RespOk(c, info, "ok")
