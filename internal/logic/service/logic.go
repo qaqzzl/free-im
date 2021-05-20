@@ -3,11 +3,14 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"free-im/internal/logic/dao"
 	"free-im/internal/logic/model"
+	http2 "free-im/pkg/http"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
+	"time"
 )
 
 // client conn auth
@@ -15,6 +18,13 @@ func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, e
 	m := req.Message
 	if m.UserID == 0 || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
 		return &pbs.TokenAuthResp{Statu: false}, nil
+	}
+	token, err := http2.DecryptToken(m.AccessToken)
+	if err != nil {
+		return &pbs.TokenAuthResp{Statu: false}, errors.New("Token 解析失败")
+	}
+	if token.Expire < time.Now().Unix() {
+		return &pbs.TokenAuthResp{Statu: false}, errors.New("Token 已过期")
 	}
 	return &pbs.TokenAuthResp{Statu: true}, nil
 }
