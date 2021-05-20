@@ -26,8 +26,9 @@ func setupRouter() *gin.Engine {
 	})
 
 	// 登陆 ｜ 注册
-	r.POST("/login", app_http.PhoneLogin) // 手机号登录 / 注册                                                            // 手机号登录 / 注册
-	r.POST("/login/qq", app_http.QQLogin) // QQ登陆
+	r.POST("/login", app_http.PhoneLogin)                        // 手机号登录 / 注册                                                            // 手机号登录 / 注册
+	r.POST("/login/phone.password", app_http.PhonePasswordLogin) // 手机号密码登录 / 注册                                                            // 手机号登录 / 注册
+	r.POST("/login/qq", app_http.QQLogin)                        // QQ登陆
 
 	r.Any("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
 

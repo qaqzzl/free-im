@@ -17,7 +17,7 @@ import (
 var AccountService *service.AccountService
 var CommonService *service.CommonService
 
-// 手机号登录 / 注册
+// 手机号验证码 登录 / 注册
 func PhoneLogin(c *gin.Context) {
 	// 初始化请求变量结构
 	// Parse JSON
@@ -39,6 +39,31 @@ func PhoneLogin(c *gin.Context) {
 	}
 	ret, err := AccountService.
 		Login(model.UserAuths{Identifier: req.Phone,
+			IdentityType: "phone"}, model.UserMember{}, http2.GetDeviceId(c), http2.GetClientType(c))
+	if err != nil {
+		logger.Logger.Info(err.Error())
+		http2.RespFail(c, "系统繁忙")
+		return
+	}
+
+	http2.RespOk(c, ret, "")
+}
+
+// 手机号密码登陆
+func PhonePasswordLogin(c *gin.Context) {
+	// 初始化请求变量结构
+	// Parse JSON
+	var req struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+	}
+	if http2.ReqBin(c, &req) != nil {
+		return
+	}
+	// 验证密码是否正确
+
+	ret, err := AccountService.
+		Login(model.UserAuths{Identifier: req.Account,
 			IdentityType: "phone"}, model.UserMember{}, http2.GetDeviceId(c), http2.GetClientType(c))
 	if err != nil {
 		logger.Logger.Info(err.Error())
