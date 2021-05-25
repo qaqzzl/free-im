@@ -17,6 +17,20 @@ import (
 var AccountService *service.AccountService
 var CommonService *service.CommonService
 
+func BindPushID(c *gin.Context) {
+
+	var req struct {
+		PushID string `uri:"push_id" binding:"required"`
+	}
+	if err := http2.ShouldBindUri(c, &req); err != nil {
+		return
+	}
+	if err := AccountService.BindPushID(http2.GetUid(c), req.PushID); err != nil {
+		http2.RespFail(c, err.Error())
+	}
+	http2.RespOk(c, nil, "ok")
+}
+
 // 手机号验证码 登录 / 注册
 func PhoneLogin(c *gin.Context) {
 	// 初始化请求变量结构

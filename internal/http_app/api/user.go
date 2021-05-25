@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"free-im/internal/http_app/model"
 	"free-im/internal/http_app/service"
 	"free-im/pkg/http"
@@ -136,6 +137,7 @@ func OthersHomeInfo(c *gin.Context) {
 	if http.ReqBin(c, &req) != nil {
 		return
 	}
+	fmt.Println(req.MemberId)
 	info, _ := UserService.OthersHomeInfo(http.GetUid(c), req.MemberId)
 	http.RespOk(c, info, "")
 }

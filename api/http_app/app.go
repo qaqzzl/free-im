@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
-	"time"
 )
 
 func StartHttpServer() {
@@ -29,11 +28,13 @@ func setupRouter() *gin.Engine {
 	r.POST("/login", app_http.PhoneLogin)                        // 手机号登录 / 注册                                                            // 手机号登录 / 注册
 	r.POST("/login/phone.password", app_http.PhonePasswordLogin) // 手机号密码登录 / 注册                                                            // 手机号登录 / 注册
 	r.POST("/login/qq", app_http.QQLogin)                        // QQ登陆
+	r.POST("/common/send.sms", app_http.SendLoginSms)            // 发送手机号验证码
 
 	r.Any("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
 
 	authorized := r.Group("/").Use(authorizedMiddleware())
 	{
+		authorized.POST("/account/bind.push_id/:push_id", app_http.BindPushID)                                          // 绑定推送ID
 		authorized.Any("/user/member.info", app_http.GetMemberInfo)                                                     // 获取会员信息
 		authorized.Any("/user/update.member.info", app_http.UpdateMemberInfo)                                           // 修改会员信息
 		authorized.Any("/user/others.home.info", app_http.OthersHomeInfo)                                               // 获取用户基本信息(他人主页)
@@ -50,7 +51,6 @@ func setupRouter() *gin.Engine {
 		authorized.Any("/chatroom/add.group", app_http.AddGroup)                                                        // 加入群组
 		authorized.Any("/chatroom/my.group.list", app_http.MyGroupList)                                                 // 我的群组列表
 		authorized.Any("/common/get.qiniu.upload.token", app_http.GetQiniuUploadToken)                                  // 获取七牛上传token
-		authorized.Any("/common/send.sms", app_http.SendLoginSms)                                                       // 发送手机号验证码
 		authorized.Any("/dynamic/publish", app_http.DynamicPublish)                                                     // 发布动态
 		authorized.Any("/dynamic/list", app_http.DynamicList)                                                           // 动态列表
 		authorized.Any("/common/get.message.id", app_http.GetMessageId)                                                 // 获取消息ID , 临时使用
@@ -81,11 +81,11 @@ func authorizedMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if token.Expire < time.Now().Unix() {
-			http2.Resp(c, 401, nil, "token 已过期")
-			c.Abort()
-			return
-		}
+		//if token.Expire < time.Now().Unix() {
+		//	http2.Resp(c, 401, nil, "token 已过期")
+		//	c.Abort()
+		//	return
+		//}
 		c.Set("authorized_member_id", token.UserId)
 		c.Set("token_info", token)
 

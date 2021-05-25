@@ -186,8 +186,7 @@ func (s *UserService) SearchMember(search string) (list []map[string]interface{}
 // 他人基本信息(他人主页)
 func (s *UserService) OthersHomeInfo(member_id int64, to_member_id int64) (info map[string]interface{}, err error) {
 	info = make(map[string]interface{})
-	user_member := model.UserMember{}
-	result := dao.Dao.DB().Table("user_member").Where("member_id = ?", to_member_id).Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").First(&user_member)
+	result := dao.Dao.DB().Model(&model.UserMember{}).Where("member_id = ?", to_member_id).Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").First(&info)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -197,6 +196,5 @@ func (s *UserService) OthersHomeInfo(member_id int64, to_member_id int64) (info 
 	if is_friend == 0 {
 		info["is_friend"] = "yes"
 	}
-	info["member_info"] = user_member
 	return info, err
 }

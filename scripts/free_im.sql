@@ -95,6 +95,18 @@ CREATE TABLE `message` (
   KEY `member_id` (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息记录表';
 
+DROP TABLE IF EXISTS `chatroom_record`;
+CREATE TABLE `user_chatroom_record` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+    `chatroom_id` char(32) NOT NULL COMMENT '聊天室ID',
+    `sort` char(32) NOT NULL COMMENT '排序',
+    `expand` varchar(2000) DEFAULT NULL COMMENT '扩展',
+    PRIMARY KEY (`id`),
+    KEY `chatroom_id` (`chatroom_id`),
+    KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天对话记录表';
+
 -- ----------------------------
 -- Table structure for user_auths
 -- ----------------------------

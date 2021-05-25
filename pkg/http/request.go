@@ -1,10 +1,22 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"free-im/pkg/logger"
+	"github.com/gin-gonic/gin"
+)
 
 func ReqBin(c *gin.Context, data interface{}) error {
 	if err := c.Bind(&data); err != nil {
+		logger.Sugar.Info(err.Error())
 		RespFail(c, "数据格式不合法")
+		return err
+	}
+	return nil
+}
+
+func ShouldBindUri(c *gin.Context, data interface{}) error {
+	if err := c.ShouldBindUri(data); err != nil {
+		RespFail(c, err.Error())
 		return err
 	}
 	return nil

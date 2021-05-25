@@ -15,6 +15,8 @@ import (
 type AccountService struct {
 }
 
+var UserDao = dao.User
+
 func (s *AccountService) Login(user_auths model.UserAuths, user_member model.UserMember, device_id, client string) (interface{}, error) {
 	var (
 		err       error
@@ -96,6 +98,11 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 
 	// 返回 id
 	return member_id, err
+}
+
+// 绑定推送ID
+func (s *AccountService) BindPushID(member_id int64, push_id string) (err error) {
+	return UserDao.BindPushID(member_id, push_id)
 }
 
 // 获取用户 token

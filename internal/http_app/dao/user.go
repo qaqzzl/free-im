@@ -2,6 +2,7 @@ package dao
 
 import (
 	"free-im/internal/http_app/model"
+	"strconv"
 )
 
 type user struct {
@@ -46,4 +47,20 @@ func (d *user) QueryFriendBindStatus(member_id int64, to_member_id int64) (int, 
 		return 2, nil
 	}
 	return friend.Status, nil
+}
+
+// * 绑定推送ID
+func (d *user) BindPushID(member_id int64, push_id string) (err error) {
+	_, err = Dao.Ris().Do("SET", "mmeber_push_id:"+strconv.Itoa(int(member_id)), push_id)
+	return
+}
+
+// * 会员是否绑定推送ID
+func (d *user) ISBindPushID(member_id int64) (push_id string, err error) {
+	result, err := Dao.Ris().Do("GET", "mmeber_push_id:"+strconv.Itoa(int(member_id)))
+	if err != nil {
+		return "", err
+	}
+	push_id = result.(string)
+	return
 }
