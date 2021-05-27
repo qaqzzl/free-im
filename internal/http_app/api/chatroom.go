@@ -18,14 +18,14 @@ func FriendIdGetChatroomId(c *gin.Context) {
 		return
 	}
 	var (
-		chatroom_id string
+		chatroom_id int64
 		err         error
 	)
 	if chatroom_id, err = ChatRoomService.FriendIdGetChatroomId(http.GetUid(c), req.FriendID); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
-	ret := make(map[string]string)
+	ret := make(map[string]interface{})
 	ret["chatroom_id"] = chatroom_id
 	http.RespOk(c, ret, "")
 }

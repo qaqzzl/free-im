@@ -15,14 +15,12 @@ func SearchMember(c *gin.Context) {
 		return
 	}
 	// 搜索好友列表
-	search_list, err := UserService.SearchMember(req.Search)
+	search_list, err := UserService.SearchMember(http.GetUid(c), req.Search)
 	if err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
-	ret := make(map[string]interface{})
-	ret["search_list"] = search_list
-	http.RespOk(c, ret, "")
+	http.RespOk(c, search_list, "")
 }
 
 // 搜索群组 | 群名, ID

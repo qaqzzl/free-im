@@ -171,15 +171,28 @@ func (s *UserService) FriendList(member_id int64) (list []map[string]interface{}
 	}
 	dao.Dao.DB().Table("user_member").Select("avatar,gender,member_id,nickname,signature").
 		Where("member_id IN ?", friend_ids).Find(&list)
+	var chatRoomService ChatRoomService
+	for _, v := range list {
+		v["chatroom_id"], _ = chatRoomService.FriendIdGetChatroomId(member_id, int64(v["member_id"].(uint64)))
+	}
 	return list, err
 }
 
 // 搜索好友
-func (s *UserService) SearchMember(search string) (list []map[string]interface{}, err error) {
+func (s *UserService) SearchMember(member_id int64, search string) (list []map[string]interface{}, err error) {
 	list = make([]map[string]interface{}, 0)
-	err = dao.Dao.DB().Table("user_member").Where("nickname like ? or id = ?", "%"+search+"%", search).
+	err = dao.Dao.DB().Table("user_member").Where("(nickname like ? or id = ?) and member_id != ?", "%"+search+"%", search, member_id).
 		Select("member_id,nickname,avatar,signature,gender,birthdate").
+		Limit(10).
+		Order("member_id desc").
 		Find(&list).Error
+	for _, v := range list {
+		v["is_friend"] = "no"
+		is_friend, _ := dao.User.QueryFriendBindStatus(member_id, int64(v["member_id"].(uint64)))
+		if is_friend == 0 {
+			v["is_friend"] = "yes"
+		}
+	}
 	return list, err
 }
 
@@ -196,5 +209,7 @@ func (s *UserService) OthersHomeInfo(member_id int64, to_member_id int64) (info 
 	if is_friend == 0 {
 		info["is_friend"] = "yes"
 	}
+	var chatRoomService ChatRoomService
+	info["chatroom_id"], _ = chatRoomService.FriendIdGetChatroomId(member_id, to_member_id)
 	return info, err
 }

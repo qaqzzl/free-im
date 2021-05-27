@@ -1,10 +1,13 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"free-im/pkg/http"
 	"free-im/pkg/id"
+	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
+	"free-im/pkg/rpc_client"
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/api.v7/v7/auth/qbox"
 	"github.com/qiniu/api.v7/v7/storage"
@@ -84,5 +87,56 @@ func GetMessageId(c *gin.Context) {
 	fmt.Println(strconv.Itoa(int(req.ChatroomID)))
 	ret := make(map[string]interface{})
 	ret["message_id"] = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType_Single)
+	http.RespOk(c, ret, "")
+}
+
+// * 发送消息
+func PushMessage(c *gin.Context) {
+	var req struct {
+		ChatroomID   int64  `json:"chatroom_id"`
+		ChatroomType int    `json:"chatroom_type"`
+		Code         int    `json:"code"`
+		Content      string `json:"content"`
+		ID           string `json:"id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	// todo 权限验证 code 。。。
+	if req.ChatroomID == 0 {
+		logger.Sugar.Error("聊天室ID不能为空")
+		http.RespFail(c, "聊天室ID不能为空")
+		return
+	}
+
+	var message_id = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType_Single)
+	var m = &pbs.MsgItem{
+		Code:            pbs.MessageCode(req.Code),
+		ChatroomType:    pbs.ChatroomType(req.ChatroomType),
+		ChatroomId:      req.ChatroomID,
+		Content:         "",
+		MessageId:       message_id,
+		UserId:          http.GetUid(c),
+		DeviceID:        http.GetDeviceId(c),
+		ClientType:      http.GetClientType(c),
+		MessageSendTime: time.Now().Unix(),
+	}
+	_, _ = rpc_client.LogicInit.MessageReceive(context.TODO(), &pbs.MessageReceiveReq{
+		Message: m,
+	})
+
+	ret := make(map[string]interface{})
+	ret["id"] = req.ID
+	ret["code"] = req.Code
+	ret["chatroom_type"] = req.ChatroomType
+	ret["chatroom_id"] = req.ChatroomID
+	ret["content"] = req.Content
+	ret["message_id"] = message_id
+	ret["user_id"] = http.GetUid(c)
+	ret["device_id"] = http.GetDeviceId(c)
+	ret["client_type"] = http.GetClientType(c)
+	ret["message_send_time"] = m.MessageSendTime
+	fmt.Println(req)
+	fmt.Println(ret)
 	http.RespOk(c, ret, "")
 }

@@ -53,8 +53,8 @@ func setupRouter() *gin.Engine {
 		authorized.Any("/common/get.qiniu.upload.token", app_http.GetQiniuUploadToken)                                  // 获取七牛上传token
 		authorized.Any("/dynamic/publish", app_http.DynamicPublish)                                                     // 发布动态
 		authorized.Any("/dynamic/list", app_http.DynamicList)                                                           // 动态列表
-		authorized.Any("/common/get.message.id", app_http.GetMessageId)                                                 // 获取消息ID , 临时使用
-
+		authorized.Any("/common/get.message.id", app_http.GetMessageId)                                                 // 获取消息ID
+		authorized.Any("/message/push.message", app_http.PushMessage)                                                   // 发送消息
 	}
 
 	return r

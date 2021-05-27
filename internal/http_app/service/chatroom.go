@@ -38,7 +38,7 @@ func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id int64, member_id int64
 }
 
 // 通过好友ID 获取 聊天室ID
-func (s *ChatRoomService) FriendIdGetChatroomId(member_id int64, friend_id int64) (chatroom_id string, err error) {
+func (s *ChatRoomService) FriendIdGetChatroomId(member_id int64, friend_id int64) (chatroom_id int64, err error) {
 	var field string
 	if member_id > friend_id {
 		field = strconv.Itoa(int(member_id)) + "," + strconv.Itoa(int(friend_id))
@@ -48,17 +48,17 @@ func (s *ChatRoomService) FriendIdGetChatroomId(member_id int64, friend_id int64
 	var res interface{}
 	if res, err = dao.Dao.Ris().Do("HGET", "hash_im_chatroom_friend_id_get_chatroom_id", field); err != nil {
 		logger.Sugar.Error("获取聊天室ID失败", err)
-		return "", err
+		return 0, err
 	}
 
 	if res == nil {
 		//生成聊天室ID
-		res_chatroom_id, _ := id.ChatroomID.GetID(pbs.ChatroomType_Single)
-		chatroom_id = strconv.Itoa(int(res_chatroom_id))
-		dao.Dao.Ris().Do("SADD", "set_im_chatroom_member:"+chatroom_id, member_id, friend_id)      //创建聊天室
-		dao.Dao.Ris().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id) //创建单聊跟聊天室关系
+		chatroom_id, _ = id.ChatroomID.GetID(pbs.ChatroomType_Single)
+		dao.Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), member_id, friend_id) //创建聊天室
+		dao.Dao.Ris().Do("HSET", "hash_im_chatroom_friend_id_get_chatroom_id", field, chatroom_id)               //创建单聊跟聊天室关系
 	} else {
-		chatroom_id = string(res.([]uint8))
+		int_chatroom_id, _ := strconv.Atoi(string(res.([]uint8)))
+		chatroom_id = int64(int_chatroom_id)
 	}
 	return chatroom_id, err
 }
