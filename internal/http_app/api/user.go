@@ -136,3 +136,8 @@ func OthersHomeInfo(c *gin.Context) {
 	info, _ := UserService.OthersHomeInfo(http.GetUid(c), req.MemberId)
 	http.RespOk(c, info, "")
 }
+
+/*
+2021-06-01 23:24:43.551 ERROR   api/user.go:139 他人主页(用户基本信息)map[avatar:http://free-im-qn.qaqzz.com/test/FqrLCxJd1GkG2ObKyS09NurfBVRX.jpg birthdate:852048om_id:0 city: gender:m is_friend:no member_id:1 nickname:龙猫 province: signature:需要个android帮我]
+
+*/

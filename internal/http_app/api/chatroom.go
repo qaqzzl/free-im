@@ -106,6 +106,22 @@ func MyGroupList(c *gin.Context) {
 	http.RespOk(c, group_list, "")
 }
 
+// 群组信息
+func GroupInfo(c *gin.Context) {
+	var req struct {
+		GroupID int64 `json:"group_id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	info, err := ChatRoomService.GroupInfo(req.GroupID)
+	if err != nil {
+		http.RespFail(c, err.Error())
+		return
+	}
+	http.RespOk(c, info, "")
+}
+
 // 群组成员
 func GroupMember(c *gin.Context) {
 	var req struct {

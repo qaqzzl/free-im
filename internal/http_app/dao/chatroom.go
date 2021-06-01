@@ -75,7 +75,7 @@ func (d *chatroom) GroupIsExistByID(id string) (is bool, err error) {
 }
 
 // * 会员群组列表 by member_id
-func (d *chatroom) MemberGroupListByUID(member_id int64) (Groups []*model.Group, err error) {
+func (d *chatroom) MemberGroupListByUID(member_id int64) (Groups []model.Group, err error) {
 	var groupMember model.GroupMember
 	var MemberGroups []*model.GroupMember
 	Dao.DB().Table(groupMember.TableName()).Where("member_id = ?", member_id).Find(&MemberGroups)
@@ -88,6 +88,13 @@ func (d *chatroom) MemberGroupListByUID(member_id int64) (Groups []*model.Group,
 		result := Dao.DB().Table(group.TableName()).Where("group_id in ?", group_ids).Find(&Groups)
 		err = result.Error
 	}
+	return
+}
+
+// * 群组信息
+func (d *chatroom) GroupInfo(group_id int64) (group model.Group, err error) {
+	result := Dao.DB().Table(group.TableName()).Where("group_id = ?", group_id).Find(&group)
+	err = result.Error
 	return
 }
 

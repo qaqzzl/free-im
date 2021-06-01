@@ -154,9 +154,14 @@ func (s *ChatRoomService) AddGroupMember(member_id int64, groupMembers *[]model.
 }
 
 // 会员群组列表
-func (s *ChatRoomService) MemberGroupList(member_id int64) (Groups []*model.Group, err error) {
+func (s *ChatRoomService) MemberGroupList(member_id int64) (Groups []model.Group, err error) {
 	Groups, err = dao.Chatroom.MemberGroupListByUID(member_id)
 	return
+}
+
+// 群组信息
+func (s *ChatRoomService) GroupInfo(group_id int64) (Group model.Group, err error) {
+	return dao.Chatroom.GroupInfo(group_id)
 }
 
 // 搜索群组

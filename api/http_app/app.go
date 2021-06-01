@@ -51,6 +51,7 @@ func setupRouter() *gin.Engine {
 		authorized.POST("/chatroom/create.group", app_http.CreateGroup)                        // 创建群组
 		authorized.POST("/chatroom/add.group", app_http.AddGroup)                              // 加入群组
 		authorized.GET("/chatroom/my.group.list", app_http.MyGroupList)                        // 我的群组列表
+		authorized.POST("/chatroom/group.info", app_http.GroupInfo)                            // 群组信息
 		authorized.GET("/chatroom/group.member/:group_id", app_http.GroupMember)               // 我的群组列表
 		authorized.POST("/chatroom/add.group.member", app_http.AddGroupMember)                 // 我的群组列表
 		authorized.POST("/common/get.qiniu.upload.token", app_http.GetQiniuUploadToken)        // 获取七牛上传token
