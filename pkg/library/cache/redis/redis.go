@@ -14,11 +14,11 @@ type Config struct {
 func NewPool(cnf Config) *redis.Pool {
 	return &redis.Pool{
 		// 最大的激活连接数，表示同时最多有N个连接 ，为0事表示没有限制
-		MaxActive: 10,
+		MaxActive: 0,
 		//最大的空闲连接数，表示即使没有redis连接时依然可以保持N个空闲的连接，而不被清除，随时处于待命状态
-		MaxIdle: 10,
+		MaxIdle: 0,
 		//最大的空闲连接等待时间，超过此时间后，空闲连接将被关闭
-		IdleTimeout: 10 * time.Second,
+		IdleTimeout: 240 * time.Second,
 		// 当链接数达到最大后是否阻塞，如果不的话，达到最大后返回错误
 		Wait: false,
 		//Dial 是创建链接的方法

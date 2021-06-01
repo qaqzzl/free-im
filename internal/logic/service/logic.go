@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"free-im/internal/logic/dao"
 	"free-im/internal/logic/model"
 	http2 "free-im/pkg/http"
@@ -24,7 +25,7 @@ func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, e
 		return &pbs.TokenAuthResp{Statu: false}, errors.New("Token 解析失败")
 	}
 	if token.Expire < time.Now().Unix() {
-		return &pbs.TokenAuthResp{Statu: false}, errors.New("Token 已过期")
+		// return &pbs.TokenAuthResp{Statu: false}, errors.New("Token 已过期")
 	}
 	return &pbs.TokenAuthResp{Statu: true}, nil
 }
@@ -87,12 +88,13 @@ func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
 }
 
 func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
-	var messages []*model.Message
+	var messages []model.Message
 	result := dao.Dao.DB().Table("message").Where("member_id = ? and message_id > ?", mp.UserId, mp.MessageId).Select("content").Find(&messages)
 	if result.Error != nil {
 		logger.Sugar.Error("消息查询失败", result.Error)
 		return result.Error
 	}
+	fmt.Println(messages)
 	for _, itme := range messages {
 		packages := pbs.MsgPackage{
 			Action:   pbs.Action_Message,

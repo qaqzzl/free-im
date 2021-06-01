@@ -74,6 +74,7 @@ func (conn *Conn) Read() (mp pbs.MsgPackage, err error) {
 }
 
 func (conn *Conn) Write(mp pbs.MsgPackage) (int, error) {
+	//logger.Sugar.Debug(mp)
 	if b, err := Protocol.Encode(mp); err != nil {
 		return 0, err
 	} else {

@@ -14,7 +14,7 @@ enum Action {
     Headbeat       			= 100; 		// 心跳
 }
 
-// 消息类型
+// 消息类型 8：新朋友添加，9：新群添加，10：新的群成员添加，11：群成员信息更改，12：群成员退出 。。。。
 enum MessageCode {
     MessageCodeCustom           = 0;        // 自定义
     MessageCodeText         	= 1; 		// 普通文本消息

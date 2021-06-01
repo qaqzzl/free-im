@@ -29,22 +29,22 @@ func initUID(rdb *redis.Pool) error {
 // 获取聊天室ID
 func (id *uID) GetID() (string, error) {
 	rconn := id.redisPool.Get()
-	max, err := rconn.Do("get", "id:"+id.redisKey+":max")
-	if err != nil {
-		return "", id.errTimeOut
-	}
-	var maxNum int64
-	if max == nil {
-		maxNum = 100000
-	} else {
-		maxNum = byteUintToint64(max.([]uint8))
-	}
 	//检查号池是否已存在
 	exists, err := rconn.Do("exists", "id:"+id.redisKey+":pond")
 	if err != nil {
 		return "", id.errTimeOut
 	}
 	if exists.(int64) == 0 {
+		max, err := rconn.Do("get", "id:"+id.redisKey+":max")
+		if err != nil {
+			return "", id.errTimeOut
+		}
+		var maxNum int64
+		if max == nil {
+			maxNum = 100000
+		} else {
+			maxNum = byteUintToint64(max.([]uint8))
+		}
 		addlen := 1000
 		if _, err := rconn.Do("set", "id:"+id.redisKey+":max", maxNum+int64(addlen)); err != nil {
 			return "", id.errTimeOut

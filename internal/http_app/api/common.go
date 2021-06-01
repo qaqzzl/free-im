@@ -114,7 +114,7 @@ func PushMessage(c *gin.Context) {
 		Code:            pbs.MessageCode(req.Code),
 		ChatroomType:    pbs.ChatroomType(req.ChatroomType),
 		ChatroomId:      req.ChatroomID,
-		Content:         "",
+		Content:         req.Content,
 		MessageId:       message_id,
 		UserId:          http.GetUid(c),
 		DeviceID:        http.GetDeviceId(c),

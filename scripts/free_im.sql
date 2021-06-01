@@ -52,17 +52,19 @@ DROP TABLE IF EXISTS `group`;
 CREATE TABLE `group` (
   `group_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(50) NOT NULL COMMENT '群组名称',
-  `avatar` char(50) NOT NULL COMMENT '群组头像',
+  `avatar` char(255) NOT NULL COMMENT '群组头像',
+  `desc` varchar(255) not null default '' comment '描述',
   `id` varchar(20) NOT NULL COMMENT 'ID, 对用户展示并且唯一',
-  `chatroom_id` char(32) NOT NULL COMMENT '房间ID',
+  `chatroom_id` bigint(20) NOT NULL COMMENT '房间ID',
   `owner_member_id` bigint(20) NOT NULL COMMENT '所属者会员ID',
   `founder_member_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '创始人ID',
   `permissions` char(10) NOT NULL DEFAULT 'public' COMMENT '聊天室权限。 public:开放, protected:受保护(可见,并且管理员同意才能加入), private:私有(不可申请,并且管理员邀请才能加入)',
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
+  `updated_at` int(11) NOT NULL DEFAULT 0 COMMENT '修改时间',
   PRIMARY KEY (`group_id`),
   UNIQUE KEY `id` (`id`),
   KEY `owner_member_id` (`owner_member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='群组表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='群组表';
 
 -- ----------------------------
 -- Table structure for group_member
@@ -72,13 +74,15 @@ CREATE TABLE `group_member` (
   `group_member_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `group_id` bigint(20) NOT NULL COMMENT '群组ID',
   `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+  `alias` varchar(50) NOT NULL COMMENT '会员群别名',
+  `notify_level` tinyint(1) not null default 0 comment '通知级别，0：正常，1：接收消息但不提醒，2：屏蔽群消息',
   `member_identity` char(10) NOT NULL COMMENT '成员身份: admin-管理员, root-群主, common-普通成员',
   `status` char(10) NOT NULL COMMENT '状态: normal-正常, blacklist-黑名单',
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
   PRIMARY KEY (`group_member_id`),
   KEY `group_id` (`group_id`),
   KEY `member_id` (`member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='群组表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='群组成员表';
 
 -- ----------------------------
 -- Table structure for message
@@ -87,7 +91,7 @@ DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `message_id` char(32) NOT NULL COMMENT '消息ID',
-  `chatroom_id` char(32) NOT NULL COMMENT '聊天室ID',
+  `chatroom_id` bigint(20) NOT NULL COMMENT '聊天室ID',
   `member_id` bigint(20) NOT NULL COMMENT '会员ID',
   `content` text DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -99,7 +103,7 @@ DROP TABLE IF EXISTS `chatroom_record`;
 CREATE TABLE `user_chatroom_record` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `member_id` bigint(20) NOT NULL COMMENT '会员ID',
-    `chatroom_id` char(32) NOT NULL COMMENT '聊天室ID',
+    `chatroom_id` bigint(20) NOT NULL COMMENT '聊天室ID',
     `sort` char(32) NOT NULL COMMENT '排序',
     `expand` varchar(2000) DEFAULT NULL COMMENT '扩展',
     PRIMARY KEY (`id`),
@@ -120,7 +124,7 @@ CREATE TABLE `user_auths` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `identity_type_identifier` (`identity_type`,`identifier`) USING BTREE,
   KEY `member_id` (`member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员授权账号表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员授权账号表';
 
 -- ----------------------------
 -- Table structure for user_auths_token
@@ -136,7 +140,7 @@ CREATE TABLE `user_auths_token` (
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户授权 token 表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户授权 token 表';
 
 -- ----------------------------
 -- Table structure for user_friend
@@ -151,7 +155,7 @@ CREATE TABLE `user_friend` (
   `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `member_id_friend_id` (`member_id`,`friend_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户好友表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户好友表';
 
 -- ----------------------------
 -- Table structure for user_friend_apply
@@ -167,7 +171,7 @@ CREATE TABLE `user_friend_apply` (
   PRIMARY KEY (`id`),
   KEY `member_id` (`member_id`),
   KEY `friend_id` (`friend_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='好友申请表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='好友申请表';
 
 -- ----------------------------
 -- Table structure for user_member

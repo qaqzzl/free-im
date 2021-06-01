@@ -30,8 +30,8 @@ func FriendIdGetChatroomId(c *gin.Context) {
 	http.RespOk(c, ret, "")
 }
 
-// 通过聊天室ID获取聊天室基础信息（头像，名称）
-func GetChatroomAvatarNameByChatRoomID(c *gin.Context) {
+// 获取聊天室信息
+func GetChatroomBaseInfo(c *gin.Context) {
 	var req struct {
 		ChatroomID int64 `json:"chatroom_id"`
 	}
@@ -53,27 +53,24 @@ func ChatroomList(c *gin.Context) {
 // 创建群组
 func CreateGroup(c *gin.Context) {
 	var req struct {
-		Name   string `json:"name"`
-		Avatar string `json:"avatar"`
+		Name       string  `json:"name"`
+		Avatar     string  `json:"avatar"`
+		Desc       string  `json:"desc"`
+		MemberList []int64 `json:"member_list"`
 	}
 	if http.ReqBin(c, &req) != nil {
 		return
 	}
-	var (
-		group_id int64
-		err      error
-	)
-	if group_id, err = ChatRoomService.CreateGroup(http.GetUid(c), model.Group{
+	group := model.Group{
 		Name:   req.Name,
 		Avatar: req.Avatar,
-	}); err != nil {
+		Desc:   req.Desc,
+	}
+	if err := ChatRoomService.CreateGroup(http.GetUid(c), &group, req.MemberList); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
-
-	ret := make(map[string]interface{})
-	ret["group_id"] = group_id
-	http.RespOk(c, ret, "")
+	http.RespOk(c, group, "")
 }
 
 // 加入群组
@@ -106,7 +103,49 @@ func MyGroupList(c *gin.Context) {
 		http.RespFail(c, err.Error())
 		return
 	}
-	ret := make(map[string]interface{})
-	ret["group_list"] = group_list
-	http.RespOk(c, ret, "")
+	http.RespOk(c, group_list, "")
+}
+
+// 群组成员
+func GroupMember(c *gin.Context) {
+	var req struct {
+		GroupID int64 `uri:"group_id" binding:"required"`
+	}
+	if err := http.ShouldBindUri(c, &req); err != nil {
+		return
+	}
+
+	list, err := ChatRoomService.GroupMember(http.GetUid(c), req.GroupID)
+	if err != nil {
+		http.RespFail(c, err.Error())
+		return
+	}
+	http.RespOk(c, list, "")
+}
+
+// 添加群成员
+func AddGroupMember(c *gin.Context) {
+	var req struct {
+		GroupID    int64   `json:"group_id"`
+		MemberList []int64 `json:"member_list"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	// todo 验证数据 code。。。
+	var group_member []model.GroupMember
+	for _, v := range req.MemberList {
+		group_member = append(group_member, model.GroupMember{
+			GroupId:        req.GroupID,
+			MemberId:       v,
+			MemberIdentity: "common",
+			Status:         "normal",
+			NotifyLevel:    0,
+		})
+	}
+	if err := ChatRoomService.AddGroupMember(http.GetUid(c), &group_member); err != nil {
+		http.RespFail(c, "系统繁忙")
+		return
+	}
+	http.RespOk(c, group_member, "")
 }

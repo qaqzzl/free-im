@@ -30,25 +30,25 @@ func (d *chatroom) GetMembers(chatroom_id int64) (member_ids []int64, err error)
 }
 
 // * 创建群组
-func (d *chatroom) CreateGroup(group model.Group) (group_id int64, err error) {
+func (d *chatroom) CreateGroup(group *model.Group) (err error) {
 	rand.Seed(time.Now().Unix())
-	group.Id = fmt.Sprintf("%06d", rand.Int31n(10000))
+	group.Id = fmt.Sprintf("%06d", (rand.Int31n((999999 - 10000)) - 10000))
 	result := Dao.DB().Table("`group`").Create(&group)
-	group_id = group.GroupId
 	if err = result.Error; err != nil {
 		return
 	}
 	// 群组成员
 	group_member := model.GroupMember{
-		GroupId:        group_id,
+		GroupId:        group.GroupId,
 		MemberId:       group.FounderMemberId,
 		MemberIdentity: "root",
 		Status:         "normal",
+		NotifyLevel:    0,
 	}
 	Dao.DB().Table("`group_member`").Create(&group_member)
 	// redis
 	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(group.ChatroomId)), group.OwnerMemberId) //创建聊天室
-	return
+	return err
 }
 
 // * 加入群组
@@ -75,8 +75,20 @@ func (d *chatroom) GroupIsExistByID(id string) (is bool, err error) {
 }
 
 // * 会员群组列表 by member_id
-func (d *chatroom) MemberGroupListByUID(member_id int64) (MemberGroups []*model.GroupMember, err error) {
-	return d.MemberGroupList("member_id = ?", member_id)
+func (d *chatroom) MemberGroupListByUID(member_id int64) (Groups []*model.Group, err error) {
+	var groupMember model.GroupMember
+	var MemberGroups []*model.GroupMember
+	Dao.DB().Table(groupMember.TableName()).Where("member_id = ?", member_id).Find(&MemberGroups)
+	var group_ids []int64
+	for _, v := range MemberGroups {
+		group_ids = append(group_ids, v.GroupId)
+	}
+	if len(group_ids) > 0 {
+		var group model.Group
+		result := Dao.DB().Table(group.TableName()).Where("group_id in ?", group_ids).Find(&Groups)
+		err = result.Error
+	}
+	return
 }
 
 // * 会员群组列表

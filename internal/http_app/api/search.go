@@ -31,13 +31,13 @@ func SearchGroup(c *gin.Context) {
 	if http.ReqBin(c, &req) != nil {
 		return
 	}
-	// 搜索好友列表
+	// 搜索群组列表
 	search_list, err := ChatRoomService.SearchGroup(req.Search)
 	if err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
 	}
-	ret := make(map[string]interface{})
-	ret["search_list"] = search_list
-	http.RespOk(c, ret, "")
+	//ret := make(map[string]interface{})
+	//ret["search_list"] = search_list
+	http.RespOk(c, search_list, "")
 }

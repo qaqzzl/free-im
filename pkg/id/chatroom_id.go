@@ -2,6 +2,7 @@ package id
 
 import (
 	"errors"
+	logger2 "free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"github.com/gomodule/redigo/redis"
 	"strconv"
@@ -31,22 +32,24 @@ func initChatroomID(rdb *redis.Pool) error {
 // 获取聊天室ID
 func (id *chatroomId) GetID(sessionType pbs.ChatroomType) (int64, error) {
 	rconn := id.redisPool.Get()
-	max, err := rconn.Do("get", "id:"+id.redisKey+":max")
-	if err != nil {
-		return 0, id.errTimeOut
-	}
-	var maxNum int64
-	if max == nil {
-		maxNum = 100000
-	} else {
-		maxNum = byteUintToint64(max.([]uint8))
-	}
 	//检查号池是否已存在
 	exists, err := rconn.Do("exists", "id:"+id.redisKey+":pond")
 	if err != nil {
+		logger2.Sugar.Error(err)
 		return 0, id.errTimeOut
 	}
 	if exists.(int64) == 0 {
+		max, err := rconn.Do("get", "id:"+id.redisKey+":max")
+		if err != nil {
+			logger2.Sugar.Error(err)
+			return -1, id.errTimeOut
+		}
+		var maxNum int64
+		if max == nil {
+			maxNum = 100000
+		} else {
+			maxNum = byteUintToint64(max.([]uint8))
+		}
 		addlen := 1000
 		if _, err := rconn.Do("set", "id:"+id.redisKey+":max", maxNum+int64(addlen)); err != nil {
 			return 0, id.errTimeOut
@@ -61,6 +64,8 @@ func (id *chatroomId) GetID(sessionType pbs.ChatroomType) (int64, error) {
 	if err != nil {
 		return 0, id.errTimeOut
 	}
-	cidint, _ := strconv.Atoi(strconv.Itoa(int(sessionType)) + byteUintToString(cid.([]uint8)))
+	cidint, _ := strconv.Atoi(byteUintToString(cid.([]uint8)) + strconv.Itoa(int(sessionType)))
+
+	defer rconn.Close()
 	return int64(cidint), nil
 }
