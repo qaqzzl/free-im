@@ -15,7 +15,7 @@ func AppNewVersionGet(c *gin.Context) {
 		info["version_name"] = "2.0.0"
 		info["version_download"] = ""
 		info["version_download_page"] = "https://www.pgyer.com/freeim"
-		info["version_description"] = "修复已知bug"
+		info["version_description"] = "全新版本\n新增群聊功能\n修复已知BUG"
 	case "ios":
 		info["version_code"] = 1
 		info["is_must"] = 1
