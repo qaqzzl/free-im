@@ -29,7 +29,7 @@ func setupRouter() *gin.Engine {
 	r.POST("/login/qq", app_http.QQLogin)             // QQ登陆
 	r.POST("/common/send.sms", app_http.SendLoginSms) // 发送手机号验证码
 
-	r.GET("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
+	r.Any("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
 
 	authorized := r.Group("/").Use(authorizedMiddleware())
 	{
