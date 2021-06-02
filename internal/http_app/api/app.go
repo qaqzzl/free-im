@@ -13,7 +13,7 @@ func AppNewVersionGet(c *gin.Context) {
 		info["version_code"] = 3
 		info["is_must"] = 1 // 是否必须更新
 		info["version_name"] = "2.0.0"
-		info["version_download"] = "https://cdn.qaqzz.com/free-im-v2.0.0.apk"
+		info["version_download"] = "http://cdn.qaqzz.com/free-im-v2.0.0.apk"
 		info["version_download_page"] = "https://www.pgyer.com/freeim"
 		info["version_description"] = "全新版本\n新增群聊功能\n修复已知BUG"
 	case "ios":
