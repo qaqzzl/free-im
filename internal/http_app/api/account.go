@@ -48,7 +48,7 @@ func PhoneLogin(c *gin.Context) {
 		http2.RespFail(c, err.Error())
 		return
 	} else if verify == false {
-		http2.RespFail(c, "短信验证码错误")
+		http2.Resp(c, http2.HTTP_CODE_SMS_ERROR, nil, "验证码错误")
 		return
 	}
 	ret, err := AccountService.
@@ -59,7 +59,6 @@ func PhoneLogin(c *gin.Context) {
 		http2.RespFail(c, "系统繁忙")
 		return
 	}
-
 	http2.RespOk(c, ret, "")
 }
 

@@ -25,10 +25,9 @@ func setupRouter() *gin.Engine {
 	})
 
 	// 登陆 ｜ 注册
-	r.POST("/login", app_http.PhoneLogin)                        // 手机号登录 / 注册                                                            // 手机号登录 / 注册
-	r.POST("/login/phone.password", app_http.PhonePasswordLogin) // 手机号密码登录 / 注册                                                            // 手机号登录 / 注册
-	r.POST("/login/qq", app_http.QQLogin)                        // QQ登陆
-	r.POST("/common/send.sms", app_http.SendLoginSms)            // 发送手机号验证码
+	r.POST("/login", app_http.PhoneLogin)             // 手机号登录 / 注册                                                            // 手机号登录 / 注册
+	r.POST("/login/qq", app_http.QQLogin)             // QQ登陆
+	r.POST("/common/send.sms", app_http.SendLoginSms) // 发送手机号验证码
 
 	r.GET("/app/new.version.get", app_http.AppNewVersionGet) // http_app 最新版本获取
 
@@ -53,7 +52,7 @@ func setupRouter() *gin.Engine {
 		authorized.GET("/chatroom/my.group.list", app_http.MyGroupList)                        // 我的群组列表
 		authorized.POST("/chatroom/group.info", app_http.GroupInfo)                            // 群组信息
 		authorized.GET("/chatroom/group.member/:group_id", app_http.GroupMember)               // 我的群组列表
-		authorized.POST("/chatroom/add.group.member", app_http.AddGroupMember)                 // 我的群组列表
+		authorized.POST("/chatroom/add.group.member", app_http.AddGroupMember)                 // 添加群组成员
 		authorized.POST("/common/get.qiniu.upload.token", app_http.GetQiniuUploadToken)        // 获取七牛上传token
 		authorized.POST("/dynamic/publish", app_http.DynamicPublish)                           // 发布动态
 		authorized.POST("/dynamic/list", app_http.DynamicList)                                 // 动态列表
@@ -69,24 +68,24 @@ func authorizedMiddleware() gin.HandlerFunc {
 
 		authorization := c.Request.Header.Get("Authorization")
 		if authorization == "" {
-			http2.Resp(c, 401, nil, "请登陆")
+			http2.Resp(c, http2.HTTP_CODE_ACCOUNT_TOKEN_ERROR, nil, "请登陆")
 			c.Abort()
 			return
 		}
 		parts := strings.SplitN(authorization, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			http2.Resp(c, 401, nil, "请求头中auth格式有误")
+			http2.Resp(c, http2.HTTP_CODE_ACCOUNT_TOKEN_ERROR, nil, "请求头中auth格式有误")
 			c.Abort()
 			return
 		}
 		token, err := http2.DecryptToken(parts[1])
 		if err != nil {
-			http2.Resp(c, 401, nil, "Token 解析失败")
+			http2.Resp(c, http2.HTTP_CODE_ACCOUNT_TOKEN_ERROR, nil, "Token 解析失败")
 			c.Abort()
 			return
 		}
 		//if token.Expire < time.Now().Unix() {
-		//	http2.Resp(c, 401, nil, "token 已过期")
+		//	http2.Resp(c, http2.HTTP_CODE_ACCOUNT_TOKEN_ERROR, nil, "token 已过期")
 		//	c.Abort()
 		//	return
 		//}

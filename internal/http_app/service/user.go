@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -51,13 +52,13 @@ func (s *UserService) IsMemberNickname(member_id int64, nickname string) bool {
 func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string) (ret map[string]string, err error) {
 	ret = make(map[string]string)
 	// 判断是否已经申请
-	var user_friend map[string]interface{}
-	dao.Dao.DB().Table("user_friend_apply").
+	var user_friend model.UserFriendApply
+	result := dao.Dao.DB().Table(user_friend.TableName()).
 		Where("member_id = ? and friend_id = ?", member_id, friend_id).
 		Order("id desc").
 		Select("member_id", "friend_id", "status").
-		Find(&user_friend)
-	if len(user_friend) == 0 {
+		First(&user_friend)
+	if result.Error == gorm.ErrRecordNotFound {
 		if err = dao.User.AddFriend(member_id, friend_id, remark); err != nil {
 			return ret, err
 		}
@@ -66,15 +67,15 @@ func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string)
 		return ret, err
 	}
 
-	switch user_friend["status"] {
-	case "0":
+	switch user_friend.Status {
+	case 0:
 		ret["message"] = "已发送, 等待对方同意"
 		ret["code"] = "1"
 		break
-	case "1":
+	case 1:
 		// 判断是否为正常好友关系
-		me_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend["friend_id"].(int64))
-		to_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend["friend_id"].(int64))
+		me_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend.FriendId)
+		to_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend.FriendId)
 		if me_is_friend != 0 || to_is_friend != 0 {
 			dao.User.AddFriend(member_id, friend_id, remark)
 			ret["message"] = "已发送, 等待对方同意"
@@ -84,7 +85,7 @@ func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string)
 			ret["code"] = "0"
 		}
 		break
-	case "2":
+	case 2:
 		if err = dao.User.AddFriend(member_id, friend_id, remark); err != nil {
 			return ret, err
 		}

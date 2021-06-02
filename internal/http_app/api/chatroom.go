@@ -149,19 +149,10 @@ func AddGroupMember(c *gin.Context) {
 		return
 	}
 	// todo 验证数据 code。。。
-	var group_member []model.GroupMember
-	for _, v := range req.MemberList {
-		group_member = append(group_member, model.GroupMember{
-			GroupId:        req.GroupID,
-			MemberId:       v,
-			MemberIdentity: "common",
-			Status:         "normal",
-			NotifyLevel:    0,
-		})
-	}
-	if err := ChatRoomService.AddGroupMember(http.GetUid(c), &group_member); err != nil {
+	if group_member, err := ChatRoomService.AddGroupMember(http.GetUid(c), req.GroupID, req.MemberList); err != nil {
 		http.RespFail(c, "系统繁忙")
 		return
+	} else {
+		http.RespOk(c, group_member, "")
 	}
-	http.RespOk(c, group_member, "")
 }

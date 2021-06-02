@@ -147,9 +147,24 @@ func (s *ChatRoomService) JoinGroup(member_id int64, group_id int64, remark stri
 }
 
 // 添加群成员
-func (s *ChatRoomService) AddGroupMember(member_id int64, groupMembers *[]model.GroupMember) (err error) {
-	var groupMember model.GroupMember
-	dao.Dao.DB().Table(groupMember.TableName()).Create(&groupMembers)
+func (s *ChatRoomService) AddGroupMember(member_id int64, group_id int64, memberList []int64) (groupMembers []model.GroupMember, err error) {
+	group, err := dao.Chatroom.GetGroupByID(group_id, "*")
+	if err != nil {
+		return groupMembers, errors.New("系统忙，请稍后再试")
+	}
+	if group.ChatroomId == 0 {
+		return groupMembers, errors.New("群组不存在")
+	}
+	for _, v := range memberList {
+		var groupMember = model.GroupMember{
+			MemberId: v, GroupId: group_id,
+			MemberIdentity: "common", Status: "normal",
+			NotifyLevel: 0,
+		}
+		// 加入聊天室
+		dao.Chatroom.JoinGroup(&groupMember, group.ChatroomId)
+		groupMembers = append(groupMembers, groupMember)
+	}
 	return
 }
 

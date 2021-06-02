@@ -120,11 +120,23 @@ CREATE TABLE `user_auths` (
   `member_id` bigint(20) NOT NULL COMMENT '会员ID',
   `identity_type` char(20) NOT NULL COMMENT '类型,wechat_applet,qq,wb,phone,number,email',
   `identifier` varchar(64) NOT NULL DEFAULT '' COMMENT '微信,QQ,微博openid | 手机号,邮箱,账号',
-  `credential` varchar(64) NOT NULL DEFAULT '' COMMENT '密码凭证（站内的保存密码，站外的不保存或保存access_token）',
+  `credential` varchar(64) NOT NULL DEFAULT '' COMMENT '密码凭证（站外的不保存或保存access_token）',
   PRIMARY KEY (`id`),
   UNIQUE KEY `identity_type_identifier` (`identity_type`,`identifier`) USING BTREE,
   KEY `member_id` (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员授权账号表';
+
+DROP TABLE IF EXISTS `user_password`;
+CREATE TABLE `user_password` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+    `pwd` varchar(64) NOT NULL DEFAULT '' COMMENT '密码，加密后',
+    `status` tinyint(1) not null default 1 COMMENT '状态，0：正常，1：失效，2：禁用',
+    `created_at` int(11) NOT NULL DEFAULT 0 COMMENT '添加时间',
+    `updated_at` int(11) NOT NULL DEFAULT 0 COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员账号密码表';
 
 -- ----------------------------
 -- Table structure for user_auths_token
