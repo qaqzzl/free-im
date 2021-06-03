@@ -5,9 +5,16 @@
     单用户多设备同时在线
     单聊，群聊，场景
 ```
+### 应用架构
+```
+    应用架构分为3层，各服务通过grpc调用
+        http服务      （登陆注册，好友列表，群列表，创建群，添加好友等。。。）
+        im业务层       (消息处理）
+        socket连接层   (长链接管理，消息接收，消息投递)
+```
 
-## 安卓客户端
-[Android 安装包下载](https://cdn.qaqzz.com/app-free-release-v1.apk)
+##安卓客户端
+[Android 体验下载](https://www.pgyer.com/freeim) 
 
 [Android 项目地址](https://github.com/qaqzzl/free-im-android)
 
@@ -52,4 +59,4 @@ https://jmeubank.github.io/tdm-gcc/download/
 ```
 
 ### android demo image
-<img src="http://free-im-qn.qaqzz.com/docs/app1.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app2.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app3.png" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app4.png" width="25%"/>
+<img src="http://free-im-qn.qaqzz.com/docs/app1-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app2-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app3-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app4-1.jpg" width="25%"/>
