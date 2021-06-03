@@ -85,7 +85,7 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 		return member_id, errCreateFail
 	}
 	member_id = user_member.MemberId
-	// 自动添加好友 id=1
+	// 添加默认好友 id=1
 	timeUnix := time.Now().Unix()
 	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
@@ -95,6 +95,14 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 		"ON DUPLICATE KEY UPDATE status=VALUES(status)",
 		1, member_id, 0, timeUnix)
 	dao.Dao.DB().Exec(sql)
+
+	// 加入默认群组
+	var groupMember = model.GroupMember{
+		MemberId: member_id, GroupId: 1,
+		MemberIdentity: "common", Status: "normal",
+		NotifyLevel: 0,
+	}
+	dao.Chatroom.JoinGroup(&groupMember, 1007212)
 
 	// 返回 id
 	return member_id, err
