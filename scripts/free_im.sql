@@ -92,12 +92,22 @@ CREATE TABLE `message` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `message_id` char(32) NOT NULL COMMENT '消息ID',
   `chatroom_id` bigint(20) NOT NULL COMMENT '聊天室ID',
-  `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+  `member_id` bigint(20) NOT NULL COMMENT '发送消息会员ID',
   `content` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `chatroom_id` (`chatroom_id`),
   KEY `member_id` (`member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息记录（储存）表';
+
+DROP TABLE IF EXISTS `user_message`;
+CREATE TABLE `message` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `message_id` char(32) NOT NULL COMMENT '消息ID',
+    `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+    PRIMARY KEY (`id`),
+    KEY `message_id` (`message_id`),
+    KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户消息记录表';
 
 DROP TABLE IF EXISTS `chatroom_record`;
 CREATE TABLE `user_chatroom_record` (
