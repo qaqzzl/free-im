@@ -12,8 +12,13 @@
         socket连接层   (长链接管理，消息接收，消息投递)
 ```
 
-### API接口文档
-https://www.apizza.net/project/88dcdb7080c14030f5005d67132f5617/browse
+#### android run demo image
+<img src="http://free-im-qn.qaqzz.com/docs/app1-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app2-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app3-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app4-1.jpg" width="25%"/>
+
+[Android 体验下载 ](https://www.pgyer.com/freeim)
+
+[Android 项目地址](https://github.com/qaqzzl/free-im-android)
+
 
 ### 项目部署
 1.拉取代码
@@ -53,11 +58,6 @@ exec: "gcc": executable file not found in %PATH%
 https://jmeubank.github.io/tdm-gcc/download/
 ```
 
+### API接口文档
+https://www.apizza.net/project/88dcdb7080c14030f5005d67132f5617/browse
 
-## 安卓客户端
-[Android 体验下载](https://www.pgyer.com/freeim) 
-
-[Android 项目地址](https://github.com/qaqzzl/free-im-android)
-
-### android run demo image
-<img src="http://free-im-qn.qaqzz.com/docs/app1-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app2-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app3-1.jpg" width="25%"/><img src="http://free-im-qn.qaqzz.com/docs/app4-1.jpg" width="25%"/>

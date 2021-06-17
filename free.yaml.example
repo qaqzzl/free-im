@@ -30,11 +30,11 @@ WSConnConf:
 
 # http 模块配置
 HttpConf:
-  HttpListenAddr: ":8066"
+  HttpListenAddr: ":8080"
   RPCListenAddr: ":5003"
   LogicRPCAddrs: "127.0.0.1:5000"
 
 # 监控模块
 MonitorConf:
-  WSListenAddr: ":8067"
+  WSListenAddr: ":8081"
   RPCListenAddr: ":5004"

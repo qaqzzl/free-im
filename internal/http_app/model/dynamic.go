@@ -21,7 +21,7 @@ type Dynamic struct {
 	PrivateToUid     string `gorm:"column:private_to_uid;type:text" json:"private_to_uid"`                               // 私有可见用户 逗号分隔
 	Review           string `gorm:"column:review;type:char(10);default:wait;NOT NULL" json:"review"`                     // 审核状态: wait-审核中, normal-正常, refuse-拒绝
 	DeletedAt        int    `gorm:"column:deleted_at;type:int(11);default:0;NOT NULL" json:"deleted_at"`                 // 删除时间
-	CreatedAt        int    `gorm:"column:created_at;type:int(11);default:0;NOT NULL" json:"created_at"`                 // 添加时间
+	CreatedAt        int    `gorm:"autoCreateTime;column:created_at;type:int(11);default:0;NOT NULL" json:"created_at"`  // 添加时间
 }
 
 func (m *Dynamic) TableName() string {
