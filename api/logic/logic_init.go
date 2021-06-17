@@ -13,6 +13,7 @@ import (
 
 type LogicInitServer struct{}
 
+// token 认证
 func (s *LogicInitServer) TokenAuth(ctx context.Context, req *pbs.TokenAuthReq) (*pbs.TokenAuthResp, error) {
 	return service.TokenAuth(ctx, *req)
 }
@@ -22,12 +23,12 @@ func (s *LogicInitServer) MessageSync(ctx context.Context, req *pbs.MessageSyncR
 	return &pbs.MessageSyncResp{}, service.MessageSync(ctx, *req)
 }
 
-// MessageReceive 消息接收
+// MessageReceive 接收消息
 func (s *LogicInitServer) MessageReceive(ctx context.Context, req *pbs.MessageReceiveReq) (*pbs.MessageReceiveResp, error) {
 	return &pbs.MessageReceiveResp{}, service.MessageReceive(ctx, *req)
 }
 
-// MessageACK 消息接收
+// MessageACK 接收消息回执
 func (s *LogicInitServer) MessageACK(ctx context.Context, req *pbs.MessageACKReq) (*pbs.MessageACKResp, error) {
 	return &pbs.MessageACKResp{}, service.MessageACK(ctx, *req)
 }

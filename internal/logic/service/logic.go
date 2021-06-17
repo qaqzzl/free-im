@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"free-im/internal/logic/dao"
 	"free-im/internal/logic/model"
 	http2 "free-im/pkg/http"
@@ -30,14 +29,10 @@ func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, e
 	return &pbs.TokenAuthResp{Statu: true}, nil
 }
 
-//client message handle
+// 接收消息处理
 func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	m := req.Message
 	//数据验证 code ... //
-
-	//m.MessageSendTime = time.Now().Unix()
-
-	BodyData, _ := json.Marshal(m)
 
 	// 查询聊天室成员
 	members, err := dao.Chatroom.GetMembers(m.ChatroomId)
@@ -45,25 +40,22 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 		logger.Sugar.Error(err)
 		return err
 	}
+
+	// 储存消息
+	if dao.Message.StoreMessage(members, m) != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
 	// 给聊天室全员发送消息
+	m.MessageSendTime = time.Now().Unix()
+	BodyData, _ := json.Marshal(m)
 	packages := pbs.MsgPackage{
 		Action:   pbs.Action_Message,
 		BodyData: BodyData,
 	}
 	for _, v := range members {
 		UserID := v
-		// 存储消息
-		store_message := model.Message{
-			MessageId: m.MessageId,
-			Content:   string(BodyData),
-		}
-		store_message.ChatroomId = m.ChatroomId
-		store_message.MemberId = UserID
-
-		if err := dao.Message.StoreMessage(&store_message); err != nil {
-			logger.Sugar.Error("存储消息失败", err)
-			return err
-		}
 		//发送消息
 		rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
 			UserId:   UserID,
@@ -71,6 +63,7 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 			Message:  &packages,
 		})
 	}
+
 	// 消息回执
 	packages.Action = pbs.Action_MessageACK
 	packages.BodyData = []byte(m.MessageId)
@@ -82,19 +75,30 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	return nil
 }
 
+// 接收消息回执
 func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
 
 	return nil
 }
 
 func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
-	var messages []model.Message
-	result := dao.Dao.DB().Table("message").Where("member_id = ? and message_id > ?", mp.UserId, mp.MessageId).Select("content").Find(&messages)
+	var user_messages []model.UserMessage
+	result := dao.Dao.DB().Table("user_message").Where("member_id = ? and message_id > ?", mp.UserId, mp.MessageId).Select("message_id").Find(&user_messages)
 	if result.Error != nil {
 		logger.Sugar.Error("消息查询失败", result.Error)
 		return result.Error
 	}
-	fmt.Println(messages)
+	var message_ids []string
+	for _, itme := range user_messages {
+		message_ids = append(message_ids, itme.MessageId)
+	}
+
+	var messages []model.Message
+	result = dao.Dao.DB().Table("message").Where("message_id in ?", message_ids).Select("content").Find(&messages)
+	if result.Error != nil {
+		logger.Sugar.Error("消息查询失败", result.Error)
+		return result.Error
+	}
 	for _, itme := range messages {
 		packages := pbs.MsgPackage{
 			Action:   pbs.Action_Message,

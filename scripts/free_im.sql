@@ -99,8 +99,9 @@ CREATE TABLE `message` (
   KEY `member_id` (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息记录（储存）表';
 
+-- 用户消息记录表，对于（单聊，普通群聊）储存用户消息记录
 DROP TABLE IF EXISTS `user_message`;
-CREATE TABLE `message` (
+CREATE TABLE `user_message` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `message_id` char(32) NOT NULL COMMENT '消息ID',
     `member_id` bigint(20) NOT NULL COMMENT '会员ID',
