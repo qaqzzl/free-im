@@ -21,7 +21,7 @@ func (d *message) StoreMessage(members []int64, m *pbs.MsgItem) error {
 		ChatroomId: m.ChatroomId,
 		MemberId:   m.UserId,
 	}
-	result := Dao.DB().Table(new(model.Message).TableName()).Create(message)
+	result := Dao.DB().Table(new(model.Message).TableName()).Create(&message)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -36,6 +36,6 @@ func (d *message) StoreMessage(members []int64, m *pbs.MsgItem) error {
 		user_message.MemberId = UserID
 		user_messages = append(user_messages, user_message)
 	}
-	result = Dao.DB().Table(new(model.UserMessage).TableName()).Create(user_messages)
+	result = Dao.DB().Table(new(model.UserMessage).TableName()).Create(&user_messages)
 	return result.Error
 }
