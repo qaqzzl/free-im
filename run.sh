@@ -8,6 +8,8 @@ function check(){
     fi
     nohup ./$1 -c ~/free-im/free.yaml > $1.out 2>&1 &
     echo "启动进程: $1"
+    cat $1.out
+    echo "------------------------"
 }
 
 go build ./cmd/http_app
