@@ -14,11 +14,7 @@ type UserService struct {
 
 // 获取会员信息
 func (s *UserService) GetMemberInfo(member_id int64) (user_member model.UserMember, err error) {
-	result := dao.Dao.DB().Table("user_member").
-		Where("member_id = ?", member_id).
-		Select("member_id,nickname,gender,birthdate,avatar,signature,city,province").
-		Find(&user_member)
-	err = result.Error
+	user_member, err = dao.User.GetByUID(member_id, "member_id,nickname,gender,birthdate,avatar,signature,city,province")
 	return
 }
 
@@ -31,7 +27,7 @@ func (s *UserService) UpdateMemberInfo(member_id int64, data model.UserMember) (
 	if s.IsMemberNickname(member_id, data.Nickname) {
 		return errors.New("昵称已经被使用")
 	}
-	result := dao.Dao.DB().Table("user_member").
+	result := dao.Dao.DB().Table(data.TableName()).
 		Where("member_id = ?", member_id).Updates(&data)
 	err = result.Error
 	return
@@ -39,13 +35,8 @@ func (s *UserService) UpdateMemberInfo(member_id int64, data model.UserMember) (
 
 // 判断用户昵称是否存在
 func (s *UserService) IsMemberNickname(member_id int64, nickname string) bool {
-	var count int64
-	dao.Dao.DB().Table("user_member").
-		Where("member_id != ? and nickname = ?", member_id, nickname).Count(&count)
-	if count > 0 {
-		return true
-	}
-	return false
+	isbool, _ := dao.User.IsMemberNickname(member_id, nickname)
+	return isbool
 }
 
 // 添加好友

@@ -9,11 +9,23 @@ type user struct {
 }
 
 var User = new(user)
+var UserMember model.UserMember
 
 func (d *user) GetByUID(member_id int64, selects ...string) (UserMember model.UserMember, err error) {
 	result := Dao.DB().Table(UserMember.TableName()).Select(selects).Find(&UserMember, member_id)
 	err = result.Error
 	return
+}
+
+// 判断用户昵称是否存在
+func (d *user) IsMemberNickname(member_id int64, nickname string) (bool, error) {
+	var count int64
+	result := Dao.DB().Table(UserMember.TableName()).
+		Where("member_id != ? and nickname = ?", member_id, nickname).Count(&count)
+	if count > 0 && result.Error != nil {
+		return true, nil
+	}
+	return false, result.Error
 }
 
 // * 查询账号是否存在
