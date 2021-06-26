@@ -66,7 +66,7 @@ func (s *UserService) AddFriend(member_id int64, friend_id int64, remark string)
 	case 1:
 		// 判断是否为正常好友关系
 		me_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend.FriendId)
-		to_is_friend, _ := dao.User.QueryFriendBindStatus(member_id, user_friend.FriendId)
+		to_is_friend, _ := dao.User.QueryFriendBindStatus(user_friend.FriendId, member_id)
 		if me_is_friend != 0 || to_is_friend != 0 {
 			dao.User.AddFriend(member_id, friend_id, remark)
 			ret["message"] = "已发送, 等待对方同意"
@@ -93,7 +93,6 @@ func (s *UserService) DelFriend(member_id int64, friend_id int64) (err error) {
 		Where("member_id = ? and friend_id = ? or member_id = ? and friend_id = ?", member_id, friend_id, friend_id, member_id).
 		Delete(model.UserFriend{})
 	err = result.Error
-	// 删除聊天室 && 聊天室消息
 	return err
 }
 
