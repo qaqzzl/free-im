@@ -8,7 +8,6 @@ function check(){
     fi
     nohup ./$1 -c ./free.yaml > ./logs/$1.out 2>&1 &
     echo "启动进程: $1"
-    cat ./logs/$1.out
     echo "------------------------"
 }
 
