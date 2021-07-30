@@ -6,7 +6,7 @@ function check(){
         echo "结束进程: $1"
         killall $1
     fi
-    nohup ./$1 -c ~/free-im/free.yaml > $1.out 2>&1 &
+    nohup ./$1 -c ./free.yaml > ./$1.out 2>&1 &
     echo "启动进程: $1"
     cat $1.out
     echo "------------------------"
