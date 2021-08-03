@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"free-im/config"
 	"free-im/pkg/http"
 	"free-im/pkg/id"
 	"free-im/pkg/logger"
@@ -28,17 +29,20 @@ func GetQiniuUploadToken(c *gin.Context) {
 		scope  string
 		domain string
 	)
-	if req.Type == "private" {
+	switch req.Type {
+	case "private":
 		scope = "free-im-private"
 		domain = "http://free-im-private-qn.qaqzz.com/"
-	} else if req.Type == "public" {
+	case "public":
+		scope = "free-im"
+		domain = "http://free-im-qn.qaqzz.com/"
+	default:
 		scope = "free-im"
 		domain = "http://free-im-qn.qaqzz.com/"
 	}
-
-	saveKeyPrefix := "test"
-	accessKey := "qW7rPngWLk8Nl3MQfehQ_G5ELAZaH47Dej50Dj7k"
-	secretKey := "cN5unz025wgnfHJ_Ck3iBjpLUoByXnUVB8Uu4P1g"
+	saveKeyPrefix := "dev"
+	accessKey := config.CommonConf.QiniuAccessKey
+	secretKey := config.CommonConf.QiniuSecretKey
 	putPolicy := storage.PutPolicy{
 		Scope: scope,
 		//CallbackURL:      "http://api.example.com/qiniu/upload/callback",

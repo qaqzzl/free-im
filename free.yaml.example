@@ -8,6 +8,10 @@ RedisAuth: ""
 AliYunSmsAccessKeyID: ""
 AliYunSmsAccessKeySecret: ""
 
+# 七牛
+QiniuAccessKey: ""
+QiniuSecretKey: ""
+
 # QQ互联APPID
 QQAuthAppID: ""
 
