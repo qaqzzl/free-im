@@ -1,3 +1,9 @@
+AndroidVersionName: "1.0.2"
+AndroidVersionCode: 5
+AndroidVersionPage: "https://www.pgyer.com/freeim"
+AndroidVersionDesc: "语音，图片上传问题修复
+                     修复其他已知BUG"
+
 # 运行环境 dev(开发环境) |　pre(灰度环境) |  prod(生产环境)
 RunSetting: "dev"
 MySQL: "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4"
