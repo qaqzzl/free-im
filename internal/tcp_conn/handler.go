@@ -6,6 +6,7 @@ import (
 	"free-im/pkg/msg"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
+	"free-im/pkg/service"
 	"github.com/orcaman/concurrent-map"
 	"strconv"
 )
@@ -86,7 +87,11 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 			}
 		}
 	}
+	// 储存连接
 	TCPServer.StoreConn(conn)
+	// 用户在线状态
+	service.Service.SetUserOnline(conn.UserID, true)
+	// 发生连接认证成功消息
 	conn.Write(pbs.MsgPackage{
 		Version:  conn.Version,
 		Action:   pbs.Action_Auth,

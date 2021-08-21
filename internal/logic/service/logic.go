@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// client conn auth
+// 连接认证
 func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, error) {
 	m := req.Message
 	if m.UserID == 0 || m.AccessToken == "" || m.DeviceID == "" || m.ClientType == "" || m.DeviceType == "" {
@@ -29,7 +29,7 @@ func TokenAuth(ctx context.Context, req pbs.TokenAuthReq) (*pbs.TokenAuthResp, e
 	return &pbs.TokenAuthResp{Statu: true}, nil
 }
 
-// 接收消息处理
+// 消息处理
 func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	m := req.Message
 	//数据验证 code ... //
@@ -75,12 +75,13 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	return nil
 }
 
-// 接收消息回执
+// 消息回执
 func MessageACK(ctx context.Context, mp pbs.MessageACKReq) error {
 
 	return nil
 }
 
+// 消息同步
 func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
 	var user_messages []model.UserMessage
 	result := dao.Dao.DB().Table("user_message").Where("member_id = ? and message_id > ?", mp.UserId, mp.MessageId).Select("message_id").Find(&user_messages)
