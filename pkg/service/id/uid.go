@@ -2,6 +2,7 @@ package id
 
 import (
 	"errors"
+	"free-im/pkg/util"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -17,7 +18,7 @@ var UID uID
 // db:数据库连接
 // businessId：业务id
 // len：缓冲池大小(长度可控制缓存中剩下多少id时，去DB中加载)
-func initUID(rdb *redis.Pool) error {
+func InitUID(rdb *redis.Pool) error {
 	UID = uID{
 		redisPool:  rdb,
 		redisKey:   "uid",
@@ -43,7 +44,7 @@ func (id *uID) GetID() (string, error) {
 		if max == nil {
 			maxNum = 100000
 		} else {
-			maxNum = byteUintToint64(max.([]uint8))
+			maxNum = util.ByteUintToint64(max.([]uint8))
 		}
 		addlen := 1000
 		if _, err := rconn.Do("set", "id:"+id.redisKey+":max", maxNum+int64(addlen)); err != nil {
@@ -59,6 +60,6 @@ func (id *uID) GetID() (string, error) {
 	if err != nil {
 		return "", id.errTimeOut
 	}
-	cidint := byteUintToString(cid.([]uint8))
+	cidint := util.ByteUintToString(cid.([]uint8))
 	return cidint, nil
 }

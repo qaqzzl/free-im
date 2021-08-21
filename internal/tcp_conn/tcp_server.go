@@ -2,6 +2,7 @@ package tcp_conn
 
 import (
 	"free-im/pkg/logger"
+	"free-im/pkg/service/user"
 	cmap "github.com/orcaman/concurrent-map"
 	"net"
 	"strconv"
@@ -100,4 +101,6 @@ func (t *tcpServer) StoreConn(conn *Conn) {
 		device_map.Set(conn.DeviceType, conn)
 		t.ServerConnPool.Set(key, device_map)
 	}
+	// 用户在线状态
+	user.User.SetUserOnline(conn.UserID, true, conn.DeviceType)
 }

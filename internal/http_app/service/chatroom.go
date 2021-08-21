@@ -4,9 +4,9 @@ import (
 	"errors"
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
-	"free-im/pkg/id"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
+	"free-im/pkg/service/id"
 	"gorm.io/gorm"
 	"strconv"
 )

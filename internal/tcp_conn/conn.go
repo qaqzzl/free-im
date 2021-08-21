@@ -5,6 +5,7 @@ import (
 	"errors"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
+	"free-im/pkg/service/user"
 	cmap "github.com/orcaman/concurrent-map"
 	"io"
 	"net"
@@ -93,6 +94,8 @@ func (conn *Conn) Close() {
 			user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
 			TCPServer.ServerConnPool.Set(key, user_map)
 		}
+		// 用户在线状态
+		user.User.SetUserOnline(conn.UserID, false, conn.DeviceType)
 	}
 	conn.readTicker.Stop()
 	conn.c.Close()

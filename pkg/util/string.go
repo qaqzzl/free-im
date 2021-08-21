@@ -2,6 +2,7 @@ package util
 
 import (
 	"regexp"
+	"strconv"
 	"unsafe"
 )
 
@@ -19,4 +20,21 @@ func PhoneVerify(phone string) bool {
 	reg := `^1[3456789][0-9]{9}$`
 	rgx := regexp.MustCompile(reg)
 	return rgx.MatchString(phone)
+}
+
+func ByteUintToint64(bs []uint8) int64 {
+	ba := []byte{}
+	for _, b := range bs {
+		ba = append(ba, byte(b))
+	}
+	in, _ := strconv.Atoi(string(ba))
+	return int64(in)
+}
+
+func ByteUintToString(bs []uint8) string {
+	ba := []byte{}
+	for _, b := range bs {
+		ba = append(ba, byte(b))
+	}
+	return string(ba)
 }

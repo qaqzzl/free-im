@@ -6,7 +6,7 @@ import (
 	"free-im/internal/http_app/dao"
 	"free-im/internal/http_app/model"
 	http2 "free-im/pkg/http"
-	"free-im/pkg/id"
+	"free-im/pkg/service/id"
 	"gorm.io/gorm"
 	"math/rand"
 	"time"

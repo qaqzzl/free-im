@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	// net/http/pprof
 	go func() {
 		http.ListenAndServe("0.0.0.0:8899", nil)
 	}()
