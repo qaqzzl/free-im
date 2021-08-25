@@ -4,7 +4,9 @@ import (
 	api_tcp_conn "free-im/api/tcp_conn"
 	"free-im/config"
 	"free-im/internal/tcp_conn"
+	"free-im/pkg/library/cache/redis"
 	"free-im/pkg/rpc_client"
+	"free-im/pkg/service"
 	"net/http"
 	_ "net/http/pprof"
 )
@@ -14,6 +16,9 @@ func main() {
 	go func() {
 		http.ListenAndServe("0.0.0.0:8899", nil)
 	}()
+
+	// 初始化公共服务
+	service.Init(redis.NewPool(redis.Config{Dial: config.CommonConf.RedisIP, Auth: config.CommonConf.RedisAuth}))
 
 	// 启动rpc服务
 	go func() {

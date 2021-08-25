@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
+	"free-im/pkg/service/user"
 	"github.com/gorilla/websocket"
+	cmap "github.com/orcaman/concurrent-map"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -80,6 +83,15 @@ func (conn *Conn) Close() {
 	conn.mutex.Lock()
 	defer conn.mutex.Unlock()
 	if !conn.isClosed {
+		if conn.IsAuth {
+			key := strconv.Itoa(int(conn.UserID))
+			if user_map, ok := WSServer.ServerConnPool.Get(key); ok {
+				user_map.(cmap.ConcurrentMap).Remove(conn.DeviceType)
+				WSServer.ServerConnPool.Set(key, user_map)
+			}
+			// 用户在线状态
+			user.User.SetUserOnline(conn.UserID, false, conn.DeviceType)
+		}
 		conn.isClosed = true
 		close(conn.closeChan)
 		conn.c.Close()
