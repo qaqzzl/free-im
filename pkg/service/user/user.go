@@ -11,10 +11,6 @@ type user struct {
 
 var User user
 
-// NewUid 创建一个Uid;len：缓冲池大小()
-// db:数据库连接
-// businessId：业务id
-// len：缓冲池大小(长度可控制缓存中剩下多少id时，去DB中加载)
 func InitUser(rdb *redis.Pool) error {
 	User = user{
 		redisPool: rdb,
@@ -38,10 +34,18 @@ func (s *user) SetUserOnline(uid int64, status bool, deviceType string) error {
 
 func (s *user) GetUserOnline(uid int64) (bool, error) {
 	rconn := s.redisPool.Get()
-	redis_key := "user_online_status"
-	statu, err := rconn.Do("GETBIT", redis_key, strconv.Itoa(int(uid)))
+	redis_key := "user_online_status:mobile"
+	statuMobile, err := rconn.Do("GETBIT", redis_key, strconv.Itoa(int(uid)))
+	if err != nil {
+		return false, err
+	}
+	redis_key = "user_online_status:pc"
+	statuPc, err := rconn.Do("GETBIT", redis_key, strconv.Itoa(int(uid)))
+	if err != nil {
+		return false, err
+	}
 	var status bool
-	if statu.(int) == 0 {
+	if statuMobile.(int) == 0 && statuPc.(int) == 0 {
 		status = false
 	} else {
 		status = true

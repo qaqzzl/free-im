@@ -10,6 +10,7 @@ import (
 	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
+	"free-im/pkg/service/user"
 	"time"
 )
 
@@ -56,22 +57,22 @@ func MessageReceive(ctx context.Context, req pbs.MessageReceiveReq) error {
 	}
 	for _, v := range members {
 		UserID := v
-		//发送消息
-		rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, &pbs.DeliverMessageReq{
+		// 发送消息,(排除当前设备)
+		sendMessage(ctx, &pbs.DeliverMessageReq{
 			UserId:   UserID,
 			DeviceId: m.DeviceID,
 			Message:  &packages,
-		})
+		}, "uid_and_not_did")
 	}
 
 	// 消息回执
 	packages.Action = pbs.Action_MessageACK
 	packages.BodyData = []byte(m.MessageId)
-	rpc_client.ConnectInit.DeliverMessageByUIDAndDID(ctx, &pbs.DeliverMessageReq{
+	sendMessage(ctx, &pbs.DeliverMessageReq{
 		UserId:   m.UserId,
 		DeviceId: m.DeviceID,
 		Message:  &packages,
-	})
+	}, "uid_and_did")
 	return nil
 }
 
@@ -106,10 +107,25 @@ func MessageSync(ctx context.Context, mp pbs.MessageSyncReq) error {
 			BodyData: []byte(itme.Content),
 		}
 		//发送消息
-		rpc_client.ConnectInit.DeliverMessageByUID(ctx, &pbs.DeliverMessageReq{
+		sendMessage(ctx, &pbs.DeliverMessageReq{
 			UserId:  mp.UserId,
 			Message: &packages,
-		})
+		}, "uid")
 	}
 	return nil
+}
+
+func sendMessage(ctx context.Context, msg *pbs.DeliverMessageReq, bykey string) (*pbs.DeliverMessageResp, error) {
+	if s, err := user.User.GetUserOnline(msg.UserId); err == nil && s {
+		//发送消息
+		switch bykey {
+		case "uid":
+			return rpc_client.ConnectInit.DeliverMessageByUID(ctx, msg)
+		case "uid_and_did":
+			return rpc_client.ConnectInit.DeliverMessageByUIDAndDID(ctx, msg)
+		case "uid_and_not_did":
+			return rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, msg)
+		}
+	}
+	return nil, nil
 }
