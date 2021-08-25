@@ -45,7 +45,7 @@ func (s *user) GetUserOnline(uid int64) (bool, error) {
 		return false, err
 	}
 	var status bool
-	if statuMobile.(int) == 0 && statuPc.(int) == 0 {
+	if statuMobile.(int64) == 0 && statuPc.(int64) == 0 {
 		status = false
 	} else {
 		status = true
