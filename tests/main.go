@@ -8,7 +8,6 @@ import (
 	"free-im/pkg/protos/pbs"
 	"log"
 	"net"
-	"os"
 	"time"
 )
 
@@ -65,25 +64,25 @@ func Log(v ...interface{}) {
 	log.Println(v...)
 }
 
-func NewServer() {
-	server := "101.132.107.212:1208"
-	//server := "127.0.0.1:1208"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", server)
-	if err != nil {
-		Log(os.Stderr, "Fatal error:", err.Error())
-		//os.Exit(1)
-		return
-	}
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	if err != nil {
-		Log(os.Stderr, "Fatal error:", err.Error())
-		//os.Exit(1)
-		return
-	}
-
-	fmt.Println("connection success")
-	go sender(conn)
-}
+//func NewServer() {
+//	server := "101.132.107.212:1208"
+//	//server := "127.0.0.1:1208"
+//	tcpAddr, err := net.ResolveTCPAddr("tcp4", server)
+//	if err != nil {
+//		Log(os.Stderr, "Fatal error:", err.Error())
+//		//os.Exit(1)
+//		return
+//	}
+//	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+//	if err != nil {
+//		Log(os.Stderr, "Fatal error:", err.Error())
+//		//os.Exit(1)
+//		return
+//	}
+//
+//	fmt.Println("connection success")
+//	go sender(conn)
+//}
 
 func main() {
 	for {
