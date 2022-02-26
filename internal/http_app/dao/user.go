@@ -31,7 +31,7 @@ func (d *user) IsMemberNickname(member_id int64, nickname string) (bool, error) 
 // * 查询账号是否存在
 func (d *user) IsExistAccount(account string, _type string) (b bool, err error) {
 	var c int64
-	result := Dao.DB().Table("user_auths").Where(`identity_type = ?' and identifier = ?`, account, _type).Limit(1).Count(&c)
+	result := Dao.DB().Table("user_auths").Where(`identity_type = '?' and identifier = ?`, account, _type).Limit(1).Count(&c)
 	err = result.Error
 	if c > 0 {
 		return true, err

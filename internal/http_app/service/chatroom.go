@@ -35,7 +35,7 @@ func (s *ChatRoomService) GetChatroomBaseInfo(chatroom_id int64, member_id int64
 		}
 	case "2":
 		group := model.Group{}
-		result := dao.Dao.DB().Table(group.TableName()).Where(`chatroom_id = '?'`, chatroom_id).First(&group)
+		result := dao.Dao.DB().Table(group.TableName()).Where(`chatroom_id = ?`, chatroom_id).First(&group)
 		if result.Error != nil {
 			return nil, result.Error
 		}
