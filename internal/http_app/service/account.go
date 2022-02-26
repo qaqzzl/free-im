@@ -9,6 +9,7 @@ import (
 	"free-im/pkg/service/id"
 	"gorm.io/gorm"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -67,9 +68,7 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 	} else {
 		user_member.Nickname += "-" + freeid
 	}
-	if user_member.Avatar == "" {
-		user_member.Avatar = "http://free-im-qn.qaqzz.com/default_avatar.png"
-	}
+
 	err = dao.Dao.DB().Transaction(func(tx *gorm.DB) error {
 		if dao.Dao.DB().Table(user_member.TableName()).Create(&user_member).Error != nil {
 			return errCreateFail
@@ -85,6 +84,12 @@ func (s *AccountService) Register(user_auths model.UserAuths, user_member model.
 		return member_id, errCreateFail
 	}
 	member_id = user_member.MemberId
+
+	if user_member.Avatar == "" {
+		avatar := "https://gravatar.zeruns.tech/avatar/" + strconv.Itoa(int(member_id)) + "?d=monsterid"
+		dao.Dao.DB().Table(user_member.TableName()).Where("member_id=?", member_id).UpdateColumn("avatar", avatar)
+	}
+
 	// 添加默认好友 id=1
 	timeUnix := time.Now().Unix()
 	sql := fmt.Sprintf("INSERT INTO `user_friend` (member_id,friend_id,status,created_at) VALUES (%d,%d,%d,%d) "+
