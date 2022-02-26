@@ -61,7 +61,7 @@ type httpConf struct {
 }
 
 func init() {
-	var confPath string
+	confPath := "."
 	flag.StringVar(&confPath, "c", ".", "set config file")
 	flag.Parse()
 	if confPath != "." {

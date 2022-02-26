@@ -126,6 +126,9 @@ func sendMessage(ctx context.Context, msg *pbs.DeliverMessageReq, bykey string) 
 		case "uid_and_not_did":
 			return rpc_client.ConnectInit.DeliverMessageByUIDAndNotDID(ctx, msg)
 		}
+	} else {
+		// 查询最近登陆的android或ios有效设备推送ID，进行消息推送
+
 	}
 	return nil, nil
 }
