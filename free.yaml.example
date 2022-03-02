@@ -1,7 +1,7 @@
-AndroidVersionName: "1.0.2"
-AndroidVersionCode: 5
+AndroidVersionName: "1.0.3"
+AndroidVersionCode: 6
 AndroidVersionPage: "https://www.pgyer.com/freeim"
-AndroidVersionDesc: "语音，图片上传问题修复
+AndroidVersionDesc: "修复聊天会话错乱BUG。
                      修复其他已知BUG"
 
 # 运行环境 dev(开发环境) |　pre(灰度环境) |  prod(生产环境)
