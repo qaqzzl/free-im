@@ -19,3 +19,27 @@ func TestCreatedAt(t *testing.T) {
 	}
 	dao.Dao.DB().Table(user_member.TableName()).Create(&user_member)
 }
+
+func TestIsJoinGroup(t *testing.T) {
+	// 判断是否已经加入群组
+	is_join, _ := dao.Dao.Ris().Do("SISMEMBER", "set_im_chatroom_member:1000222", 1)
+	if is_join.(int64) == 1 {
+		println("已加入", is_join.(int64))
+	} else {
+		println("未加入", is_join.(int64))
+	}
+}
+
+func TestJoinGroup(t *testing.T) {
+	res, err := dao.Dao.Ris().Do("SADD", "set_im_chatroom_member:1000222", 9999) //加入聊天室
+
+	if err != nil {
+		println(err)
+	}
+
+	if res.(int64) == 1 {
+		println("成功", res.(int64))
+	} else {
+		println("失败", res.(int64))
+	}
+}

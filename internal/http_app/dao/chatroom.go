@@ -53,8 +53,8 @@ func (d *chatroom) CreateGroup(group *model.Group) (err error) {
 
 // * 加入群组
 func (d *chatroom) JoinGroup(m *model.GroupMember, chatroom_id int64) (err error) {
-	_, err = Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), m.MemberId) //加入聊天室
-	if err == nil {
+	res, err := Dao.Ris().Do("SADD", "set_im_chatroom_member:"+strconv.Itoa(int(chatroom_id)), m.MemberId) //加入聊天室
+	if res.(int64) == 1 && err == nil {
 		reslut := Dao.DB().Create(&m)
 		err = reslut.Error
 	}
