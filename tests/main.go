@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"free-im/internal/tcp_conn"
+	"free-im/internal/connect"
 	"free-im/pkg/protos/pbs"
 	"log"
 	"net"
@@ -25,7 +25,7 @@ func sender(conn net.Conn) {
 				SequenceId: SequenceId,
 				BodyData:   []byte(""),
 			}
-			if b, err := tcp_conn.Protocol.Encode(words); err == nil {
+			if b, err := connect.Protocol.Encode(words); err == nil {
 				conn.Write(b)
 				SequenceId++
 			}

@@ -1,9 +1,9 @@
 package main
 
 import (
-	api_tcp_conn "free-im/api/tcp_conn"
+	api_tcp_conn "free-im/api/connect"
 	"free-im/config"
-	"free-im/internal/tcp_conn"
+	"free-im/internal/connect"
 	"free-im/pkg/library/cache/redis"
 	"free-im/pkg/rpc_client"
 	"free-im/pkg/service"
@@ -26,9 +26,16 @@ func main() {
 	}()
 
 	// 初始化 rpc 客户端
-	rpc_client.InitLogic(config.TCPConnConf.LogicRPCAddrs)
+	rpc_client.InitLogic(config.ConnectConf.LogicRPCAddrs)
 
-	// 启动长链接服务器
-	server := tcp_conn.NewTCPServer(config.TCPConnConf.TCPListenAddr, 10)
-	server.Start()
+	// WS 启动长链接服务器
+	go func() {
+		wsServer := connect.NewWebSocketServer(config.ConnectConf.WSListenAddr)
+		wsServer.Start()
+	}()
+
+	// TCP 启动长链接服务器
+	tcpServer := connect.NewTCPServer(config.ConnectConf.TCPListenAddr, 10)
+	tcpServer.Start()
+
 }

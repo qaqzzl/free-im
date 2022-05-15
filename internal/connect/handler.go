@@ -1,4 +1,4 @@
-package ws_conn
+package connect
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"free-im/pkg/msg"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
-	cmap "github.com/orcaman/concurrent-map"
+	"github.com/orcaman/concurrent-map"
 	"strconv"
 )
 
@@ -38,6 +38,7 @@ func (h *handler) Handler(conn *Conn, mp pbs.MsgPackage) {
 	}
 }
 
+// client auth handle
 func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 	m := pbs.MsgAuth{}
 	if err := msgFormat.Decode(mp.BodyData, &m); err != nil {
@@ -60,7 +61,8 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 	conn.ClientType = m.ClientType
 	conn.DeviceType = m.DeviceType
 	//加入连接集合
-	if tmp, ok := WSServer.ServerConnPool.Get(strconv.Itoa(int(conn.UserID))); ok {
+	key := strconv.Itoa(int(conn.UserID))
+	if tmp, ok := ConnPool.Get(key); ok {
 		device_map := tmp.(cmap.ConcurrentMap)
 		// 判断连接是否存在相同设备
 		for k, v := range device_map.Items() {
@@ -84,7 +86,9 @@ func (h *handler) Auth(conn *Conn, mp pbs.MsgPackage) {
 			}
 		}
 	}
-	WSServer.StoreConn(conn)
+	// 储存连接
+	StoreConn(conn)
+	// 发生连接认证成功消息
 	conn.Write(pbs.MsgPackage{
 		Version:  conn.Version,
 		Action:   pbs.Action_Auth,
@@ -130,8 +134,8 @@ func (h *handler) Headbeat(conn *Conn) {
 
 // 投递消息
 func (h *handler) DeliverMessageByUID(UserId int64, mp pbs.MsgPackage) error {
-	// 获取设备对应的WS连接
-	conns := WSServer.LoadConnsByUID(UserId)
+	// 获取设备对应的TCP连接
+	conns := LoadConnsByUID(UserId)
 	if conns == nil {
 		logger.Sugar.Warn("conn id nil")
 		return nil
@@ -145,8 +149,8 @@ func (h *handler) DeliverMessageByUID(UserId int64, mp pbs.MsgPackage) error {
 
 // 投递消息
 func (h *handler) DeliverMessageByUIDAndDID(UserId int64, DeviceID string, mp pbs.MsgPackage) error {
-	// 获取设备对应的WS连接
-	conns := WSServer.LoadConnsByUID(UserId)
+	// 获取设备对应的TCP连接
+	conns := LoadConnsByUID(UserId)
 	if conns == nil {
 		logger.Sugar.Warn("conn id nil")
 		return nil
@@ -161,8 +165,8 @@ func (h *handler) DeliverMessageByUIDAndDID(UserId int64, DeviceID string, mp pb
 }
 
 func (h *handler) DeliverMessageByUIDAndNotDID(UserId int64, DeviceID string, mp pbs.MsgPackage) error {
-	// 获取设备对应的WS连接
-	conns := WSServer.LoadConnsByUID(UserId)
+	// 获取设备对应的TCP连接
+	conns := LoadConnsByUID(UserId)
 	if conns == nil {
 		logger.Sugar.Warn("conn id nil")
 		return nil

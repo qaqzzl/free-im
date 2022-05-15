@@ -1,4 +1,4 @@
-package tcp_conn
+package connect
 
 import (
 	"bytes"
@@ -25,7 +25,7 @@ func (p *protocol) Decode(conn *Conn) (mp pbs.MsgPackage, err error) {
 	// 前是有效的。如果切片长度小于 n，则返回一个错误信息说明原因。
 	// 如果 n 大于缓存的总大小，则返回 ErrBufferFull。
 	var headInt = p.headerLen
-	headByte, err := conn.r.Peek(headInt)
+	headByte, err := conn.TCPReader.Peek(headInt)
 	if err != nil {
 		return mp, err
 	}
@@ -46,7 +46,7 @@ func (p *protocol) Decode(conn *Conn) (mp pbs.MsgPackage, err error) {
 	}
 
 	// Buffered 返回缓存中未读取的数据的长度
-	if int32(conn.r.Buffered()) < len {
+	if int32(conn.TCPReader.Buffered()) < len {
 		return mp, err
 	}
 	// 读取消息真正的内容
@@ -58,7 +58,7 @@ func (p *protocol) Decode(conn *Conn) (mp pbs.MsgPackage, err error) {
 	// 出到 p 中。
 	// 2、len(p) < 缓存大小，则先将数据从底层 io.Reader 中读取到缓存
 	// 中，再从缓存读取到 p 中。
-	n, err := conn.r.Read(pack)
+	n, err := conn.TCPReader.Read(pack)
 	if err != nil {
 		return mp, err
 	}

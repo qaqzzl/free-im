@@ -1,4 +1,4 @@
-package tcp_conn
+package connect
 
 import (
 	"context"

@@ -10,6 +10,25 @@ MySQL: "root:root@tcp(127.0.0.1:3306)/free_im?charset=utf8mb4"
 RedisIP: "127.0.0.1:6379"
 RedisAuth: ""
 
+# logic 模块配置
+LogicConf:
+  RPCListenAddr: ":5000"
+  ConnRPCAddrs: "127.0.0.1:5001"
+
+# conn 模块配置
+ConnectConf:
+  TCPListenAddr: ":2000"
+  WSListenAddr:  ":2001"
+  RPCListenAddr: ":5001"
+  LogicRPCAddrs: "127.0.0.1:5000"
+
+# http 模块配置
+HttpConf:
+  HttpListenAddr: ":8080"
+  RPCListenAddr: ":5003"
+  LogicRPCAddrs: "127.0.0.1:5000"
+
+
 # 阿里云短信
 AliYunSmsAccessKeyID: ""
 AliYunSmsAccessKeySecret: ""
@@ -20,31 +39,3 @@ QiniuSecretKey: ""
 
 # QQ互联APPID
 QQAuthAppID: ""
-
-# logic 模块配置
-LogicConf:
-  RPCListenAddr: ":5000"
-  ConnRPCAddrs: "127.0.0.1:5001,127.0.0.1:5002"
-
-# TCP conn 模块配置
-TCPConnConf:
-  TCPListenAddr: ":2000"
-  RPCListenAddr: ":5001"
-  LogicRPCAddrs: "127.0.0.1:5000"
-
-# WS conn 模块配置
-WSConnConf:
-  WSListenAddr: ":2001"
-  RPCListenAddr: ":5002"
-  LogicRPCAddrs: "127.0.0.1:5000"
-
-# http 模块配置
-HttpConf:
-  HttpListenAddr: ":8080"
-  RPCListenAddr: ":5003"
-  LogicRPCAddrs: "127.0.0.1:5000"
-
-# 监控模块
-MonitorConf:
-  WSListenAddr: ":8081"
-  RPCListenAddr: ":5004"

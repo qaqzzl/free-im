@@ -1,4 +1,4 @@
-package tcp_conn
+package connect
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ func SystemMonitor() {
 		for {
 			<-ticker.C
 			fmt.Println("-----------------------------------")
-			fmt.Println("连接用户数: ", TCPServer.ServerConnPool.Count())
-			for key, vo := range TCPServer.ServerConnPool.Items() {
+			fmt.Println("连接用户数: ", ConnPool.Count())
+			for key, vo := range ConnPool.Items() {
 				fmt.Println("--------------")
 				fmt.Println("连接用户ID: ", key)
 				ConcurrentMap := vo.(cmap.ConcurrentMap)
