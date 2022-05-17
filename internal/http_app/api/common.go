@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"free-im/config"
 	"free-im/pkg/http"
-	"free-im/pkg/logger"
 	"free-im/pkg/protos/pbs"
 	"free-im/pkg/rpc_client"
 	"free-im/pkg/service/id"
@@ -108,7 +107,6 @@ func PushMessage(c *gin.Context) {
 	}
 	// todo 权限验证 code 。。。
 	if req.ChatroomID == 0 {
-		logger.Sugar.Error("聊天室ID不能为空")
 		http.RespFail(c, "聊天室ID不能为空")
 		return
 	}
@@ -140,7 +138,5 @@ func PushMessage(c *gin.Context) {
 	ret["device_id"] = http.GetDeviceId(c)
 	ret["client_type"] = http.GetClientType(c)
 	ret["message_send_time"] = m.MessageSendTime
-	fmt.Println(req)
-	fmt.Println(ret)
 	http.RespOk(c, ret, "")
 }
