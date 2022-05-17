@@ -111,7 +111,7 @@ func PushMessage(c *gin.Context) {
 		return
 	}
 
-	var message_id = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType_Single)
+	var message_id = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType(req.ChatroomType))
 	var m = &pbs.MsgItem{
 		Code:            pbs.MessageCode(req.Code),
 		ChatroomType:    pbs.ChatroomType(req.ChatroomType),
