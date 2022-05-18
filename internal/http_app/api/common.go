@@ -140,3 +140,50 @@ func PushMessage(c *gin.Context) {
 	ret["message_send_time"] = m.MessageSendTime
 	http.RespOk(c, ret, "")
 }
+
+func SendMessage(c *gin.Context) {
+	var req struct {
+		ChatroomID   int64  `json:"ChatroomId"`
+		ChatroomType int    `json:"ChatroomType"`
+		Code         int    `json:"Code"`
+		Content      string `json:"Content"`
+		ID           string `json:"id"`
+	}
+	if http.ReqBin(c, &req) != nil {
+		return
+	}
+	// todo 权限验证 code 。。。
+	if req.ChatroomID == 0 {
+		http.RespFail(c, "聊天室ID不能为空")
+		return
+	}
+
+	var message_id = id.MessageID.GetId(req.ChatroomID, pbs.ChatroomType(req.ChatroomType))
+	var m = &pbs.MsgItem{
+		Code:            pbs.MessageCode(req.Code),
+		ChatroomType:    pbs.ChatroomType(req.ChatroomType),
+		ChatroomId:      req.ChatroomID,
+		Content:         req.Content,
+		MessageId:       message_id,
+		UserId:          http.GetUid(c),
+		DeviceID:        http.GetDeviceId(c),
+		ClientType:      http.GetClientType(c),
+		MessageSendTime: time.Now().Unix(),
+	}
+	_, _ = rpc_client.LogicInit.MessageReceive(context.TODO(), &pbs.MessageReceiveReq{
+		Message: m,
+	})
+
+	ret := make(map[string]interface{})
+	ret["id"] = req.ID
+	ret["code"] = req.Code
+	ret["chatroom_type"] = req.ChatroomType
+	ret["chatroom_id"] = req.ChatroomID
+	ret["content"] = req.Content
+	ret["message_id"] = message_id
+	ret["user_id"] = http.GetUid(c)
+	ret["device_id"] = http.GetDeviceId(c)
+	ret["client_type"] = http.GetClientType(c)
+	ret["message_send_time"] = m.MessageSendTime
+	http.RespOk(c, ret, "")
+}

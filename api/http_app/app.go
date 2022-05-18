@@ -62,6 +62,7 @@ func setupRouter() *gin.Engine {
 		authorized.POST("/dynamic/list", app_http.DynamicList)                                 // 动态列表
 		authorized.POST("/common/get.message.id", app_http.GetMessageId)                       // 获取消息ID
 		authorized.POST("/message/push.message", app_http.PushMessage)                         // 发送消息
+		authorized.POST("/message/send.message", app_http.SendMessage)                         // 发送消息
 	}
 
 	return r
