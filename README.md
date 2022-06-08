@@ -72,6 +72,5 @@ exec: "gcc": executable file not found in %PATH%
 https://jmeubank.github.io/tdm-gcc/download/
 ```
 
-### API接口文档
-https://www.apizza.net/project/88dcdb7080c14030f5005d67132f5617/browse
+
 
