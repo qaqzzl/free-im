@@ -4,8 +4,7 @@ go 1.13
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.304
-	github.com/gin-gonic/gin v1.7.7
-	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/gin-gonic/gin v1.9.0
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/gomodule/redigo v2.0.0+incompatible
@@ -17,14 +16,11 @@ require (
 	github.com/qiniu/api.v7/v7 v7.4.1
 	github.com/spf13/afero v1.8.1 // indirect
 	github.com/spf13/viper v1.10.1
-	github.com/ugorji/go v1.2.7 // indirect
 	go.uber.org/zap v1.17.0
-	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/net v0.7.0
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
 	google.golang.org/grpc v1.43.0
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.0.5
